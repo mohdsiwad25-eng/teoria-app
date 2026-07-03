@@ -372,7 +372,7 @@ img{display:block}
    ================================================================== */
 
 const CFG = {
-  VERSION: "2.0.0",       // ⬅ غيّر هذا الرقم مع كل تحديث ترفعه (مثلاً 2.0.1)
+  VERSION: "2.0.1",       // ⬅ غيّر هذا الرقم مع كل تحديث ترفعه (مثلاً 2.0.1)
   REPO: "mohdsiwad25-eng/teoria-app",
   INSTRUCTOR: "المدرب محمد سواد",
   AREA: "بيت لحم",
@@ -610,9 +610,14 @@ function explainQ(q){
   if(codes.length && DATA.signals[codes[0]]){
     ex=`الشاخصة ${DATA.signals[codes[0]].code_ar}: ${DATA.signals[codes[0]].text}`;
   }else{
+    // نعرض مقطع من الكتاب فقط إذا كانت المطابقة قوية جداً (تجنّب شرح غير مرتبط)
     const toks=[...new Set(normAr(q.question).split(" ").filter(t=>t.length>2))];
     const bk=searchBook(toks,1);
-    if(bk.length && bk[0].hit>=1 && bk[0].sc>=4) ex=fixBook(bk[0].text);
+    if(bk.length && bk[0].hit>=4 && bk[0].sc>=10){
+      let t=fixBook(bk[0].text);
+      if(t.length>220) t=t.slice(0,220)+"…";
+      ex=t;
+    }
   }
   return `<div class="explain"><b>💡 لماذا؟</b> الإجابة الصحيحة: «${esc(stripCodes(q[cor]))}».${ex?`<br><span style="color:var(--muted)">📖 ${esc(ex)}</span>`:""}</div>`;
 }
