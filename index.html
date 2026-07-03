@@ -1,8 +1,12 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<!-- منع تخزين نسخة قديمة من الصفحة -->
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <title>توريا فلسطين — المدرب محمد سواد</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -192,6 +196,24 @@ img{display:block}
 .brand-footer b{color:var(--primary);font-weight:900}
 .hidden{display:none!important}
 
+/* ============ إشارات للمبتدئين ============ */
+.beg-intro-card{background:var(--surface);border-radius:20px;padding:17px;margin-top:14px;font-size:14px;line-height:1.8;box-shadow:var(--shadow-s);font-weight:600}
+.beg-intro-card b{color:#1f8a55;font-weight:900}
+.beg-book{background:#eef8f2;border-radius:16px;padding:13px 15px;margin-top:10px;font-size:13px;line-height:1.8;color:#1c4a33;font-weight:600}
+.beg-sig-card{background:var(--surface);border-radius:24px;padding:24px 20px;text-align:center;box-shadow:var(--shadow);margin-top:4px}
+.beg-sig-card .bsc-tag{display:inline-block;background:#e9f7f0;color:#1f8a55;font-weight:900;font-size:12px;padding:5px 14px;border-radius:30px;margin-bottom:14px}
+.beg-sig-card .bsc-img{width:150px;height:150px;margin:0 auto;background:#fff;border-radius:20px;display:grid;place-items:center;padding:12px;box-shadow:0 8px 24px rgba(28,20,32,.1)}
+.beg-sig-card .bsc-img img{max-width:100%;max-height:100%;object-fit:contain}
+.beg-sig-card .bsc-code{font-size:15px;font-weight:900;color:#1f8a55;margin-top:14px}
+.beg-sig-card .bsc-txt{font-size:17px;font-weight:800;line-height:1.7;margin-top:6px}
+.beg-sig-card .bsc-note{font-size:12.5px;color:var(--muted);font-weight:700;margin-top:12px;background:var(--surface-2);border-radius:12px;padding:8px}
+.beg-pin{display:flex;align-items:center;gap:11px;background:#e9f7f0;border-radius:16px;padding:10px 13px}
+.beg-pin .bp-img{width:52px;height:52px;background:#fff;border-radius:12px;display:grid;place-items:center;flex:none;font-size:24px;padding:4px;box-shadow:0 3px 8px rgba(0,0,0,.07)}
+.beg-pin .bp-img img{max-width:100%;max-height:100%;object-fit:contain}
+.beg-pin .bp-tx{font-size:12.5px;font-weight:700;line-height:1.5}
+.beg-pin .bp-tx b{color:#1f8a55}
+.beg-pin .bp-n{font-size:11px;color:var(--muted);margin-top:2px}
+
 /* ============ التحفيز ============ */
 .motivate{font-size:16px;font-weight:900;color:var(--primary);margin:6px 0 10px}
 .level-bar{background:var(--surface-2);border-radius:14px;padding:12px 14px;margin:6px 0 14px;text-align:right}
@@ -350,6 +372,7 @@ img{display:block}
    ================================================================== */
 
 const CFG = {
+  VERSION: "2.0.0",       // ⬅ غيّر هذا الرقم مع كل تحديث ترفعه (مثلاً 2.0.1)
   REPO: "mohdsiwad25-eng/teoria-app",
   INSTRUCTOR: "المدرب محمد سواد",
   AREA: "بيت لحم",
@@ -424,7 +447,28 @@ const TP = {
 window.TP = TP;
 
 /* ================= التمهيد ومفتاح الإيقاف ================= */
+// فاحص التحديث — يجيب الصفحة من السيرفر (متجاوزاً الكاش) ويقارن الإصدار
+async function checkForUpdate(){
+  try{
+    const u = location.origin + location.pathname + "?u=" + Date.now();
+    const r = await fetch(u, {cache:"no-store"});
+    if(!r.ok) return;
+    const t = await r.text();
+    const m = t.match(/VERSION:\s*"([\d.]+)"/);
+    if(m && m[1] !== CFG.VERSION){
+      // نسخة أجدد موجودة — أعد التحميل مرة وحدة بس (حماية من التكرار)
+      if(sessionStorage.getItem("upd_done")!==m[1]){
+        sessionStorage.setItem("upd_done", m[1]);
+        location.reload();
+      }
+    }
+  }catch(e){/* بدون نت أو فشل — تجاهل */}
+}
+
 async function boot(){
+  // 0) فحص التحديث: لو في نسخة أجدد على السيرفر، حدّث الصفحة تلقائياً (مرة وحدة)
+  checkForUpdate();
+
   // 1) مفتاح الإيقاف
   try{
     const r = await fetch(CONFIG_URL+"?t="+Date.now(),{cache:"no-store"});
@@ -630,7 +674,8 @@ const ACTIONS={
   progress:()=>progress(),
   daily:()=>daily(),
   mistakes:()=>startExam('mistakes'),
-  flagged:()=>startExam('flagged')
+  flagged:()=>startExam('flagged'),
+  beg:()=>begIntro()
 };
 function gate(action){
   if(UNLOCKED){ ACTIONS[action](); return; }
@@ -708,6 +753,10 @@ function home(){
       <div class="stat"><div class="n">${DATA.meta.total_exams}</div><div class="l">امتحان</div></div>
     </div>
     <div class="menu">
+      <button class="card" onclick="gate('beg')">
+        <div class="ic a" style="background:linear-gradient(135deg,#e9f7f0,#cdeeda);color:#1f8a55"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3l9 6-9 6-9-6 9-6z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M5 12v5c0 1.5 3 3 7 3s7-1.5 7-3v-5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
+        <div class="tx"><h3>إشارات للمبتدئين 🌱</h3><p>تعلّم كل إشارة ومعناها، وحِل أسئلتها الرسمية خطوة بخطوة</p></div><div class="arrow">‹</div>
+      </button>
       <button class="card" onclick="gate('exam')">
         <div class="ic g"><svg viewBox="0 0 24 24" fill="none"><path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="4" width="18" height="16" rx="3" stroke="currentColor" stroke-width="2"/></svg></div>
         <div class="tx"><h3>امتحان رسمي</h3><p>${CFG.EXAM_LEN} سؤال · ${CFG.EXAM_MINUTES} دقيقة · مثل الامتحان الحقيقي</p></div><div class="arrow">‹</div>
@@ -1072,6 +1121,232 @@ function daily(){
     <div style="height:12px"></div>
     <div style="text-align:center;color:var(--muted);font-size:13px">كل يوم بتخلّصه = +١٠ نقاط وسلسلة أطول 💪</div>
   </div>`);
+}
+
+/* ================= إشارات للمبتدئين ================= */
+const BKEY="tp_beg_v1";
+function getBeg(){ return STORE.get(BKEY,{idx:0,answered:{},done:false}); }
+function saveBeg(b){ STORE.set(BKEY,b); }
+
+// أسئلة نصية مخصّصة (بدون رمز صورة) — تُحدَّد بنص السؤال
+const BEG_TEXT_INTRO=[ // شاخصات عامة — بأول القسم
+  "المسافة بين شاخصة تحذير",
+  "شاخصة على شكل مثلث"
+];
+const BEG_TEXT_TL=[ // الإشارة الضوئية — تُعرض مع قسم هـ
+  "الضوء الاحمر في الاشارة الضوئية",
+  "تقف قبل الاشارة الضوئية وتريد الاستدارة",
+  "دخلت المفترق بضوء اخضر",
+  "هل يجب العمل دائما بموجب الضوء الاخضر",
+  "ضوء اخضر متقطع في الاشارة الضوئية"
+];
+const BEG_STOP_Q="عندما توجد الاشارة"; // سؤال «قف» → يُربط بـ ب-37
+
+let BEG_SEQ=null;
+function buildBegSeq(){
+  if(BEG_SEQ) return BEG_SEQ;
+  // 1) اجمع أسئلة كل إشارة + الأسئلة النصية
+  const byCode={}, introQ=[], tlQ=[]; let stopQ=null;
+  Object.entries(DATA.exams).forEach(([ex,qs])=>{
+    qs.forEach(q=>{
+      const qq={...q,ex:String(ex)};
+      const all=(q.question||"")+" "+(q.a||"")+" "+(q.b||"")+" "+(q.c||"")+" "+(q.d||"");
+      const codes=[...new Set([...all.matchAll(/\[\[(\w+)\]\]/g)].map(m=>m[1]))];
+      if(codes.length){
+        codes.forEach(c=>{ (byCode[c]=byCode[c]||[]).push(qq); });
+      }else{
+        const t=q.question||"";
+        if(BEG_TEXT_INTRO.some(s=>t.includes(s))) introQ.push(qq);
+        else if(BEG_TEXT_TL.some(s=>t.includes(s))) tlQ.push(qq);
+        else if(t.includes(BEG_STOP_Q)&&t.includes("قف")) stopQ=qq;
+      }
+    });
+  });
+  if(stopQ) (byCode["b37"]=byCode["b37"]||[]).push(stopQ); // سؤال «قف» مع شاخصة قف
+  // 2) ترتيب الإشارات: حسب القسم الرسمي (a,b,c,d,e,f) ثم الرقم
+  const order={a:1,b:2,c:3,d:4,e:5,f:6};
+  const codes=Object.keys(DATA.signals).sort((x,y)=>{
+    const [,lx,nx]=x.match(/^([a-z]+)(\d+)$/)||[,x,0], [,ly,ny]=y.match(/^([a-z]+)(\d+)$/)||[,y,0];
+    return (order[lx]||9)-(order[ly]||9) || (+nx)-(+ny);
+  });
+  // 3) ابنِ التسلسل
+  const seq=[];
+  introQ.forEach(q=>seq.push({t:"tq",q,tag:"🚸 سؤال عام عن الشاخصات"}));
+  let tlInserted=false;
+  codes.forEach(c=>{
+    const qs=byCode[c];
+    // أسئلة الإشارة الضوئية النصية — قبل أول إشارة من قسم هـ (e)
+    if(!tlInserted && c[0]==="e"){
+      tlQ.forEach(q=>seq.push({t:"tq",q,tag:"🚦 سؤال الإشارة الضوئية"}));
+      tlInserted=true;
+    }
+    if(qs&&qs.length){
+      seq.push({t:"sig",c,n:qs.length});
+      qs.forEach((q,i)=>seq.push({t:"sq",c,q,i:i+1,n:qs.length}));
+    }
+  });
+  if(!tlInserted) tlQ.forEach(q=>seq.push({t:"tq",q,tag:"🚦 سؤال الإشارة الضوئية"}));
+  // 4) إشارات بلا أسئلة — للحفظ بالنهاية
+  const noQ=codes.filter(c=>!byCode[c]||!byCode[c].length);
+  if(noQ.length) seq.push({t:"mem",codes:noQ});
+  BEG_SEQ=seq;
+  return seq;
+}
+
+function begIntro(){
+  TP.log('open_beg');
+  const seq=buildBegSeq(), b=getBeg();
+  const sigCount=seq.filter(u=>u.t==="sig").length;
+  const qCount=seq.filter(u=>u.t==="sq"||u.t==="tq").length;
+  // شرح من كتاب التوريا
+  let bookHtml="";
+  const bk=searchBook(["الشاخصات","شاخصة","اشارات","المرور"],2);
+  if(bk.length) bookHtml=bk.map(x=>`<div class="beg-book">📖 ${esc(fixBook(x.text))}</div>`).join("");
+  root.innerHTML=chrome(null);
+  setView(`<div class="screen">
+    <div class="hero" style="background:linear-gradient(140deg,#1f8a55,#136b40 60%,#0c4b2c)">
+      <h2>إشارات للمبتدئين 🌱</h2>
+      <p>تعلّم كل إشارة ومعناها، وجرّب حالك على أسئلتها الرسمية فوراً — خطوة بخطوة.</p>
+    </div>
+    <div class="prog-stats" style="margin-top:16px">
+      <div class="pstat"><div class="n">${sigCount}</div><div class="l">إشارة</div></div>
+      <div class="pstat"><div class="n">${qCount}</div><div class="l">سؤال رسمي</div></div>
+      <div class="pstat"><div class="n">${b.idx?Math.round(b.idx/seq.length*100):0}%</div><div class="l">تقدّمك</div></div>
+    </div>
+    <div class="beg-intro-card">
+      <b>🚸 شو هي الشاخصات؟</b><br>
+      شاخصات المرور هي لغة الطريق — بتحذّرك من الأخطار، بتعطيك تعليمات، وبتوجّهك.
+      حفظها ضروري للامتحان النظري وللسواقة الآمنة.
+      <br><br><b>ليش هالطريقة؟</b> بدل الحفظ الجاف، بتشوف الإشارة وبتفهم معناها،
+      وبعدها <b>مباشرة</b> بتحل أسئلتها الرسمية اللي بتيجي بالامتحان — تعليم وتطبيق مع بعض.
+    </div>
+    ${bookHtml}
+    <div style="height:14px"></div>
+    ${b.idx>0&&!b.done?`<button class="btn" onclick="begUnit(${b.idx})">▶ كمّل من وين وقفت (${b.idx}/${seq.length})</button>
+    <div style="height:10px"></div>
+    <button class="btn sec" onclick="begRestart()">↺ ابدأ من الأول</button>`
+    :`<button class="btn" style="background:linear-gradient(135deg,#1f8a55,#136b40)" onclick="begUnit(0)">🚀 ابدأ التعلّم →</button>`}
+  </div>`);
+}
+function begRestart(){ if(confirm("تبدأ من أول إشارة؟ تقدّمك بالقسم بينمسح (نقاطك بتضل).")){ saveBeg({idx:0,answered:{},done:false}); begUnit(0); } }
+
+function begUnit(i){
+  const seq=buildBegSeq();
+  if(i>=seq.length){ return begDone(); }
+  const b=getBeg(); if(i>b.idx){ b.idx=i; } saveBeg(b);
+  const u=seq[i];
+  const pct=Math.round(i/seq.length*100);
+  const head=`<div class="quiz-head"><div class="progress-wrap">
+      <div class="progress-bar"><div class="progress-fill" style="width:${pct}%;background:linear-gradient(90deg,#1f8a55,#3bb273)"></div></div>
+      <div class="q-count">${i+1} / ${seq.length} · ${pct}%</div>
+    </div>
+    <button class="btn sm ghost" style="flex:none;width:auto" onclick="begIntro()">✕</button></div>`;
+
+  root.innerHTML=chrome(null);
+
+  if(u.t==="sig"){ // بطاقة تعلّم الإشارة
+    const s=DATA.signals[u.c];
+    setView(`<div class="screen">${head}
+      <div class="beg-sig-card">
+        <div class="bsc-tag">إشارة جديدة 🌱</div>
+        <div class="bsc-img">${s.no_image?`<span class="noimg" style="font-size:40px">🚸</span>`:`<img src="${IMG_BASE}${u.c}.jpg" alt="${esc(s.code_ar)}" onerror="this.outerHTML='<span style=\\'font-size:40px\\'>🚸</span>'">`}</div>
+        <div class="bsc-code">${esc(s.code_ar)}</div>
+        <div class="bsc-txt">${esc(s.text)}</div>
+        <div class="bsc-note">📝 عليها <b>${u.n}</b> ${u.n===1?"سؤال رسمي":"أسئلة رسمية"} بالامتحانات</div>
+      </div>
+      <div style="height:14px"></div>
+      <button class="btn" style="background:linear-gradient(135deg,#1f8a55,#136b40)" onclick="begUnit(${i+1})">فهمتها — ورّيني أسئلتها ←</button>
+    </div>`);
+  }
+  else if(u.t==="sq"||u.t==="tq"){ // سؤال (مع إشارته المثبّتة فوق، أو نصي)
+    const q=u.q;
+    const pin = u.t==="sq" ? (()=>{const s=DATA.signals[u.c];return `<div class="beg-pin">
+        <div class="bp-img">${s.no_image?"🚸":`<img src="${IMG_BASE}${u.c}.jpg" onerror="this.outerHTML='🚸'">`}</div>
+        <div class="bp-tx"><b>${esc(s.code_ar)}</b> — ${esc(s.text)}<div class="bp-n">سؤال ${u.i} من ${u.n} على هاي الإشارة</div></div>
+      </div>`;})() : `<div class="beg-pin" style="background:#fff7e8"><div class="bp-img">${u.tag.startsWith("🚦")?"🚦":"🚸"}</div><div class="bp-tx"><b>${esc(u.tag)}</b><div class="bp-n">بدون صورة — بيجي هيك بالامتحان</div></div></div>`;
+    const k=qKey(q), prev=getBeg().answered[k];
+    setView(`<div class="screen">${head}
+      ${pin}
+      <div class="q-card" style="margin-top:12px">
+        <div class="q-num">امتحان ${q.ex}</div>
+        <div class="q-text">${renderSig(q.question,true)}</div>
+        <div class="opts" id="begOpts">
+          ${LET.map((L,j)=>{const key=["a","b","c","d"][j];return `<button class="opt" id="bo${j}" onclick="begAnswer(${i},${j})"><span class="lbl">${L}</span><span class="otx">${renderSig(q[key])}</span></button>`;}).join("")}
+        </div>
+        <div id="begFx"></div>
+      </div>
+      <div style="height:12px"></div>
+      <div id="begNext">${prev!=null?`<button class="btn" onclick="begUnit(${i+1})">التالي ←</button>`:""}</div>
+    </div>`);
+    if(prev!=null) begReveal(i,prev,false);
+  }
+  else if(u.t==="mem"){ // إشارات للحفظ فقط
+    setView(`<div class="screen">${head}
+      <div class="sec-title">📌 إشارات للحفظ</div>
+      <p style="color:var(--muted);margin:-6px 0 12px;font-size:14px">هاي الإشارات ما إجا عليها أسئلة بالامتحانات الرسمية — بس مهم تعرفها وتحفظها.</p>
+      <div class="sig-grid">
+        ${u.codes.map(c=>{const s=DATA.signals[c];return `<div class="sig"><div class="imgw">${s.no_image?`<span class="noimg">🚸</span>`:`<img src="${IMG_BASE}${c}.jpg" loading="lazy" onerror="this.parentElement.innerHTML='<span class=noimg>🚸</span>'">`}<span class="code">${esc(s.code_ar)}</span></div><div class="txt">${esc(s.text)}</div></div>`;}).join("")}
+      </div>
+      <div style="height:14px"></div>
+      <button class="btn" style="background:linear-gradient(135deg,#1f8a55,#136b40)" onclick="begUnit(${i+1})">حفظتهن — خلّصني 🎉</button>
+    </div>`);
+  }
+}
+
+function begAnswer(i,j){
+  const seq=buildBegSeq(), u=seq[i], q=u.q;
+  const corIdx=+q.answer-1, ok=j===corIdx;
+  const b=getBeg(); const k=qKey(q);
+  const first=b.answered[k]==null;
+  b.answered[k]=j; saveBeg(b);
+  if(first){ // سجّل بالتقدّم العام (مرة وحدة بس)
+    const p=getProg(); const tp=topicOf(q);
+    p.answered++; if(ok){p.correct++; p.points+=2;}
+    p.byTopic[tp]=p.byTopic[tp]||{seen:0,correct:0};
+    p.byTopic[tp].seen++; if(ok)p.byTopic[tp].correct++;
+    if(!ok && !p.mistakes.some(m=>qKey(m)===k)) p.mistakes.push({id:q.id,ex:q.ex,question:q.question,a:q.a,b:q.b,c:q.c,d:q.d,answer:q.answer});
+    checkBadges(p); saveProg(p);
+  }
+  TP.log('beg_answer',{ok});
+  begReveal(i,j,true);
+}
+function begReveal(i,j,fresh){
+  const seq=buildBegSeq(), u=seq[i], q=u.q, corIdx=+q.answer-1;
+  LET.forEach((L,x)=>{
+    const el=$("#bo"+x); if(!el)return;
+    el.disabled=true;
+    if(x===corIdx)el.classList.add("correct");
+    else if(x===j)el.classList.add("wrong");
+  });
+  const fx=$("#begFx");
+  if(fx) fx.innerHTML = (j===corIdx?`<div class="motivate" style="margin-top:12px">✅ صح عليك!</div>`:`<div class="motivate" style="margin-top:12px;color:var(--danger)">❌ ولا يهمك — شوف ليش:</div>`) + explainQ(q) + askTeacherBtn(q);
+  const nx=$("#begNext");
+  if(nx) nx.innerHTML=`<button class="btn" onclick="begUnit(${i+1})">التالي ←</button>`;
+}
+
+function begDone(){
+  const b=getBeg(); b.done=true; saveBeg(b);
+  const seq=buildBegSeq();
+  const qs=seq.filter(u=>u.t==="sq"||u.t==="tq");
+  let cor=0; qs.forEach(u=>{ if(b.answered[qKey(u.q)]===+u.q.answer-1)cor++; });
+  const pct=qs.length?Math.round(cor/qs.length*100):0;
+  TP.log('beg_done',{cor,total:qs.length});
+  root.innerHTML=chrome(null);
+  setView(`<div class="screen">
+    <div class="confetti" id="confetti"></div>
+    <div class="result-card">
+      <div class="result-badge pass">🎓 خلّصت القسم!</div>
+      <div style="font-size:44px;margin:10px 0">🌱→🌳</div>
+      <div class="motivate">مبروك! تعلّمت كل الإشارات وحلّيت أسئلتها</div>
+      <div class="result-sub">جاوبت صح على <b>${cor}</b> من <b>${qs.length}</b> سؤال (${pct}%)</div>
+      <button class="btn" onclick="gate('exam')">🚀 جرّب حالك بامتحان كامل</button>
+      <div style="height:10px"></div>
+      <button class="btn sec" onclick="begRestart()">↺ أعد القسم من الأول</button>
+      <div style="height:10px"></div>
+      <button class="btn ghost" onclick="home()">الرئيسية</button>
+    </div>
+  </div>`);
+  fireConfetti();
 }
 
 /* ================= مكتبة الإشارات ================= */
