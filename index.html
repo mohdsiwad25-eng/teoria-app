@@ -372,7 +372,7 @@ img{display:block}
    ================================================================== */
 
 const CFG = {
-  VERSION: "2.0.1",       // ⬅ غيّر هذا الرقم مع كل تحديث ترفعه (مثلاً 2.0.1)
+  VERSION: "2.1.0",       // ⬅ غيّر هذا الرقم مع كل تحديث ترفعه (مثلاً 2.0.1)
   REPO: "mohdsiwad25-eng/teoria-app",
   INSTRUCTOR: "المدرب محمد سواد",
   AREA: "بيت لحم",
@@ -601,6 +601,34 @@ function topicOf(q){
   return "laws";
 }
 function qKey(q){ return q.ex+"-"+q.id; }
+
+// ===== تصنيف الأسئلة (غير الإشارات) إلى 3 أقسام =====
+const SECTIONS={
+  driving:{name:"قواعد السياقة",icon:"🚗",c:"#2f6cc4",desc:"أولوية · تجاوز · استدارة · وقوف · مسافات"},
+  laws:{name:"قوانين وتعريفات",icon:"📋",c:"#8e1e3c",desc:"تعريفات · حوادث · حزام · إطاعة · كحول"},
+  vehicle:{name:"المركبة والأضواء",icon:"🔧",c:"#1f8a55",desc:"الأضواء · المعتام · مثلث التحذير · الأعطال"}
+};
+// يرجّع القسم، أو null إذا كان السؤال عن إشارة (له صورة/رمز)
+function sectionOf(q){
+  const raw=(q.question||"")+" "+(q.a||"")+" "+(q.b||"")+" "+(q.c||"")+" "+(q.d||"");
+  if(/\[\[/.test(raw)) return null; // سؤال إشارة
+  const t=normAr(raw);
+  const has=(...ws)=>ws.some(w=>t.includes(w));
+  // 🔧 المركبة والأضواء (الأكثر تحديداً أول)
+  if(has("نور الطريق","نور الالتقاء","الضوء العالي","الضوء الواطئ","مصباح الرجوع","المعتام",
+         "مثلث التحذير","لمبه تحذير","لمبة تحذير","تفقد المحرك","check","المحرك يعمل","ملء خزان",
+         "خزان الوقود","خزان وقود","قضيب مقياس الزيت","تسرب","البطاريه","الاطار","لمبه اعطاء",
+         "لمبات اعطاء","المحرك","تصليح مركبه","يضيء نور","ينير مصباح","صيانه")) return "vehicle";
+  // 📋 قوانين وتعريفات
+  if(has("في نظر القانون","في نظر أالقانون","وقت الاناره","تعريف المسلك","تعريف","ما هو المسلك",
+         "ما هي المساحه الفاصله","المساحه الفاصله","ما هو خط التوقف","حادث طرق","له دخل في حادث",
+         "حزام الامان","المسوول","الترتيب الصحيح","الافضليه","الاطاعه","تحت تاثير","العقاقير",
+         "الكحول","المسكرات","استعمال الطريق يجب","من يجب ان يتصرف","عابر طريق","امرك شرطي",
+         "امر الشرطي","عامل اشغال","كيف تميز الطريق السريعه","كيف تميز الطريق","يجوز وقوف مركبه اصابها",
+         "الليل في نظر")) return "laws";
+  // 🚗 قواعد السياقة (الباقي)
+  return "driving";
+}
 function stripCodes(s){ return (s||"").replace(/\[\[(\w+)\]\]/g,(m,c)=>DATA.signals[c]?DATA.signals[c].code_ar:c).trim(); }
 
 function explainQ(q){
@@ -680,7 +708,8 @@ const ACTIONS={
   daily:()=>daily(),
   mistakes:()=>startExam('mistakes'),
   flagged:()=>startExam('flagged'),
-  beg:()=>begIntro()
+  beg:()=>begIntro(),
+  topics:()=>topics()
 };
 function gate(action){
   if(UNLOCKED){ ACTIONS[action](); return; }
@@ -770,6 +799,10 @@ function home(){
         <div class="ic a"><svg viewBox="0 0 24 24" fill="none"><path d="M4 6h16M4 12h16M4 18h10" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></div>
         <div class="tx"><h3>تدريب حسب الامتحان</h3><p>اختر من ${DATA.meta.total_exams} امتحان وتدرّب</p></div><div class="arrow">‹</div>
       </button>
+      <button class="card" onclick="gate('topics')">
+        <div class="ic p" style="background:linear-gradient(135deg,#e9f1fc,#dceafb);color:#2f6cc4"><svg viewBox="0 0 24 24" fill="none"><path d="M4 5h16M4 12h16M4 19h16" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><circle cx="7" cy="5" r="1.6" fill="currentColor"/><circle cx="14" cy="12" r="1.6" fill="currentColor"/><circle cx="10" cy="19" r="1.6" fill="currentColor"/></svg></div>
+        <div class="tx"><h3>تدريب حسب الموضوع</h3><p>سياقة · قوانين · مركبة وأضواء — كل موضوع لحاله</p></div><div class="arrow">‹</div>
+      </button>
       <button class="card" onclick="gate('signals')">
         <div class="ic b"><svg viewBox="0 0 24 24" fill="none"><path d="M12 2l9 5v10l-9 5-9-5V7l9-5z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/></svg></div>
         <div class="tx"><h3>مكتبة الإشارات</h3><p>كل إشارات المرور بالصور والشرح</p></div><div class="arrow">‹</div>
@@ -804,6 +837,28 @@ function chooseExam(){
 
 /* ================= الامتحان ================= */
 let timerInt=null;
+function topics(){
+  TP.log('open_topics');
+  // احسب عدد الأسئلة بكل قسم
+  const counts={driving:0,laws:0,vehicle:0};
+  ALLQ.forEach(q=>{ const s=sectionOf(q); if(s)counts[s]++; });
+  root.innerHTML=chrome(null);
+  setView(`<div class="screen">
+    <div class="sec-title">📚 تدريب حسب الموضوع</div>
+    <p style="color:var(--muted);margin:-6px 0 14px;font-size:14px">اختَر موضوع وتمرّن على أسئلته الرسمية لحاله. (الإشارات إلها قسمها الخاص 🌱)</p>
+    <div class="menu">
+      ${Object.entries(SECTIONS).map(([id,s])=>`
+        <button class="card" onclick="startExam('topic','${id}')">
+          <div class="ic" style="background:${s.c}1a;color:${s.c};font-size:26px">${s.icon}</div>
+          <div class="tx"><h3>${s.name}</h3><p>${s.desc}</p></div>
+          <div style="text-align:center;flex:none"><div style="font-size:20px;font-weight:900;color:${s.c}">${counts[id]}</div><div style="font-size:10px;color:var(--muted);font-weight:700">سؤال</div></div>
+        </button>`).join("")}
+    </div>
+    <div style="height:14px"></div>
+    <button class="btn ghost" onclick="home()">‹ الرئيسية</button>
+  </div>`);
+}
+
 function startExam(mode,examNum){
   let qs;
   if(mode==='exam'){ qs = DATA.exams[examNum].map(q=>({...q,ex:String(examNum)})); }
@@ -818,6 +873,10 @@ function startExam(mode,examNum){
     qs=shuffle(qs);
   }
   else if(mode==='daily'){ qs = shuffle(ALLQ).slice(0,10); }
+  else if(mode==='topic'){
+    qs = shuffle(ALLQ.filter(q=>sectionOf(q)===examNum)); // examNum يحمل معرّف القسم
+    if(!qs.length) return emptyState("ما في أسئلة بهالقسم","جرّب قسم ثاني.");
+  }
   else { qs = shuffle(ALLQ).slice(0,CFG.EXAM_LEN); }
   STATE = {mode, examNum, qs, idx:0, ans:new Array(qs.length).fill(null),
            endAt: (mode==='random')?Date.now()+CFG.EXAM_MINUTES*60000:null};
