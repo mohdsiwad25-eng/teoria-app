@@ -372,7 +372,7 @@ img{display:block}
    ================================================================== */
 
 const CFG = {
-  VERSION: "2.4.0",       // ⬅ غيّر هذا الرقم مع كل تحديث ترفعه (مثلاً 2.0.1)
+  VERSION: "2.5.0",       // ⬅ غيّر هذا الرقم مع كل تحديث ترفعه (مثلاً 2.0.1)
   REPO: "mohdsiwad25-eng/teoria-app",
   INSTRUCTOR: "المدرب محمد سواد",
   AREA: "بيت لحم",
@@ -479,6 +479,11 @@ async function boot(){
   try{
     const r = await fetch(DATA_URL);
     DATA = await r.json();
+    // تحميل ملف الشروحات (اختياري) — لو موجود على الريبو
+    try{
+      const er = await fetch(`https://raw.githubusercontent.com/${CFG.REPO}/main/explanations.json?t=`+Date.now(),{cache:"no-store"});
+      if(er.ok){ DATA.explanations = await er.json(); }
+    }catch(e){ /* ما في ملف شروحات = عادي */ }
     ALLQ = [];
     for(const ex in DATA.exams) DATA.exams[ex].forEach(q=>ALLQ.push({...q,ex}));
     $("#fab").style.display="flex";
@@ -633,12 +638,16 @@ function stripCodes(s){ return (s||"").replace(/\[\[(\w+)\]\]/g,(m,c)=>DATA.sign
 
 function explainQ(q){
   const cor=LET[+q.answer-1];
+  // 1) شرح جاهز مكتوب مسبقاً (الأفضل)
+  const ready = DATA.explanations && DATA.explanations[qKey(q)];
+  if(ready) return `<div class="explain"><b>💡 ليش؟</b> ${esc(ready)}</div>`;
+  // 2) سؤال إشارة → المعنى الرسمي للإشارة
   let ex="";
   const codes=[...((q.question||"")+" "+(q[cor]||"")).matchAll(/\[\[(\w+)\]\]/g)].map(m=>m[1]);
   if(codes.length && DATA.signals[codes[0]]){
-    ex=`الشاخصة ${DATA.signals[codes[0]].code_ar}: ${DATA.signals[codes[0]].text}`;
+    ex=`الشاخصة ${DATA.signals[codes[0]].code_ar} معناها: ${DATA.signals[codes[0]].text}`;
   }else{
-    // نعرض مقطع من الكتاب فقط إذا كانت المطابقة قوية جداً (تجنّب شرح غير مرتبط)
+    // 3) مقطع من الكتاب عند مطابقة قوية جداً فقط
     const toks=[...new Set(normAr(q.question).split(" ").filter(t=>t.length>2))];
     const bk=searchBook(toks,1);
     if(bk.length && bk[0].hit>=4 && bk[0].sc>=10){
