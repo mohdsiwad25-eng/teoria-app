@@ -372,7 +372,7 @@ img{display:block}
    ================================================================== */
 
 const CFG = {
-  VERSION: "2.2.0",       // ⬅ غيّر هذا الرقم مع كل تحديث ترفعه (مثلاً 2.0.1)
+  VERSION: "2.3.0",       // ⬅ غيّر هذا الرقم مع كل تحديث ترفعه (مثلاً 2.0.1)
   REPO: "mohdsiwad25-eng/teoria-app",
   INSTRUCTOR: "المدرب محمد سواد",
   AREA: "بيت لحم",
@@ -1426,13 +1426,88 @@ function topicBatch(id,b){
   const slice=TOPIC_CACHE.pool.slice(b*TOPIC_BATCH,(b+1)*TOPIC_BATCH);
   startCustom(slice,`${SECTIONS[id].name} · مجموعة ${b+1}`,'topic');
 }
-// مشغّل عام لأي مجموعة أسئلة (بدون مؤقّت، مثل التمرين)
-function startCustom(qs,label,mode){
-  STATE={mode:mode||'topic',examNum:label,qs,idx:0,ans:new Array(qs.length).fill(null),endAt:null};
-  TP.log('start_custom',{label,total:qs.length});
-  root.innerHTML=chrome(null);
-  renderQ();
+// مشغّل تدريب سؤال-سؤال مع شرح فوري (نفس أسلوب المبتدئين)
+let PRAC={qs:[],i:0,label:"",ans:{},cor:0};
+function startCustom(qs,label){
+  PRAC={qs,i:0,label,ans:{},cor:0};
+  TP.log('start_practice',{label,total:qs.length});
+  pracRun(0);
 }
+function pracRun(i){
+  const qs=PRAC.qs;
+  if(i>=qs.length) return pracDone();
+  PRAC.i=i;
+  const q=qs[i], pct=Math.round((i+1)/qs.length*100);
+  const answered=PRAC.ans[i]!=null;
+  root.innerHTML=chrome(null);
+  setView(`<div class="screen">
+    <div class="quiz-head"><div class="progress-wrap">
+      <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+      <div class="q-count">${esc(PRAC.label)} · ${i+1}/${qs.length}</div>
+    </div>
+    <button class="btn sm ghost" style="flex:none;width:auto" onclick="topics()">✕</button></div>
+    <div class="q-card">
+      <button class="flag-btn ${isFlagged(qKey(q))?'on':''}" id="flagBtn" onclick="toggleFlag('${qKey(q)}')" title="علّم للمراجعة">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M5 21V4h11l-1.5 4L16 12H5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span id="flagTxt">${isFlagged(qKey(q))?'معلّم':'علّم السؤال'}</span>
+      </button>
+      <div class="q-num">امتحان ${q.ex}</div>
+      <div class="q-text">${renderSig(q.question,true)}</div>
+      <div class="opts">
+        ${LET.map((L,j)=>{const key=["a","b","c","d"][j];return `<button class="opt" id="po${j}" onclick="pracAnswer(${j})"><span class="lbl">${LET_AR[j]}</span><span class="otx">${renderSig(q[key])}</span></button>`;}).join("")}
+      </div>
+      <div id="pracFx"></div>
+    </div>
+    <div style="height:12px"></div>
+    <div id="pracNext">${answered!=null&&PRAC.ans[i]!=null?`<button class="btn" onclick="pracRun(${i+1})">التالي ←</button>`:""}</div>
+  </div>`);
+  if(PRAC.ans[i]!=null) pracReveal(PRAC.ans[i]);
+}
+function pracAnswer(j){
+  const i=PRAC.i, q=PRAC.qs[i], corIdx=+q.answer-1, ok=j===corIdx;
+  if(PRAC.ans[i]==null){
+    PRAC.ans[i]=j; if(ok)PRAC.cor++;
+    // سجّل بالتقدّم
+    const p=getProg(), tp=topicOf(q), k=qKey(q);
+    p.answered++; if(ok){p.correct++;p.points+=2;}
+    p.byTopic[tp]=p.byTopic[tp]||{seen:0,correct:0}; p.byTopic[tp].seen++; if(ok)p.byTopic[tp].correct++;
+    if(!ok && !p.mistakes.some(m=>qKey(m)===k)) p.mistakes.push({id:q.id,ex:q.ex,question:q.question,a:q.a,b:q.b,c:q.c,d:q.d,answer:q.answer});
+    checkBadges(p); saveProg(p);
+  }
+  pracReveal(j);
+}
+function pracReveal(j){
+  const q=PRAC.qs[PRAC.i], corIdx=+q.answer-1;
+  LET.forEach((L,x)=>{ const el=$("#po"+x); if(!el)return; el.disabled=true;
+    if(x===corIdx)el.classList.add("correct"); else if(x===j)el.classList.add("wrong"); });
+  const fx=$("#pracFx");
+  if(fx) fx.innerHTML=(j===corIdx?`<div class="motivate" style="margin-top:12px">✅ صح عليك!</div>`:`<div class="motivate" style="margin-top:12px;color:var(--danger)">❌ ولا يهمك — شوف ليش:</div>`)+explainQ(q)+askTeacherBtn(q);
+  const nx=$("#pracNext"); if(nx) nx.innerHTML=`<button class="btn" onclick="pracRun(${PRAC.i+1})">التالي ←</button>`;
+}
+function pracDone(){
+  const total=PRAC.qs.length, cor=PRAC.cor, pct=total?Math.round(cor/total*100):0;
+  TP.log('practice_done',{cor,total});
+  root.innerHTML=chrome(null);
+  setView(`<div class="screen">
+    ${pct>=80?'<div class="confetti" id="confetti"></div>':''}
+    <div class="result-card">
+      <div class="result-badge ${pct>=60?'pass':'fail'}">${pct>=60?'🎉 أحسنت':'💪 كمّل تدريب'}</div>
+      <div class="result-ring">
+        <svg width="150" height="150"><circle cx="75" cy="75" r="64" fill="none" stroke="var(--line)" stroke-width="12"/>
+        <circle cx="75" cy="75" r="64" fill="none" stroke="${pct>=60?'var(--ok)':'var(--danger)'}" stroke-width="12" stroke-linecap="round" stroke-dasharray="${2*Math.PI*64}" stroke-dashoffset="${2*Math.PI*64*(1-pct/100)}"/></svg>
+        <div class="pct"><b>${cor}<span style="font-size:20px">/${total}</span></b><span>${pct}%</span></div>
+      </div>
+      <div class="motivate">${esc(PRAC.label)}</div>
+      <button class="btn" onclick="startCustom(PRAC.qs.slice(),PRAC.label)">↻ أعد نفس المجموعة</button>
+      <div style="height:10px"></div>
+      <button class="btn sec" onclick="topics()">📚 مواضيع ومجموعات ثانية</button>
+      <div style="height:10px"></div>
+      <button class="btn ghost" onclick="home()">الرئيسية</button>
+    </div>
+  </div>`);
+  if(pct>=80) fireConfetti();
+}
+
 
 /* ================= مكتبة الإشارات ================= */
 let sigFilter='a', sigSearch='';
