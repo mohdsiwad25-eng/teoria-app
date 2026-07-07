@@ -202,6 +202,26 @@ img{display:block}
 .card.big-sec h3{font-size:16.5px}
 .hub-guide{background:#fffbeb;border-radius:16px;padding:12px 15px;margin-top:14px;font-size:13.5px;line-height:1.7;color:#7a5c00;font-weight:700}
 
+/* ============ تقرير النتيجة والمشاركة ============ */
+.weak-box{background:var(--surface-2);border-radius:18px;padding:15px;margin:14px 0;text-align:right}
+.weak-box .wk-t{font-weight:900;font-size:15px;margin-bottom:10px}
+.weak-box .wk-row{display:flex;justify-content:space-between;padding:7px 4px;font-size:13.5px;font-weight:700;border-bottom:1px dashed var(--line)}
+.weak-box .wk-row:last-of-type{border-bottom:none}
+.weak-box .wk-row b{color:var(--danger)}
+.weak-box .wk-tip{margin-top:10px;font-size:12.5px;color:#7a5c00;background:#fffbeb;border-radius:12px;padding:9px 12px;font-weight:700;line-height:1.7}
+.share-app{width:100%;border:none;margin-top:16px;background:linear-gradient(135deg,#1f8a55,#136b40);color:#fff;font-family:inherit;font-weight:900;font-size:14.5px;padding:15px;border-radius:18px;cursor:pointer;box-shadow:var(--shadow-s)}
+.share-app:active{transform:scale(.98)}
+.exam-chip-cta,.exam-chip-on{width:100%;border:none;margin-top:14px;font-family:inherit;font-weight:800;font-size:13.5px;padding:13px 15px;border-radius:16px;cursor:pointer;line-height:1.6}
+.exam-chip-cta{background:var(--surface);color:var(--muted);box-shadow:var(--shadow-s)}
+.exam-chip-on{background:linear-gradient(135deg,#fff3e0,#ffe6c2);color:#8a5a00}
+.exam-chip-on b{font-size:17px}
+.ov{position:fixed;inset:0;background:rgba(20,10,16,.55);backdrop-filter:blur(4px);z-index:200;display:grid;place-items:center;padding:20px}
+.ov-card{background:var(--surface);border-radius:24px;padding:22px 20px;max-width:420px;width:100%;box-shadow:var(--shadow)}
+.ov-card h3{font-size:18px;font-weight:900;margin-bottom:8px}
+.ov-card p{font-size:13.5px;color:var(--muted);font-weight:600;line-height:1.8;margin-bottom:14px}
+.ov-card input[type=date]{width:100%;padding:13px;border:2px solid var(--line);border-radius:14px;font-family:inherit;font-size:15px;font-weight:700;margin-bottom:12px;background:var(--surface-2)}
+.ov-card .btn{margin-bottom:9px}
+
 /* ============ أزرار الصوت ============ */
 .tts-btn{width:34px;height:34px;border:none;border-radius:10px;background:var(--surface-2);font-size:15px;cursor:pointer;display:inline-grid;place-items:center;transition:.2s;vertical-align:middle;margin-inline-start:8px}
 .tts-btn:active{transform:scale(.92)}
@@ -387,7 +407,7 @@ img{display:block}
    ================================================================== */
 
 const CFG = {
-  VERSION: "2.7.1",       // ⬅ غيّر هذا الرقم مع كل تحديث ترفعه (مثلاً 2.0.1)
+  VERSION: "2.8.0",       // ⬅ غيّر هذا الرقم مع كل تحديث ترفعه (مثلاً 2.0.1)
   REPO: "mohdsiwad25-eng/teoria-app",
   INSTRUCTOR: "المدرب محمد سواد",
   AREA: "بيت لحم",
@@ -904,6 +924,7 @@ function home(){
       <div class="stat"><div class="n">${DATA.meta.total_signals}</div><div class="l">إشارة</div></div>
       <div class="stat"><div class="n">${DATA.meta.total_exams}</div><div class="l">امتحان</div></div>
     </div>
+    ${examChipHtml()}
     <div class="menu">
       <button class="card big-sec" onclick="begHub()">
         <div class="ic" style="background:linear-gradient(135deg,#e9f7f0,#cdeeda);color:#1f8a55;font-size:26px">🌱</div>
@@ -922,6 +943,7 @@ function home(){
         <div class="tx"><h3>المساعد الذكي</h3><p>اسأل عن أي إشارة أو قاعدة — بيجاوبك فوراً</p></div><div class="arrow">‹</div>
       </button>
     </div>
+    <button class="share-app" onclick="shareApp()">📤 شارك التطبيق مع أصحابك — خليهم ينجحوا معك</button>
     <div class="demo-note">
       ⚠️ هذا <b>موقع تجريبي</b> للتعريف بالخدمة.<br>
       للحصول على <b>الموقع الكامل</b> ودروس السياقة، تواصل مع <b>${CFG.INSTRUCTOR}</b>:
@@ -932,6 +954,7 @@ function home(){
       واتساب: ${CFG.WHATSAPP} · سناب: ${CFG.SNAP}
     </div>
   </div>`);
+  welcomeIfFirst();
 }
 
 /* ================= الأقسام الرئيسية (Hubs) ================= */
@@ -1129,6 +1152,21 @@ function renderResult(){
   const msgArr = pass?MOTIVATE.pass:(close?MOTIVATE.close:MOTIVATE.fail);
   const msg = msgArr[Math.floor(Math.random()*msgArr.length)];
   const nb = STATE.newBadges||[];
+  // تحليل نقاط الضعف: توزيع الأخطاء على المواضيع
+  const weak={};
+  qs.forEach((q,i)=>{
+    if(STATE.ans[i]!==LET[+q.answer-1]){
+      const raw=(q.question||"")+(q.a||"")+(q.b||"")+(q.c||"")+(q.d||"");
+      const k=/\[\[/.test(raw)?"🚸 الإشارات":(SECTIONS[sectionOf(q)]?SECTIONS[sectionOf(q)].icon+" "+SECTIONS[sectionOf(q)].name:"عام");
+      weak[k]=(weak[k]||0)+1;
+    }
+  });
+  const weakArr=Object.entries(weak).sort((a,b)=>b[1]-a[1]);
+  const weakHtml = weakArr.length?`<div class="weak-box">
+      <div class="wk-t">🎯 وين غلطت؟</div>
+      <div class="wk-rows">${weakArr.map(([k,n])=>`<div class="wk-row"><span>${k}</span><b>${n} ${n===1?"خطأ":"أخطاء"}</b></div>`).join("")}</div>
+      <div class="wk-tip">💡 ركّز مراجعتك على ${weakArr[0][0]} — أكثر مكان بتغلط فيه.</div>
+    </div>`:"";
   root.innerHTML=chrome(null);
   setView(`<div class="screen">
     ${pass?'<div class="confetti" id="confetti"></div>':''}
@@ -1147,15 +1185,140 @@ function renderResult(){
         <div class="lv-pts">${p.points} نقطة${nxt?` · باقي ${nxt.min-p.points} للترقية`:''}</div>
       </div>
       ${nb.length?`<div class="new-badges"><div class="nb-t">🎖️ أوسمة جديدة!</div><div class="nb-row">${nb.map(b=>`<div class="nb"><div class="nb-ic">${b.icon}</div><div class="nb-nm">${b.name}</div></div>`).join("")}</div></div>`:''}
-      ${pass?`<button class="btn" style="background:linear-gradient(135deg,#c98a00,#e0a92e);color:#2a2000" onclick="certificate()">🏅 شهادة النجاح (شاركها)</button><div style="height:10px"></div>`:''}
-      <button class="btn ${pass?'sec':''}" onclick="reviewExam()">📝 مراجعة الأخطاء والإجابات</button>
+      ${weakHtml}
+      ${pass?`<button class="btn" style="background:linear-gradient(135deg,#c98a00,#e0a92e);color:#2a2000" onclick="shareResultCard()">📸 شارك نتيجتك (صورة)</button><div style="height:10px"></div>`:''}
+      ${pass?`<button class="btn sec" onclick="certificate()">🏅 شهادة النجاح</button><div style="height:10px"></div>`:''}
+      <button class="btn ${pass?'ghost':''}" onclick="reviewExam()">📝 مراجعة الأخطاء والإجابات</button>
       <div style="height:10px"></div>
       <button class="btn ${pass?'ghost':'sec'}" onclick="${STATE.mode==='exam'?`startExam('exam',${STATE.examNum})`:`startExam('random')`}">🔄 إعادة</button>
-      ${p.mistakes.length?`<div style="height:10px"></div><button class="btn ghost" onclick="gate('mistakes')">🎯 راجع أخطائي (${p.mistakes.length})</button>`:''}
+      ${p.mistakes.length?`<div style="height:10px"></div><button class="btn ghost" onclick="gate('mistakes')">🎯 تدرّب على أخطائك (${p.mistakes.length})</button>`:''}
     </div>
     <div class="brand-footer">💡 للحجز مع <b>${CFG.INSTRUCTOR}</b> · واتساب ${CFG.WHATSAPP}</div>
   </div>`);
   if(pass) fireConfetti();
+}
+
+/* ============ بطاقة مشاركة النتيجة (كانفاس) ============ */
+const APP_URL="tinyurl.com/teoria26";
+async function shareResultCard(){
+  const p=getProg();
+  let nm=p.name;
+  if(!nm){ nm=(prompt("اكتب اسمك ليظهر على البطاقة:")||"").trim(); if(nm){p.name=nm;saveProg(p);} }
+  nm=nm||"طالب توريا";
+  const {correct,qs}=STATE, total=qs.length, pct=Math.round(correct/total*100);
+  TP.log('share_result_card');
+  const W=1080,H=1350, cv=document.createElement("canvas"); cv.width=W; cv.height=H;
+  const x=cv.getContext("2d");
+  // خلفية متدرجة
+  const g=x.createLinearGradient(0,0,W,H); g.addColorStop(0,"#9a2246"); g.addColorStop(.6,"#6e1631"); g.addColorStop(1,"#400c1c");
+  x.fillStyle=g; x.fillRect(0,0,W,H);
+  // زخارف دوائر
+  x.globalAlpha=.08; x.fillStyle="#fff";
+  x.beginPath();x.arc(90,120,180,0,7);x.fill();
+  x.beginPath();x.arc(W-60,H-160,220,0,7);x.fill();
+  x.globalAlpha=1;
+  x.textAlign="center"; x.direction="rtl";
+  // العنوان
+  x.fillStyle="#ffffff"; x.font="900 54px Tajawal, Arial";
+  x.fillText("توريا فلسطين 🚦",W/2,130);
+  x.font="700 34px Tajawal, Arial"; x.globalAlpha=.85;
+  x.fillText("دراسة التوريا بالذكاء الاصطناعي",W/2,185); x.globalAlpha=1;
+  // بطاقة بيضاء
+  const cx=70,cy=250,cw=W-140,ch=760,r=48;
+  x.fillStyle="#fff";
+  x.beginPath();x.moveTo(cx+r,cy);x.arcTo(cx+cw,cy,cx+cw,cy+ch,r);x.arcTo(cx+cw,cy+ch,cx,cy+ch,r);x.arcTo(cx,cy+ch,cx,cy,r);x.arcTo(cx,cy,cx+cw,cy,r);x.fill();
+  // نجحت!
+  x.fillStyle="#1f8a55"; x.font="900 72px Tajawal, Arial";
+  x.fillText("🎉 نجحت بالامتحان التجريبي",W/2,cy+120);
+  // الاسم
+  x.fillStyle="#1c1420"; x.font="900 64px Tajawal, Arial";
+  x.fillText(nm,W/2,cy+230);
+  // دائرة النتيجة
+  const ccx=W/2, ccy=cy+430, cr=130;
+  x.lineWidth=26; x.strokeStyle="#eee";
+  x.beginPath();x.arc(ccx,ccy,cr,0,7);x.stroke();
+  x.strokeStyle="#1f8a55"; x.lineCap="round";
+  x.beginPath();x.arc(ccx,ccy,cr,-Math.PI/2,-Math.PI/2+2*Math.PI*pct/100);x.stroke();
+  x.fillStyle="#1c1420"; x.font="900 84px Tajawal, Arial";
+  x.fillText(correct+"/"+total,ccx,ccy+18);
+  x.font="800 40px Tajawal, Arial"; x.fillStyle="#1f8a55";
+  x.fillText(pct+"%",ccx,ccy+75);
+  // سطر تحفيزي
+  x.fillStyle="#6d6d78"; x.font="700 36px Tajawal, Arial";
+  x.fillText("جاهز/ة لامتحان الوزاره 💪",W/2,cy+660);
+  // معلومات المدرب
+  x.fillStyle="#ffffff"; x.font="900 46px Tajawal, Arial";
+  x.fillText("👨‍🏫 "+CFG.INSTRUCTOR+" — "+CFG.AREA,W/2,H-220);
+  x.font="800 40px Tajawal, Arial"; x.globalAlpha=.95;
+  x.fillText("واتساب: "+CFG.WHATSAPP+"  ·  سناب: "+CFG.SNAP,W/2,H-150);
+  x.font="800 42px Tajawal, Arial"; x.fillStyle="#ffd66e";
+  x.fillText("جرّب حالك: "+APP_URL,W/2,H-70);
+  // مشاركة أو تنزيل
+  cv.toBlob(async b=>{
+    const f=new File([b],"teoria-result.png",{type:"image/png"});
+    if(navigator.canShare && navigator.canShare({files:[f]})){
+      try{ await navigator.share({files:[f],title:"نتيجتي بالتوريا 🎉"}); return; }catch(e){}
+    }
+    const a=document.createElement("a");
+    a.href=URL.createObjectURL(b); a.download="teoria-result.png"; a.click();
+  },"image/png");
+}
+
+/* ============ شارك التطبيق ============ */
+async function shareApp(){
+  TP.log('share_app');
+  const txt=`جرّب دراسة التوريا بالذكاء الاصطناعي 🚦🤖 أسئلة رسمية + إشارات + مساعد ذكي — مع ${CFG.INSTRUCTOR}:\nhttps://${APP_URL}`;
+  if(navigator.share){ try{ await navigator.share({title:"توريا فلسطين",text:txt}); return; }catch(e){} }
+  window.open("https://wa.me/?text="+encodeURIComponent(txt),"_blank");
+}
+
+/* ============ عدّاد الامتحان ============ */
+function examChipHtml(){
+  const p=getProg();
+  if(!p.examDate) return `<button class="exam-chip-cta" onclick="setExamDate()">📅 متى امتحانك؟ حدّد التاريخ وبنعدّلك الأيام</button>`;
+  const days=Math.ceil((new Date(p.examDate+"T00:00:00") - new Date(new Date().toDateString()))/86400000);
+  if(days<0) return `<button class="exam-chip-cta" onclick="setExamDate()">📅 مرّ تاريخ امتحانك — حدّثه</button>`;
+  const txt = days===0 ? "🍀 امتحانك اليوم! بالتوفيق يا بطل" : days===1 ? "🔥 امتحانك بكرة! راجع أخطاءك" : `🔥 باقي <b>${days}</b> يوم على امتحانك — كمّل دراسة`;
+  return `<button class="exam-chip-on" onclick="setExamDate()">${txt}</button>`;
+}
+function setExamDate(){
+  const p=getProg();
+  const ov=document.createElement("div"); ov.className="ov";
+  ov.innerHTML=`<div class="ov-card">
+    <h3>📅 تاريخ امتحان التوريا</h3>
+    <p>حدّد التاريخ وبنذكّرك بالأيام الباقية كل ما تفتح التطبيق.</p>
+    <input type="date" id="exDate" value="${p.examDate||""}" min="${new Date().toISOString().slice(0,10)}">
+    <button class="btn" onclick="saveExamDate()">حفظ</button>
+    ${p.examDate?`<button class="btn ghost" onclick="clearExamDate()">إزالة التاريخ</button>`:""}
+    <button class="btn ghost" onclick="this.closest('.ov').remove()">إلغاء</button>
+  </div>`;
+  document.body.appendChild(ov);
+}
+function saveExamDate(){
+  const v=$("#exDate").value; if(!v)return;
+  const p=getProg(); p.examDate=v; saveProg(p);
+  TP.log('set_exam_date');
+  document.querySelector(".ov").remove(); home();
+}
+function clearExamDate(){
+  const p=getProg(); delete p.examDate; saveProg(p);
+  document.querySelector(".ov").remove(); home();
+}
+
+/* ============ ترحيب أول مرة ============ */
+function welcomeIfFirst(){
+  if(STORE.get("tp_welcomed",false)) return;
+  const ov=document.createElement("div"); ov.className="ov";
+  ov.innerHTML=`<div class="ov-card" style="text-align:center">
+    <div style="font-size:52px">👋</div>
+    <h3>أهلاً فيك بتطبيق التوريا!</h3>
+    <p style="line-height:1.9">أنا تطبيق <b>${CFG.INSTRUCTOR}</b> لدراسة التوريا بالذكاء الاصطناعي.<br>
+    🌱 <b>أول مرة بالتوريا؟</b> ابدأ من قسم المبتدئين.<br>
+    📝 <b>عندك خلفية؟</b> روح اختبر حالك مباشرة.</p>
+    <button class="btn" style="background:linear-gradient(135deg,#1f8a55,#136b40)" onclick="STORE.set('tp_welcomed',true);this.closest('.ov').remove();begHub()">🌱 ابدأ من قسم المبتدئين</button>
+    <button class="btn ghost" onclick="STORE.set('tp_welcomed',true);this.closest('.ov').remove()">بعرف التطبيق — يلا</button>
+  </div>`;
+  document.body.appendChild(ov);
 }
 
 function fireConfetti(){
