@@ -387,7 +387,7 @@ img{display:block}
    ================================================================== */
 
 const CFG = {
-  VERSION: "2.7.0",       // ⬅ غيّر هذا الرقم مع كل تحديث ترفعه (مثلاً 2.0.1)
+  VERSION: "2.7.1",       // ⬅ غيّر هذا الرقم مع كل تحديث ترفعه (مثلاً 2.0.1)
   REPO: "mohdsiwad25-eng/teoria-app",
   INSTRUCTOR: "المدرب محمد سواد",
   AREA: "بيت لحم",
@@ -1348,7 +1348,6 @@ const BEG_TEXT_TL=[ // الإشارة الضوئية — تُعرض مع قسم 
 ];
 const BEG_STOP_Q="عندما توجد الاشارة"; // سؤال «قف» → يُربط بـ ب-37
 
-const BEG_BATCH=30; // وحدات لكل مجموعة
 let BEGST={seq:[],i:0,label:""};
 
 // يبني تسلسل التعلّم لنوع إشارات واحد (letter: a..f)
@@ -1414,31 +1413,11 @@ function begIntro(){
 }
 function LET_AR2(k){ return ({a:"أ",b:"ب",c:"ج",d:"د",e:"هـ",f:"و"})[k]||k; }
 
-// بعد اختيار النوع: لو كبير، اعرض مجموعات ٣٠
+// بعد اختيار النوع: يبدأ التسلسل كامل مباشرة
 function begType(letter){
   const seq=buildBegType(letter);
   if(!seq.length) return begIntro();
-  BEGSEQ_CACHE={letter,seq};
-  const cname=CAT[letter].name;
-  if(seq.length<=BEG_BATCH){ return begStart(seq,`إشارات ${cname}`); }
-  const nB=Math.ceil(seq.length/BEG_BATCH);
-  root.innerHTML=chrome(null);
-  setView(`<div class="screen">
-    <div class="sec-title">${LET_AR2(letter)} · إشارات ${esc(cname)}</div>
-    <p style="color:var(--muted);margin:-6px 0 14px;font-size:14px">القسم مقسّم لمجموعات صغيرة (كل مجموعة ~٣٠ خطوة). اختر مجموعة:</p>
-    <div class="exam-grid" style="grid-template-columns:repeat(2,1fr)">
-      ${Array.from({length:nB},(_,b)=>`<button class="exam-chip" style="aspect-ratio:auto;padding:16px" onclick="begBatch('${letter}',${b})">مجموعة ${b+1}<br><span style="font-size:12px;color:var(--muted);font-weight:700">${b*BEG_BATCH+1}–${Math.min((b+1)*BEG_BATCH,seq.length)}</span></button>`).join("")}
-    </div>
-    <div style="height:14px"></div>
-    <button class="btn ghost" onclick="begIntro()">‹ رجوع للأنواع</button>
-  </div>`);
-}
-let BEGSEQ_CACHE={letter:null,seq:[]};
-function begBatch(letter,b){
-  if(BEGSEQ_CACHE.letter!==letter) BEGSEQ_CACHE={letter,seq:buildBegType(letter)};
-  const full=BEGSEQ_CACHE.seq;
-  const slice=full.slice(b*BEG_BATCH,(b+1)*BEG_BATCH);
-  begStart(slice,`إشارات ${CAT[letter].name} · مجموعة ${b+1}`);
+  begStart(seq,`إشارات ${CAT[letter].name}`);
 }
 function begStart(seq,label){ BEGST={seq,i:0,label}; begRun(0); }
 
@@ -1550,7 +1529,6 @@ function begDone(){
 }
 
 /* ============ تدريب حسب الموضوع (للمبتدئين) — مجموعات ٣٠ ============ */
-const TOPIC_BATCH=30;
 function topics(){
   TP.log('open_topics');
   const pools={};
@@ -1574,26 +1552,8 @@ function topics(){
 }
 function topicPick(id){
   const pool=shuffle(ALLQ.filter(q=>sectionOf(q)===id));
-  TOPIC_CACHE={id,pool};
-  const s=SECTIONS[id];
-  if(pool.length<=TOPIC_BATCH){ return startCustom(pool,s.name,'topic'); }
-  const nB=Math.ceil(pool.length/TOPIC_BATCH);
-  root.innerHTML=chrome(null);
-  setView(`<div class="screen">
-    <div class="sec-title">${s.icon} ${esc(s.name)}</div>
-    <p style="color:var(--muted);margin:-6px 0 14px;font-size:14px">كل مجموعة ~٣٠ سؤال. اختر مجموعة:</p>
-    <div class="exam-grid" style="grid-template-columns:repeat(2,1fr)">
-      ${Array.from({length:nB},(_,b)=>`<button class="exam-chip" style="aspect-ratio:auto;padding:16px" onclick="topicBatch('${id}',${b})">مجموعة ${b+1}<br><span style="font-size:12px;color:var(--muted);font-weight:700">${b*TOPIC_BATCH+1}–${Math.min((b+1)*TOPIC_BATCH,pool.length)}</span></button>`).join("")}
-    </div>
-    <div style="height:14px"></div>
-    <button class="btn ghost" onclick="topics()">‹ رجوع للمواضيع</button>
-  </div>`);
-}
-let TOPIC_CACHE={id:null,pool:[]};
-function topicBatch(id,b){
-  if(TOPIC_CACHE.id!==id) TOPIC_CACHE={id,pool:shuffle(ALLQ.filter(q=>sectionOf(q)===id))};
-  const slice=TOPIC_CACHE.pool.slice(b*TOPIC_BATCH,(b+1)*TOPIC_BATCH);
-  startCustom(slice,`${SECTIONS[id].name} · مجموعة ${b+1}`,'topic');
+  if(!pool.length) return topics();
+  startCustom(pool,SECTIONS[id].name);
 }
 // مشغّل تدريب سؤال-سؤال مع شرح فوري (نفس أسلوب المبتدئين)
 let PRAC={qs:[],i:0,label:"",ans:{},cor:0};
