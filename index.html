@@ -196,6 +196,15 @@ img{display:block}
 .brand-footer b{color:var(--primary);font-weight:900}
 .hidden{display:none!important}
 
+/* ============ أزرار الصوت ============ */
+.tts-btn{width:34px;height:34px;border:none;border-radius:10px;background:var(--surface-2);font-size:15px;cursor:pointer;display:inline-grid;place-items:center;transition:.2s;vertical-align:middle;margin-inline-start:8px}
+.tts-btn:active{transform:scale(.92)}
+.tts-btn.playing{background:#e9f7f0;animation:ttsPulse 1s infinite}
+@keyframes ttsPulse{0%,100%{box-shadow:0 0 0 0 rgba(31,138,85,.35)}50%{box-shadow:0 0 0 8px rgba(31,138,85,0)}}
+.tts-tgl{border:none;background:rgba(255,255,255,.18);color:#fff;width:38px;height:38px;border-radius:12px;font-size:16px;cursor:pointer;flex:none}
+.msg-tts{border:none;background:transparent;font-size:14px;cursor:pointer;margin-inline-start:6px;opacity:.65;vertical-align:middle}
+.msg-tts:active{transform:scale(.9)}
+
 /* ============ إشارات للمبتدئين ============ */
 .beg-intro-card{background:var(--surface);border-radius:20px;padding:17px;margin-top:14px;font-size:14px;line-height:1.8;box-shadow:var(--shadow-s);font-weight:600}
 .beg-intro-card b{color:#1f8a55;font-weight:900}
@@ -372,7 +381,7 @@ img{display:block}
    ================================================================== */
 
 const CFG = {
-  VERSION: "2.5.0",       // ⬅ غيّر هذا الرقم مع كل تحديث ترفعه (مثلاً 2.0.1)
+  VERSION: "2.6.0",       // ⬅ غيّر هذا الرقم مع كل تحديث ترفعه (مثلاً 2.0.1)
   REPO: "mohdsiwad25-eng/teoria-app",
   INSTRUCTOR: "المدرب محمد سواد",
   AREA: "بيت لحم",
@@ -488,6 +497,7 @@ async function boot(){
     for(const ex in DATA.exams) DATA.exams[ex].forEach(q=>ALLQ.push({...q,ex}));
     $("#fab").style.display="flex";
     initTracking();
+    ttsInit();
     if(!CFG.FIREBASE) TP.log('visit');
     landing();
   }catch(e){
@@ -513,6 +523,7 @@ function chrome(active){
   return `<div class="topbar">
     <div class="logo" onclick="landing()"><svg viewBox="0 0 24 24" fill="none"><path d="M12 2L3 6v6c0 5 3.8 8.5 9 10 5.2-1.5 9-5 9-10V6l-9-4z" fill="#fff"/><path d="M12 7v5l3 2" stroke="#8e1e3c" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
     <div><h1>توريا فلسطين</h1><div class="sub">${CFG.INSTRUCTOR} — ${CFG.AREA}</div></div>
+    <button class="tts-tgl" onclick="ttsToggle()" title="تشغيل/إيقاف الصوت">${TTS.on?"🔊":"🔇"}</button>
     <div id="streakChip" class="streak-chip"></div>
   </div>
   <div class="demo-bar">
@@ -606,6 +617,67 @@ function topicOf(q){
   return "laws";
 }
 function qKey(q){ return q.ex+"-"+q.id; }
+
+/* ============ القراءة الصوتية (TTS) ============ */
+const TTS={
+  on: (localStorage.getItem("tp_tts")!=="off"), // مفعّل افتراضياً
+  voice: null,
+  speaking: false
+};
+function ttsInit(){
+  if(!("speechSynthesis" in window)) { TTS.on=false; return; }
+  const pick=()=>{
+    const vs=speechSynthesis.getVoices();
+    // نفضّل صوت عربي
+    TTS.voice = vs.find(v=>/^ar/i.test(v.lang) && /female|Laila|Majed|Mariam|Salma|Google/i.test(v.name))
+             || vs.find(v=>/^ar/i.test(v.lang))
+             || null;
+  };
+  pick();
+  speechSynthesis.onvoiceschanged = pick;
+}
+// نظّف النص قبل النطق: حوّل رموز الإشارات لأسمائها، شيل الإيموجي والرموز
+function ttsClean(t){
+  t=(t||"").replace(/\[\[(\w+)\]\]/g,(m,c)=>DATA&&DATA.signals[c]?("الشاخصة "+DATA.signals[c].code_ar):"");
+  t=t.replace(/<[^>]*>/g," ");                       // HTML tags
+  t=t.replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}✓✗×✅❌💡📖🔊•—«»]/gu," ");
+  return t.replace(/\s+/g," ").trim();
+}
+function speak(text){
+  if(!TTS.on || !("speechSynthesis" in window)) return;
+  const t=ttsClean(text);
+  if(!t) return;
+  speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(t);
+  u.lang="ar";
+  if(TTS.voice) u.voice=TTS.voice;
+  u.rate=0.95;
+  TTS.speaking=true;
+  u.onend=()=>{TTS.speaking=false; const b=$("#ttsQBtn"); if(b)b.classList.remove("playing");};
+  speechSynthesis.speak(u);
+}
+function stopSpeak(){ if("speechSynthesis" in window) speechSynthesis.cancel(); TTS.speaking=false; }
+// يقرأ السؤال + الخيارات الأربعة
+function speakQuestion(q){
+  const btn=$("#ttsQBtn");
+  if(TTS.speaking){ stopSpeak(); if(btn)btn.classList.remove("playing"); return; }
+  if(btn)btn.classList.add("playing");
+  const parts=[ "السؤال: "+stripCodes(q.question) ];
+  LET.forEach((L,i)=>{ const o=stripCodes(q[L]); if(o) parts.push(LET_AR[i]+": "+o); });
+  speak(parts.join(". "));
+}
+function ttsToggle(){
+  TTS.on=!TTS.on;
+  localStorage.setItem("tp_tts", TTS.on?"on":"off");
+  if(!TTS.on) stopSpeak();
+  document.querySelectorAll(".tts-tgl").forEach(b=>b.textContent=TTS.on?"🔊":"🔇");
+}
+// أزرار قراءة حسب الوضع
+function speakCur(){ if(STATE&&STATE.qs) speakQuestion(STATE.qs[STATE.idx]); }
+function speakPrac(){ if(PRAC&&PRAC.qs) speakQuestion(PRAC.qs[PRAC.i]); }
+function speakBeg(i){ const u=BEGST.seq[i]; if(u&&u.q) speakQuestion(u.q); }
+function speakSig(c){ const s=DATA.signals[c]; if(s) speak("الشاخصة "+s.code_ar+". "+s.text); }
+
 
 // ===== تصنيف الأسئلة (غير الإشارات) إلى 3 أقسام =====
 const SECTIONS={
@@ -914,6 +986,7 @@ function renderQ(){
         <span id="flagTxt">${isFlagged(qKey(q))?'معلّم':'علّم السؤال'}</span>
       </button>
       <span class="q-num">${STATE.mode==='exam'?'امتحان '+STATE.examNum+' — ':STATE.mode==='mistakes'?'مراجعة أخطاء — ':STATE.mode==='flagged'?'أسئلة معلّمة — ':STATE.mode==='daily'?'تمرين سريع — ':''}السؤال ${idx+1}</span>
+      <button class="tts-btn" id="ttsQBtn" onclick="speakCur()" title="اسمع السؤال والإجابات">🔊</button>
       <div class="q-text">${renderSig(q.question)}</div>
       <div class="opts">${opts}</div>
     </div>
@@ -1301,7 +1374,7 @@ function begRun(i){
       <div class="beg-sig-card">
         <div class="bsc-tag">إشارة جديدة 🌱</div>
         <div class="bsc-img">${s.no_image?`<span class="noimg" style="font-size:40px">🚸</span>`:`<img src="${IMG_BASE}${u.c}.jpg" alt="${esc(s.code_ar)}" onerror="this.outerHTML='<span style=\\'font-size:40px\\'>🚸</span>'">`}</div>
-        <div class="bsc-code">${esc(s.code_ar)}</div>
+        <div class="bsc-code">${esc(s.code_ar)} <button class="tts-btn" style="position:static;display:inline-grid;vertical-align:middle" onclick="speakSig('${u.c}')" title="اسمع معنى الإشارة">🔊</button></div>
         <div class="bsc-txt">${esc(s.text)}</div>
         <div class="bsc-note">📝 عليها <b>${u.n}</b> ${u.n===1?"سؤال رسمي":"أسئلة رسمية"}</div>
       </div>
@@ -1320,6 +1393,7 @@ function begRun(i){
       ${pin}
       <div class="q-card" style="margin-top:12px">
         <div class="q-num">امتحان ${q.ex}</div>
+        <button class="tts-btn" onclick="speakBeg(${i})" title="اسمع السؤال والإجابات">🔊</button>
         <div class="q-text">${renderSig(q.question,true)}</div>
         <div class="opts" id="begOpts">
           ${LET.map((L,j)=>{const key=["a","b","c","d"][j];return `<button class="opt" id="bo${j}" onclick="begAnswer(${i},${j})"><span class="lbl">${LET_AR[j]}</span><span class="otx">${renderSig(q[key])}</span></button>`;}).join("")}
@@ -1461,6 +1535,7 @@ function pracRun(i){
         <span id="flagTxt">${isFlagged(qKey(q))?'معلّم':'علّم السؤال'}</span>
       </button>
       <div class="q-num">امتحان ${q.ex}</div>
+      <button class="tts-btn" onclick="speakPrac()" title="اسمع السؤال والإجابات">🔊</button>
       <div class="q-text">${renderSig(q.question,true)}</div>
       <div class="opts">
         ${LET.map((L,j)=>{const key=["a","b","c","d"][j];return `<button class="opt" id="po${j}" onclick="pracAnswer(${j})"><span class="lbl">${LET_AR[j]}</span><span class="otx">${renderSig(q[key])}</span></button>`;}).join("")}
@@ -1589,7 +1664,14 @@ function chat(){
 function quickChat(t){ $("#cin").value=t; sendChat(); }
 function addMsg(html,who){
   const box=$("#cmsgs"); const d=document.createElement("div");
-  d.className="msg "+who; d.innerHTML=html; box.appendChild(d); box.scrollTop=box.scrollHeight;
+  d.className="msg "+who; d.innerHTML=html;
+  if(who==='bot' && ("speechSynthesis" in window)){
+    const b=document.createElement("button");
+    b.className="msg-tts"; b.textContent="🔊"; b.title="اسمع الرد";
+    b.onclick=()=>{ if(TTS.speaking){stopSpeak();} else speak(d.innerText); };
+    d.appendChild(b);
+  }
+  box.appendChild(d); box.scrollTop=box.scrollHeight;
 }
 function botSay(html){ addMsg(html,'bot'); }
 function sendChat(){
