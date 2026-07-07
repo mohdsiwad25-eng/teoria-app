@@ -381,7 +381,7 @@ img{display:block}
    ================================================================== */
 
 const CFG = {
-  VERSION: "2.6.0",       // ⬅ غيّر هذا الرقم مع كل تحديث ترفعه (مثلاً 2.0.1)
+  VERSION: "2.6.1",       // ⬅ غيّر هذا الرقم مع كل تحديث ترفعه (مثلاً 2.0.1)
   REPO: "mohdsiwad25-eng/teoria-app",
   INSTRUCTOR: "المدرب محمد سواد",
   AREA: "بيت لحم",
@@ -628,9 +628,11 @@ function ttsInit(){
   if(!("speechSynthesis" in window)) { TTS.on=false; return; }
   const pick=()=>{
     const vs=speechSynthesis.getVoices();
-    // نفضّل صوت عربي
-    TTS.voice = vs.find(v=>/^ar/i.test(v.lang) && /female|Laila|Majed|Mariam|Salma|Google/i.test(v.name))
+    // نفضّل صوت عربي — أولوية لأصوات Google/Microsoft العربية
+    TTS.voice = vs.find(v=>/^ar/i.test(v.lang) && /Google/i.test(v.name))
+             || vs.find(v=>/^ar/i.test(v.lang) && /Microsoft|Hoda|Naayf|Hamed|Salma|Laila|Majed|Mariam/i.test(v.name))
              || vs.find(v=>/^ar/i.test(v.lang))
+             || vs.find(v=>/ar[-_]/i.test(v.lang))
              || null;
   };
   pick();
@@ -643,20 +645,49 @@ function ttsClean(t){
   t=t.replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}✓✗×✅❌💡📖🔊•—«»]/gu," ");
   return t.replace(/\s+/g," ").trim();
 }
+// قراءة مقسّمة جُمل-جُمل (بعض المتصفحات بتقطع النص الطويل)
+let TTS_QUEUE=[];
 function speak(text){
   if(!TTS.on || !("speechSynthesis" in window)) return;
   const t=ttsClean(text);
   if(!t) return;
+  // لازم صوت عربي — بدونه القراءة بتطلع خربطة إنجليزية
+  if(!TTS.voice){
+    const vs=speechSynthesis.getVoices();
+    TTS.voice = vs.find(v=>/^ar/i.test(v.lang)) || null;
+    if(!TTS.voice){ alert("جهازك ما فيه صوت عربي مثبّت 😕\nعلى الكمبيوتر: أضف اللغة العربية مع خاصية النطق من إعدادات النظام.\nعلى الموبايل غالباً بيشتغل مباشرة."); return; }
+  }
   speechSynthesis.cancel();
-  const u=new SpeechSynthesisUtterance(t);
-  u.lang="ar";
+  // قسّم لجمل قصيرة
+  let parts = t.split(/(?<=[.؟!،:])\s+|(?<=\.)\s+/).filter(s=>s.trim().length>0);
+  if(!parts.length) parts=[t];
+  // أي جملة أطول من ~160 حرف قسّمها على الكلمات (كروم بيقطع الطويل)
+  TTS_QUEUE=[];
+  parts.forEach(p=>{
+    if(p.length<=160){ TTS_QUEUE.push(p); return; }
+    const ws=p.split(" "); let cur="";
+    ws.forEach(w=>{ if((cur+" "+w).length>160){ TTS_QUEUE.push(cur.trim()); cur=w; } else cur+=" "+w; });
+    if(cur.trim()) TTS_QUEUE.push(cur.trim());
+  });
+  TTS.speaking=true;
+  ttsNext();
+}
+function ttsNext(){
+  if(!TTS.speaking || !TTS_QUEUE.length){
+    TTS.speaking=false;
+    const b=$("#ttsQBtn"); if(b)b.classList.remove("playing");
+    return;
+  }
+  const part=TTS_QUEUE.shift();
+  const u=new SpeechSynthesisUtterance(part);
+  u.lang = TTS.voice ? TTS.voice.lang : "ar-SA";
   if(TTS.voice) u.voice=TTS.voice;
   u.rate=0.95;
-  TTS.speaking=true;
-  u.onend=()=>{TTS.speaking=false; const b=$("#ttsQBtn"); if(b)b.classList.remove("playing");};
+  u.onend=()=>ttsNext();
+  u.onerror=()=>ttsNext();
   speechSynthesis.speak(u);
 }
-function stopSpeak(){ if("speechSynthesis" in window) speechSynthesis.cancel(); TTS.speaking=false; }
+function stopSpeak(){ TTS_QUEUE=[]; TTS.speaking=false; if("speechSynthesis" in window) speechSynthesis.cancel(); }
 // يقرأ السؤال + الخيارات الأربعة
 function speakQuestion(q){
   const btn=$("#ttsQBtn");
