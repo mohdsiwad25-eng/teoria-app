@@ -418,7 +418,7 @@ img{display:block}
    ================================================================== */
 
 const CFG = {
-  VERSION: "2.9.0",       // ⬅ غيّر هذا الرقم مع كل تحديث ترفعه (مثلاً 2.0.1)
+  VERSION: "3.0.0",       // ⬅ غيّر هذا الرقم مع كل تحديث ترفعه (مثلاً 2.0.1)
   REPO: "mohdsiwad25-eng/teoria-app",
   INSTRUCTOR: "المدرب محمد سواد",
   AREA: "بيت لحم",
@@ -445,6 +445,118 @@ const CAT = {
 const LET = ['a','b','c','d'], LET_AR = ['أ','ب','ج','د'];
 
 let DATA=null, ALLQ=[], STATE={};
+
+/* ============ نظام اللغتين (i18n) ============ */
+let LANG = localStorage.getItem("tp_lang") || null; // 'ar' | 'en' | null=لسا ما اختار
+let TR = {questions:{},signals:{}}; // ترجمات الأسئلة والإشارات (تُحمّل من ملف)
+const I18N = {
+  // التنقل
+  nav_home:{ar:"الرئيسية",en:"Home"}, nav_signs:{ar:"الإشارات",en:"Signs"},
+  nav_prog:{ar:"تقدّمي",en:"Progress"}, nav_chat:{ar:"مساعد",en:"Assistant"},
+  // الرئيسية
+  hero_t:{ar:"جاهز تنجح بالتوريا؟ 🚗",en:"Ready to pass your Theory Test? 🚗"},
+  hero_p:{ar:"ادرس، تدرّب، وجرّب حالك — كل شي بمكان واحد",en:"Study, practice, and test yourself — all in one place"},
+  st_q:{ar:"سؤال",en:"Questions"}, st_s:{ar:"إشارة",en:"Signs"}, st_e:{ar:"امتحان",en:"Exams"},
+  sec_beg:{ar:"قسم المبتدئين",en:"Beginners Section"},
+  sec_beg_p:{ar:"أول مرة بالتوريا؟ ابدأ من هون — تعلّم خطوة بخطوة",en:"New to the Theory Test? Start here — learn step by step"},
+  sec_test:{ar:"اختبر حالك",en:"Test Yourself"},
+  sec_test_p:{ar:"تدرّب على الأسئلة، راجع أخطاءك، وتحدّى نفسك",en:"Practice questions, review mistakes, challenge yourself"},
+  sec_exam:{ar:"امتحان رسمي تجريبي",en:"Official Mock Exam"},
+  sec_exam_p:{ar:"سؤال · {m} دقيقة · تجربة مطابقة لامتحان الوزارة",en:"questions · {m} min · just like the Ministry exam"},
+  sec_chat:{ar:"المساعد الذكي",en:"AI Assistant"},
+  sec_chat_p:{ar:"اسأل عن أي إشارة أو قاعدة — بيجاوبك فوراً",en:"Ask about any sign or rule — instant answers"},
+  share_app:{ar:"📤 شارك التطبيق مع أصحابك — خليهم ينجحوا معك",en:"📤 Share the app with friends — help them pass too"},
+  // المبتدئين
+  beg_hub_p:{ar:"أول مرة بالتوريا؟ هاد قسمك — تعلّم بهدوء وخطوة بخطوة، بدون ضغط.",en:"New to the Theory Test? This is your section — learn calmly, step by step."},
+  beg_tip:{ar:"ابدأ بالإشارات أول (رقم ١)، ولما تخلّصها انتقل للمواضيع (رقم ٢).",en:"Start with Signs (1), then move to Topics (2)."},
+  beg_signs:{ar:"إشارات للمبتدئين",en:"Signs for Beginners"},
+  beg_signs_p:{ar:"الإشارات حسب نوعها (تحذير، إرشاد...) — إشارة إشارة مع أسئلتها الرسمية",en:"Signs by official type — one by one with their official questions"},
+  beg_topics:{ar:"تدريب حسب الموضوع",en:"Practice by Topic"},
+  beg_topics_p:{ar:"سياقة · قوانين · مركبة وأضواء — سؤال سؤال مع شرح فوري",en:"Driving · Laws · Vehicle & Lights — instant explanations"},
+  tip:{ar:"💡 <b>نصيحة المدرب:</b> ",en:"💡 <b>Instructor's tip:</b> "},
+  // اختبر حالك
+  test_hub_p:{ar:"تدرّب على الأسئلة الرسمية بالطريقة اللي بتناسبك، وراجع أخطاءك.",en:"Practice official questions your way, and review your mistakes."},
+  test_tip:{ar:"تدرّب على الامتحانات بالترتيب، وراجع \"أخطائي\" باستمرار — هي مفتاح النجاح.",en:"Practice exams in order and review My Mistakes often — that's the key."},
+  by_exam:{ar:"تدريب حسب الامتحان",en:"Practice by Exam"},
+  by_exam_p:{ar:"اختر من {n} امتحان رسمي وتدرّب عليه كامل",en:"Choose from {n} official exams"},
+  quick:{ar:"تمرين سريع",en:"Quick Practice"},
+  quick_p:{ar:"١٠ أسئلة عشوائية — تمرين خفيف وسريع",en:"10 random questions — quick and light"},
+  mistakes:{ar:"أخطائي",en:"My Mistakes"},
+  mistakes_p0:{ar:"الأسئلة اللي بتغلط فيها بتنحفظ هون",en:"Questions you get wrong are saved here"},
+  mistakes_pn:{ar:"سؤال غلطت فيهن — راجعهن",en:"wrong answers to review"},
+  flagged:{ar:"الأسئلة المعلّمة",en:"Flagged Questions"},
+  flagged_p0:{ar:"علّم الأسئلة الصعبة وراجعهن هون",en:"Flag hard questions and review them here"},
+  flagged_pn:{ar:"سؤال علّمتهن للمراجعة",en:"flagged for review"},
+  numbers:{ar:"الأرقام المهمة",en:"Key Numbers"},
+  numbers_p:{ar:"كل أرقام التوريا بصفحة وحدة — مراجعة ٥ دقايق",en:"All Theory Test numbers on one page — 5-min review"},
+  ready:{ar:"جاهز للامتحان؟",en:"Ready for the Exam?"},
+  ready_p:{ar:"تحليل صريح لأدائك — وين قوي ووين لازم تراجع",en:"Honest analysis — your strengths and what to review"},
+  // عام
+  back:{ar:"‹ رجوع",en:"‹ Back"}, back_home:{ar:"‹ الرئيسية",en:"‹ Home"},
+  back_beg:{ar:"‹ قسم المبتدئين",en:"‹ Beginners Section"},
+  next:{ar:"التالي ←",en:"Next →"},
+  correct_fb:{ar:"✅ صح عليك!",en:"✅ Correct!"},
+  wrong_fb:{ar:"❌ ولا يهمك — شوف ليش:",en:"❌ No worries — here's why:"},
+  why:{ar:"💡 ليش؟",en:"💡 Why?"},
+  correct_is:{ar:"💡 لماذا؟ الإجابة الصحيحة:",en:"💡 The correct answer is:"},
+  exam_n:{ar:"امتحان",en:"Exam"}, question_n:{ar:"السؤال",en:"Question"},
+  finish:{ar:"إنهاء الامتحان",en:"Finish Exam"},
+  ask_teacher:{ar:"اسأل المدرب عن هذا السؤال",en:"Ask the instructor about this question"},
+  flag_q:{ar:"علّم السؤال",en:"Flag"}, flagged_q:{ar:"معلّم",en:"Flagged"},
+  listen:{ar:"اسمع السؤال والإجابات",en:"Listen to question & answers"}
+};
+function T(k,vars){
+  let s=(I18N[k]&&I18N[k][LANG==="en"?"en":"ar"])||k;
+  if(vars) Object.entries(vars).forEach(([a,b])=>s=s.replace("{"+a+"}",b));
+  return s;
+}
+function isEN(){ return LANG==="en"; }
+function applyLangDir(){
+  document.documentElement.lang = isEN()?"en":"ar";
+  document.documentElement.dir  = isEN()?"ltr":"rtl";
+}
+function setLang(l){
+  LANG=l; localStorage.setItem("tp_lang",l); applyLangDir();
+  const ov=document.querySelector(".lang-ov"); if(ov)ov.remove();
+  if(isEN()) loadEnOverlay().then(()=>landing()); else landing();
+}
+function langToggle(){ setLang(isEN()?"ar":"en"); }
+// حروف الخيارات حسب اللغة
+function OPT_LET(i){ return isEN()?["A","B","C","D"][i]:LET_AR[i]; }
+// ترجمة سؤال (لو متوفرة)
+function tq(q,field){
+  if(isEN() && TR.questions[qKey(q)] && TR.questions[qKey(q)][field]) return TR.questions[qKey(q)][field];
+  return q[field==="q"?"question":field];
+}
+function tsig(code){
+  const s=DATA.signals[code]; if(!s)return "";
+  if(isEN() && TR.signals[code]) return TR.signals[code];
+  return s.text;
+}
+function tcode(code){
+  const s=DATA.signals[code]; if(!s)return code;
+  if(isEN()){ const m=code.match(/^([a-z]+)(\d+)$/); return m?(m[1].toUpperCase()+"-"+m[2]):code; }
+  return s.code_ar;
+}
+async function loadEnOverlay(){
+  if(TR._loaded) return;
+  try{
+    const r=await fetch(`https://raw.githubusercontent.com/${CFG.REPO}/main/translations_en.json?t=`+Date.now(),{cache:"no-store"});
+    if(r.ok){ const j=await r.json(); TR.questions=j.questions||{}; TR.signals=j.signals||{}; }
+  }catch(e){}
+  TR._loaded=true;
+}
+function langPicker(){
+  const ov=document.createElement("div"); ov.className="ov lang-ov";
+  ov.innerHTML=`<div class="ov-card" style="text-align:center">
+    <div style="font-size:50px">🌍</div>
+    <h3 style="margin-bottom:4px">اختر لغتك · Choose your language</h3>
+    <p>بتقدر تغيّرها بأي وقت · You can change it anytime</p>
+    <button class="btn" onclick="setLang('ar')">🇵🇸 العربية</button>
+    <button class="btn sec" onclick="setLang('en')" style="direction:ltr">🇬🇧 English</button>
+  </div>`;
+  document.body.appendChild(ov);
+}
 
 /* ---------- أدوات ---------- */
 const $ = s => document.querySelector(s);
@@ -535,8 +647,11 @@ async function boot(){
     $("#fab").style.display="flex";
     initTracking();
     ttsInit();
+    applyLangDir();
+    if(isEN()) await loadEnOverlay();
     if(!CFG.FIREBASE) TP.log('visit');
-    landing();
+    if(!LANG){ landing(); langPicker(); }
+    else landing();
   }catch(e){
     root.innerHTML=`<div class="center-screen"><div style="font-size:42px">⚠️</div>
     <div style="font-weight:800;font-size:18px">تعذّر تحميل الأسئلة</div>
@@ -560,6 +675,7 @@ function chrome(active){
   return `<div class="topbar">
     <div class="logo" onclick="landing()"><svg viewBox="0 0 24 24" fill="none"><path d="M12 2L3 6v6c0 5 3.8 8.5 9 10 5.2-1.5 9-5 9-10V6l-9-4z" fill="#fff"/><path d="M12 7v5l3 2" stroke="#8e1e3c" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
     <div><h1>توريا فلسطين</h1><div class="sub">${CFG.INSTRUCTOR} — ${CFG.AREA}</div></div>
+    <button class="tts-tgl" onclick="langToggle()" title="العربية / English" style="font-size:12px;font-weight:900">${isEN()?"ع":"EN"}</button>
     <button class="tts-tgl" onclick="ttsToggle()" title="تشغيل/إيقاف الصوت">${TTS.on?"🔊":"🔇"}</button>
     <div id="streakChip" class="streak-chip"></div>
   </div>
@@ -572,10 +688,10 @@ function chrome(active){
   ${navBar(active)}`;
 }
 function navBar(active){
-  const items=[["home","الرئيسية",'<path d="M3 11l9-8 9 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 10v10h14V10" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>'],
-    ["signals","الإشارات",'<path d="M12 2l9 5v10l-9 5-9-5V7l9-5z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>'],
-    ["progress","تقدّمي",'<path d="M4 20V10M10 20V4M16 20v-7M22 20H2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>'],
-    ["chat","مساعد",'<path d="M21 12a8 8 0 01-11.6 7.1L3 21l1.9-6.4A8 8 0 1121 12z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>']];
+  const items=[["home",T("nav_home"),'<path d="M3 11l9-8 9 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 10v10h14V10" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>'],
+    ["signals",T("nav_signs"),'<path d="M12 2l9 5v10l-9 5-9-5V7l9-5z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>'],
+    ["progress",T("nav_prog"),'<path d="M4 20V10M10 20V4M16 20v-7M22 20H2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>'],
+    ["chat",T("nav_chat"),'<path d="M21 12a8 8 0 01-11.6 7.1L3 21l1.9-6.4A8 8 0 1121 12z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>']];
   return `<div class="botnav">${items.map(([k,l,svg])=>`<button class="bn ${active===k?'on':''}" onclick="nav('${k}')"><svg viewBox="0 0 24 24" fill="none">${svg}</svg><span>${l}</span></button>`).join("")}</div>`;
 }
 function nav(k){ if(k==='home') return home(); gate(k); }
@@ -939,22 +1055,22 @@ function home(){
     <div class="menu">
       <button class="card big-sec" onclick="begHub()">
         <div class="ic" style="background:linear-gradient(135deg,#e9f7f0,#cdeeda);color:#1f8a55;font-size:26px">🌱</div>
-        <div class="tx"><h3>قسم المبتدئين</h3><p>أول مرة بالتوريا؟ ابدأ من هون — تعلّم خطوة بخطوة</p></div><div class="arrow">‹</div>
+        <div class="tx"><h3>${T("sec_beg")}</h3><p>${T("sec_beg_p")}</p></div><div class="arrow">‹</div>
       </button>
       <button class="card big-sec" onclick="testHub()">
         <div class="ic" style="background:linear-gradient(135deg,#eef4fd,#dceafb);color:#2f6cc4;font-size:26px">📝</div>
-        <div class="tx"><h3>اختبر حالك</h3><p>تدرّب على الأسئلة، راجع أخطاءك، وتحدّى نفسك</p></div><div class="arrow">‹</div>
+        <div class="tx"><h3>${T("sec_test")}</h3><p>${T("sec_test_p")}</p></div><div class="arrow">‹</div>
       </button>
       <button class="card big-sec" onclick="gate('exam')">
         <div class="ic" style="background:linear-gradient(135deg,#fdf3e8,#fae3c8);color:#c98600;font-size:26px">🏛️</div>
-        <div class="tx"><h3>امتحان رسمي تجريبي</h3><p>${CFG.EXAM_LEN} سؤال · ${CFG.EXAM_MINUTES} دقيقة · تجربة مطابقة لامتحان الوزارة</p></div><div class="arrow">‹</div>
+        <div class="tx"><h3>${T("sec_exam")}</h3><p>${CFG.EXAM_LEN} ${T("sec_exam_p",{m:CFG.EXAM_MINUTES})}</p></div><div class="arrow">‹</div>
       </button>
       <button class="card big-sec" onclick="gate('chat')">
         <div class="ic" style="background:linear-gradient(135deg,#f6eefc,#ecdcf8);color:#8e44ad;font-size:26px">🤖</div>
-        <div class="tx"><h3>المساعد الذكي</h3><p>اسأل عن أي إشارة أو قاعدة — بيجاوبك فوراً</p></div><div class="arrow">‹</div>
+        <div class="tx"><h3>${T("sec_chat")}</h3><p>${T("sec_chat_p")}</p></div><div class="arrow">‹</div>
       </button>
     </div>
-    <button class="share-app" onclick="shareApp()">📤 شارك التطبيق مع أصحابك — خليهم ينجحوا معك</button>
+    <button class="share-app" onclick="shareApp()">${T("share_app")}</button>
     <div class="demo-note">
       ⚠️ هذا <b>موقع تجريبي</b> للتعريف بالخدمة.<br>
       للحصول على <b>الموقع الكامل</b> ودروس السياقة، تواصل مع <b>${CFG.INSTRUCTOR}</b>:
@@ -974,22 +1090,22 @@ function begHub(){
   root.innerHTML=chrome(null);
   setView(`<div class="screen">
     <div class="hero" style="background:linear-gradient(140deg,#1f8a55,#136b40 60%,#0c4b2c)">
-      <h2>قسم المبتدئين 🌱</h2>
-      <p>أول مرة بالتوريا؟ هاد قسمك — تعلّم بهدوء وخطوة بخطوة، بدون ضغط.</p>
+      <h2>${T("sec_beg")} 🌱</h2>
+      <p>${T("beg_hub_p")}</p>
     </div>
-    <div class="hub-guide">💡 <b>نصيحة المدرب:</b> ابدأ بالإشارات أول (رقم ١)، ولما تخلّصها انتقل للمواضيع (رقم ٢).</div>
+    <div class="hub-guide">${T("tip")}${T("beg_tip")}</div>
     <div class="menu" style="margin-top:14px">
       <button class="card" onclick="gate('beg')">
         <div class="ic" style="background:linear-gradient(135deg,#e9f7f0,#cdeeda);color:#1f8a55;font-size:22px">1️⃣</div>
-        <div class="tx"><h3>إشارات للمبتدئين</h3><p>الإشارات حسب نوعها (تحذير، إرشاد...) — إشارة إشارة مع أسئلتها الرسمية</p></div><div class="arrow">‹</div>
+        <div class="tx"><h3>${T("beg_signs")}</h3><p>${T("beg_signs_p")}</p></div><div class="arrow">‹</div>
       </button>
       <button class="card" onclick="gate('topics')">
         <div class="ic" style="background:linear-gradient(135deg,#e9f7f0,#cdeeda);color:#1f8a55;font-size:22px">2️⃣</div>
-        <div class="tx"><h3>تدريب حسب الموضوع</h3><p>سياقة · قوانين · مركبة وأضواء — سؤال سؤال مع شرح فوري</p></div><div class="arrow">‹</div>
+        <div class="tx"><h3>${T("beg_topics")}</h3><p>${T("beg_topics_p")}</p></div><div class="arrow">‹</div>
       </button>
     </div>
     <div style="height:14px"></div>
-    <button class="btn ghost" onclick="home()">‹ الرئيسية</button>
+    <button class="btn ghost" onclick="home()">${T("back_home")}</button>
   </div>`);
 }
 /* ================= الأرقام المهمة ================= */
@@ -1134,34 +1250,34 @@ function testHub(){
   root.innerHTML=chrome(null);
   setView(`<div class="screen">
     <div class="hero" style="background:linear-gradient(140deg,#2f6cc4,#1f4e94 60%,#143767)">
-      <h2>اختبر حالك 📝</h2>
-      <p>تدرّب على الأسئلة الرسمية بالطريقة اللي بتناسبك، وراجع أخطاءك.</p>
+      <h2>${T("sec_test")} 📝</h2>
+      <p>${T("test_hub_p")}</p>
     </div>
-    <div class="hub-guide">💡 <b>نصيحة المدرب:</b> تدرّب على الامتحانات بالترتيب، وراجع "أخطائي" باستمرار — هي مفتاح النجاح.</div>
+    <div class="hub-guide">${T("tip")}${T("test_tip")}</div>
     <div class="menu" style="margin-top:14px">
       <button class="card" onclick="gate('choose')">
         <div class="ic a"><svg viewBox="0 0 24 24" fill="none"><path d="M4 6h16M4 12h16M4 18h10" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></div>
-        <div class="tx"><h3>تدريب حسب الامتحان</h3><p>اختر من ${DATA.meta.total_exams} امتحان رسمي وتدرّب عليه كامل</p></div><div class="arrow">‹</div>
+        <div class="tx"><h3>${T("by_exam")}</h3><p>${T("by_exam_p",{n:DATA.meta.total_exams})}</p></div><div class="arrow">‹</div>
       </button>
       <button class="card" onclick="gate('daily')">
         <div class="ic g"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3c1 3-1 4-1 6a3 3 0 006 0c0-1 0-2-.5-3 2 2 3.5 4 3.5 7a7 7 0 11-14 0c0-4 3-6 6-10z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></div>
-        <div class="tx"><h3>تمرين سريع</h3><p>١٠ أسئلة عشوائية — تمرين خفيف وسريع</p></div><div class="arrow">‹</div>
+        <div class="tx"><h3>${T("quick")}</h3><p>${T("quick_p")}</p></div><div class="arrow">‹</div>
       </button>
       <button class="card" onclick="gate('mistakes')">
         <div class="ic" style="background:#fdecec;color:#d63b3b;font-size:22px">❌</div>
-        <div class="tx"><h3>أخطائي</h3><p>${p.mistakes.length?p.mistakes.length+" سؤال غلطت فيهن — راجعهن":"الأسئلة اللي بتغلط فيها بتنحفظ هون"}</p></div><div class="arrow">‹</div>
+        <div class="tx"><h3>${T("mistakes")}</h3><p>${p.mistakes.length?p.mistakes.length+" "+T("mistakes_pn"):T("mistakes_p0")}</p></div><div class="arrow">‹</div>
       </button>
       <button class="card" onclick="gate('flagged')">
         <div class="ic" style="background:#fff2db;color:#c98600;font-size:22px">⭐</div>
-        <div class="tx"><h3>الأسئلة المعلّمة</h3><p>${p.flagged.length?p.flagged.length+" سؤال علّمتهن للمراجعة":"علّم الأسئلة الصعبة وراجعهن هون"}</p></div><div class="arrow">‹</div>
+        <div class="tx"><h3>${T("flagged")}</h3><p>${p.flagged.length?p.flagged.length+" "+T("flagged_pn"):T("flagged_p0")}</p></div><div class="arrow">‹</div>
       </button>
       <button class="card" onclick="numbersPage()">
         <div class="ic" style="background:#fdf3e8;color:#c98600;font-size:22px">📐</div>
-        <div class="tx"><h3>الأرقام المهمة</h3><p>كل أرقام التوريا بصفحة وحدة — مراجعة ٥ دقايق</p></div><div class="arrow">‹</div>
+        <div class="tx"><h3>${T("numbers")}</h3><p>${T("numbers_p")}</p></div><div class="arrow">‹</div>
       </button>
       <button class="card" onclick="readiness()">
         <div class="ic" style="background:#e9f7f0;color:#1f8a55;font-size:22px">🎯</div>
-        <div class="tx"><h3>جاهز للامتحان؟</h3><p>تحليل صريح لأدائك — وين قوي ووين لازم تراجع</p></div><div class="arrow">‹</div>
+        <div class="tx"><h3>${T("ready")}</h3><p>${T("ready_p")}</p></div><div class="arrow">‹</div>
       </button>
     </div>
     <div style="height:14px"></div>
