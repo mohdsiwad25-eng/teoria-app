@@ -222,6 +222,17 @@ img{display:block}
 .ov-card input[type=date]{width:100%;padding:13px;border:2px solid var(--line);border-radius:14px;font-family:inherit;font-size:15px;font-weight:700;margin-bottom:12px;background:var(--surface-2)}
 .ov-card .btn{margin-bottom:9px}
 
+/* ============ الأرقام المهمة + الجاهزية ============ */
+.num-grp{background:var(--surface);border-radius:20px;padding:16px;margin-top:14px;box-shadow:var(--shadow-s)}
+.num-grp .ng-t{font-weight:900;font-size:15px;margin-bottom:10px}
+.num-grp .ng-row{display:flex;align-items:center;gap:13px;padding:9px 2px;border-bottom:1px dashed var(--line)}
+.num-grp .ng-row:last-child{border-bottom:none}
+.num-grp .ng-v{flex:none;min-width:74px;text-align:center;background:#fdf3e8;color:#8a5a00;font-weight:900;font-size:14.5px;border-radius:12px;padding:8px 10px}
+.num-grp .ng-d{font-size:13.5px;font-weight:700;line-height:1.6}
+.ready-card{background:var(--surface);border-radius:22px;padding:22px 18px;margin-top:16px;text-align:center;box-shadow:var(--shadow-s)}
+.ready-card .rd-verdict{font-size:19px;font-weight:900;margin-top:12px}
+.ready-card .rd-msg{font-size:13.5px;font-weight:700;color:var(--muted);line-height:1.8;margin-top:8px}
+
 /* ============ أزرار الصوت ============ */
 .tts-btn{width:34px;height:34px;border:none;border-radius:10px;background:var(--surface-2);font-size:15px;cursor:pointer;display:inline-grid;place-items:center;transition:.2s;vertical-align:middle;margin-inline-start:8px}
 .tts-btn:active{transform:scale(.92)}
@@ -407,7 +418,7 @@ img{display:block}
    ================================================================== */
 
 const CFG = {
-  VERSION: "2.8.0",       // ⬅ غيّر هذا الرقم مع كل تحديث ترفعه (مثلاً 2.0.1)
+  VERSION: "2.9.0",       // ⬅ غيّر هذا الرقم مع كل تحديث ترفعه (مثلاً 2.0.1)
   REPO: "mohdsiwad25-eng/teoria-app",
   INSTRUCTOR: "المدرب محمد سواد",
   AREA: "بيت لحم",
@@ -981,6 +992,142 @@ function begHub(){
     <button class="btn ghost" onclick="home()">‹ الرئيسية</button>
   </div>`);
 }
+/* ================= الأرقام المهمة ================= */
+function numbersPage(){
+  TP.log('open_numbers');
+  const G=(t,rows)=>`<div class="num-grp"><div class="ng-t">${t}</div>${rows.map(([v,d])=>`<div class="ng-row"><div class="ng-v">${v}</div><div class="ng-d">${d}</div></div>`).join("")}</div>`;
+  root.innerHTML=chrome(null);
+  setView(`<div class="screen">
+    <div class="hero" style="background:linear-gradient(140deg,#c98600,#9a6600 60%,#6e4a00)">
+      <h2>الأرقام المهمة 📐</h2>
+      <p>كل أرقام التوريا بصفحة وحدة — راجعها قبل الامتحان بـ٥ دقايق.</p>
+    </div>
+
+    ${G("💡 الأضواء والإنارة",[
+      ["100م","نور الطريق (العالي) يضيء لمسافة لا تقل عن"],
+      ["30م","نور الالتقاء (الواطئ/العبور) يضيء لمسافة لا تقل عن"],
+      ["10م","مصباح الرجوع للخلف ينير لمسافة لا تزيد عن"]
+    ])}
+
+    ${G("🚸 الشاخصات ومثلث التحذير",[
+      ["150م","المسافة بين شاخصة التحذير والشيء الذي تحذّر منه (عادةً)"],
+      ["100م","يُرى مثلث التحذير من قِبل القادم من الخلف من مسافة لا تقل عن"]
+    ])}
+
+    ${G("🅿️ الوقوف والتوقف — ممنوع بحدود",[
+      ["12م","قبل خط التوقف / قبل ممر المشاة"],
+      ["20م","من ملتقى سكة الحديد / من شاخصة محطة الباص"],
+      ["2م","من حنفية إطفاء الحريق"],
+      ["40سم","أقصى مسافة بين العجلات والرصيف عند الوقوف بمحاذاته"]
+    ])}
+
+    ${G("🏁 السرعات القصوى (مركبة خصوصية)",[
+      ["50 كم/س","طريق بلدية (بدون شاخصة تحدّد غير ذلك)"],
+      ["80 كم/س","طريق خارج المدن (ليست بلدية)"],
+      ["110 كم/س","الطريق السريعة"]
+    ])}
+
+    ${G("🛣️ الطريق والمسافات",[
+      ["3م","مساحة طرف الطريق تمتد من حافة الشارع (أو لقناة الصرف)"],
+      ["100م","المسافة قبل متابعة السير خلف مركبة أمن أعطيتها الأولوية"]
+    ])}
+
+    ${G("⏰ الأوقات والمُدد",[
+      ["ربع ساعة","الليل قانونياً: يبدأ بعد ربع ساعة من الغروب وينتهي قبل ربع ساعة من الشروق"],
+      ["24 ساعة","المدة القصوى لوقوف مركبة فيها خلل بسيط على الطريق"],
+      ["7 ركاب","العدد الأقصى لركاب المركبة الخصوصية (عدا السائق)"],
+      ["4 طن","الوزن الأقصى للمركبة التجارية برخصة درجة B"]
+    ])}
+
+    ${G("🔧 المركبة",[
+      ["70-90°","درجة حرارة المحرك الطبيعية (وظيفة دورة التبريد)"],
+      ["كل يوم","فحص زيت المحرك وهواء الإطارات"],
+      ["كل أسبوع","فحص الماء المقطّر في البطارية"]
+    ])}
+
+    <div class="hub-guide" style="margin-top:16px">💡 <b>نصيحة المدرب:</b> صوّر هاي الصفحة سكرين شوت وراجعها ليلة الامتحان 📸</div>
+    <div style="height:14px"></div>
+    <button class="btn ghost" onclick="testHub()">‹ رجوع</button>
+  </div>`);
+}
+
+/* ================= جاهز للامتحان؟ ================= */
+function readiness(){
+  TP.log('open_readiness');
+  const p=getProg();
+  root.innerHTML=chrome(null);
+
+  // ما في بيانات كافية؟
+  const exams=(p.history||[]).filter(h=>h.total>=CFG.EXAM_LEN); // امتحانات كاملة فقط
+  if(p.answered<30){
+    setView(`<div class="screen">
+      <div class="hero" style="background:linear-gradient(140deg,#1f8a55,#136b40)"><h2>جاهز للامتحان؟ 🎯</h2><p>تحليل صريح لأدائك</p></div>
+      <div class="beg-intro-card" style="margin-top:16px;text-align:center">
+        <div style="font-size:44px">📊</div>
+        <b>لسا ما عندي بيانات كافية عنك</b><br><br>
+        حل على الأقل امتحان كامل أو ٣٠ سؤال تدريب، وارجعلي — بحلّلك أداءك بصراحة وبقولك وين لازم تركّز.
+      </div>
+      <div style="height:14px"></div>
+      <button class="btn" onclick="gate('exam')">🏛️ ابدأ امتحان تجريبي</button>
+      <div style="height:10px"></div>
+      <button class="btn ghost" onclick="testHub()">‹ رجوع</button>
+    </div>`);
+    return;
+  }
+
+  // حساب المؤشرات
+  const acc = p.answered? Math.round(p.correct/p.answered*100):0;           // الدقة العامة
+  const last3 = exams.slice(-3);
+  const lastAvg = last3.length? Math.round(last3.reduce((s,e)=>s+e.correct,0)/last3.length):null; // معدل آخر امتحانات
+  const passRate = exams.length? Math.round(exams.filter(e=>e.correct>=CFG.PASS_MARK).length/exams.length*100):null;
+  // أضعف المواضيع من byTopic
+  const topics=Object.entries(p.byTopic||{}).filter(([k,v])=>v.seen>=5)
+    .map(([k,v])=>({k,pct:Math.round(v.correct/v.seen*100),seen:v.seen}))
+    .sort((a,b)=>a.pct-b.pct);
+  const TNAMES={signs:"🚸 الإشارات",rules:"🚗 قواعد السياقة",lights:"💡 الأضواء",vehicle:"🔧 المركبة",law:"📋 القوانين",general:"📚 عام"};
+
+  // درجة الجاهزية: مزيج من معدل آخر الامتحانات (الأهم) والدقة العامة
+  let ready = lastAvg!=null ? Math.round(lastAvg/CFG.EXAM_LEN*100*.7 + acc*.3) : acc;
+  ready=Math.min(100,Math.max(0,ready));
+  const verdict = ready>=85? {t:"جاهز — قدّم بثقة! 💪",c:"#1f8a55",m:"مستواك ممتاز. راجع أخطاءك الأخيرة والأرقام المهمة ليلة الامتحان، ونام بكير 😴"}
+    : ready>=70? {t:"قريب جداً — شد حالك شوي 📈",c:"#c98600",m:"أساسك قوي بس في ثغرات. ركّز على المواضيع الضعيفة تحت، وحل امتحانين كمان قبل ما تقدّم."}
+    : {t:"لسا بدري — لا تستعجل ⏳",c:"#d63b3b",m:"لو قدّمت هلأ في احتمال كبير ترسب وتخسر رسوم الامتحان. ادرس المواضيع الضعيفة، حل امتحانات أكثر، وارجع افحص حالك."};
+
+  setView(`<div class="screen">
+    <div class="hero" style="background:linear-gradient(140deg,#1f8a55,#136b40)"><h2>جاهز للامتحان؟ 🎯</h2><p>تحليل صريح مبني على أدائك الفعلي</p></div>
+
+    <div class="ready-card">
+      <div class="result-ring" style="margin-top:0">
+        <svg width="150" height="150"><circle cx="75" cy="75" r="64" fill="none" stroke="var(--line)" stroke-width="12"/>
+        <circle cx="75" cy="75" r="64" fill="none" stroke="${verdict.c}" stroke-width="12" stroke-linecap="round" stroke-dasharray="${2*Math.PI*64}" stroke-dashoffset="${2*Math.PI*64*(1-ready/100)}"/></svg>
+        <div class="pct"><b>${ready}%</b><span>جاهزية</span></div>
+      </div>
+      <div class="rd-verdict" style="color:${verdict.c}">${verdict.t}</div>
+      <div class="rd-msg">${verdict.m}</div>
+    </div>
+
+    <div class="num-grp">
+      <div class="ng-t">📊 أرقامك</div>
+      <div class="ng-row"><div class="ng-v">${acc}%</div><div class="ng-d">دقتك العامة (${p.correct} صح من ${p.answered} سؤال)</div></div>
+      ${lastAvg!=null?`<div class="ng-row"><div class="ng-v">${lastAvg}/${CFG.EXAM_LEN}</div><div class="ng-d">معدل آخر ${last3.length} ${last3.length===1?"امتحان":"امتحانات"} (النجاح ${CFG.PASS_MARK})</div></div>`:""}
+      ${passRate!=null?`<div class="ng-row"><div class="ng-v">${passRate}%</div><div class="ng-d">نسبة نجاحك بالامتحانات التجريبية (${exams.length} امتحان)</div></div>`:""}
+      <div class="ng-row"><div class="ng-v">${p.mistakes.length}</div><div class="ng-d">سؤال بقائمة أخطائك بستنى مراجعة</div></div>
+    </div>
+
+    ${topics.length?`<div class="num-grp">
+      <div class="ng-t">🎯 موضوعك الأضعف ← الأقوى</div>
+      ${topics.map(t=>`<div class="ng-row"><div class="ng-v" style="color:${t.pct<60?"#d63b3b":t.pct<80?"#c98600":"#1f8a55"}">${t.pct}%</div><div class="ng-d">${TNAMES[t.k]||t.k} (${t.seen} سؤال)</div></div>`).join("")}
+      <div class="wk-tip" style="margin-top:10px">💡 ابدأ مراجعتك من ${TNAMES[topics[0].k]||topics[0].k} — أضعف نقطة عندك.</div>
+    </div>`:""}
+
+    <div style="height:8px"></div>
+    ${p.mistakes.length?`<button class="btn" onclick="gate('mistakes')">🎯 راجع أخطاءك (${p.mistakes.length})</button><div style="height:10px"></div>`:""}
+    <button class="btn ${p.mistakes.length?'sec':''}" onclick="gate('exam')">🏛️ حل امتحان تجريبي</button>
+    <div style="height:10px"></div>
+    <button class="btn ghost" onclick="testHub()">‹ رجوع</button>
+  </div>`);
+}
+
 function testHub(){
   TP.log('open_test_hub');
   const p=getProg();
@@ -1007,6 +1154,14 @@ function testHub(){
       <button class="card" onclick="gate('flagged')">
         <div class="ic" style="background:#fff2db;color:#c98600;font-size:22px">⭐</div>
         <div class="tx"><h3>الأسئلة المعلّمة</h3><p>${p.flagged.length?p.flagged.length+" سؤال علّمتهن للمراجعة":"علّم الأسئلة الصعبة وراجعهن هون"}</p></div><div class="arrow">‹</div>
+      </button>
+      <button class="card" onclick="numbersPage()">
+        <div class="ic" style="background:#fdf3e8;color:#c98600;font-size:22px">📐</div>
+        <div class="tx"><h3>الأرقام المهمة</h3><p>كل أرقام التوريا بصفحة وحدة — مراجعة ٥ دقايق</p></div><div class="arrow">‹</div>
+      </button>
+      <button class="card" onclick="readiness()">
+        <div class="ic" style="background:#e9f7f0;color:#1f8a55;font-size:22px">🎯</div>
+        <div class="tx"><h3>جاهز للامتحان؟</h3><p>تحليل صريح لأدائك — وين قوي ووين لازم تراجع</p></div><div class="arrow">‹</div>
       </button>
     </div>
     <div style="height:14px"></div>
