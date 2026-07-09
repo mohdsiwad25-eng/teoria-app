@@ -418,7 +418,7 @@ img{display:block}
    ================================================================== */
 
 const CFG = {
-  VERSION: "3.0.0",       // ⬅ غيّر هذا الرقم مع كل تحديث ترفعه (مثلاً 2.0.1)
+  VERSION: "3.1.1",       // ⬅ غيّر هذا الرقم مع كل تحديث ترفعه (مثلاً 2.0.1)
   REPO: "mohdsiwad25-eng/teoria-app",
   INSTRUCTOR: "المدرب محمد سواد",
   AREA: "بيت لحم",
@@ -510,6 +510,11 @@ function T(k,vars){
   if(vars) Object.entries(vars).forEach(([a,b])=>s=s.replace("{"+a+"}",b));
   return s;
 }
+// مساعد ثنائي اللغة سريع
+function A(ar,en){ return LANG==="en"?en:ar; }
+function catName(k){ const EN={a:"Warning",b:"Guidance & Prohibition",c:"Information",d:"Road Markings",e:"Traffic Lights",f:"Auxiliary"}; return isEN()?EN[k]:CAT[k].name; }
+function secName(id){ const EN={driving:"Driving Rules",laws:"Laws & Definitions",vehicle:"Vehicle & Lights"}; return isEN()?EN[id]:SECTIONS[id].name; }
+function secDesc(id){ const EN={driving:"Right-of-way · Overtaking · Turning · Parking",laws:"Definitions · Accidents · Seatbelt · Alcohol",vehicle:"Lights · Warning triangle · Faults"}; return isEN()?EN[id]:SECTIONS[id].desc; }
 function isEN(){ return LANG==="en"; }
 function applyLangDir(){
   document.documentElement.lang = isEN()?"en":"ar";
@@ -572,8 +577,8 @@ function renderSig(text, big){
   return esc(text).replace(/\[\[(\w+)\]\]/g,(m,code)=>{
     const s = DATA.signals[code];
     if(!s) return `<span class="sig-chip">${code}</span>`;
-    if(s.no_image) return `<span class="sig-chip" title="${esc(s.text)}">${esc(s.code_ar)}</span>`;
-    return `<img src="${IMG_BASE}${code}.jpg" alt="${esc(s.code_ar)}" title="${esc(s.text)}" style="height:${h}px" loading="lazy" onerror="this.outerHTML='<span class=\\'sig-chip\\'>${esc(s.code_ar||code)}</span>'">`;
+    if(s.no_image) return `<span class="sig-chip" title="${esc(tsig(code))}">${esc(tcode(code))}</span>`;
+    return `<img src="${IMG_BASE}${code}.jpg" alt="${esc(tcode(code))}" title="${esc(tsig(code))}" style="height:${h}px" loading="lazy" onerror="this.outerHTML='<span class=\\'sig-chip\\'>${esc(tcode(code))}</span>'">`;
   });
 }
 // هل الخيار عبارة عن صورة إشارة فقط؟
@@ -654,9 +659,9 @@ async function boot(){
     else landing();
   }catch(e){
     root.innerHTML=`<div class="center-screen"><div style="font-size:42px">⚠️</div>
-    <div style="font-weight:800;font-size:18px">تعذّر تحميل الأسئلة</div>
-    <div style="color:var(--muted)">تأكد من اتصالك بالإنترنت وأعد المحاولة.</div>
-    <button class="btn" style="max-width:200px;margin:10px auto" onclick="location.reload()">إعادة المحاولة</button></div>`;
+    <div style="font-weight:800;font-size:18px">${A("تعذّر تحميل الأسئلة","Could not load the questions")}</div>
+    <div style="color:var(--muted)">${A("تأكد من اتصالك بالإنترنت وأعد المحاولة.","Check your internet connection and try again.")}</div>
+    <button class="btn" style="max-width:200px;margin:10px auto" onclick="location.reload()">${A("إعادة المحاولة","Retry")}</button></div>`;
   }
 }
 
@@ -664,9 +669,9 @@ function renderClosed(msg){
   $("#fab").style.display="none";
   root.innerHTML=`<div class="center-screen">
     <div style="font-size:52px">🔒</div>
-    <div style="font-weight:900;font-size:22px">التطبيق مغلق حالياً</div>
-    <div style="color:var(--muted);font-size:16px">${esc(msg||"رجاءً حاول لاحقاً. للتواصل والحجز مع المدرب محمد سواد:")}</div>
-    <a class="btn" style="max-width:240px;margin:8px auto;text-decoration:none" href="https://wa.me/${CFG.WHATSAPP}">تواصل عبر واتساب</a>
+    <div style="font-weight:900;font-size:22px">${A("التطبيق مغلق حالياً","The app is currently closed")}</div>
+    <div style="color:var(--muted);font-size:16px">${esc(msg||A("رجاءً حاول لاحقاً. للتواصل والحجز مع المدرب محمد سواد:","Please try again later. To contact Instructor Mohammad Siwad:"))}</div>
+    <a class="btn" style="max-width:240px;margin:8px auto;text-decoration:none" href="https://wa.me/${CFG.WHATSAPP}">${A("تواصل عبر واتساب","Contact on WhatsApp")}</a>
   </div>`;
 }
 
@@ -674,15 +679,15 @@ function renderClosed(msg){
 function chrome(active){
   return `<div class="topbar">
     <div class="logo" onclick="landing()"><svg viewBox="0 0 24 24" fill="none"><path d="M12 2L3 6v6c0 5 3.8 8.5 9 10 5.2-1.5 9-5 9-10V6l-9-4z" fill="#fff"/><path d="M12 7v5l3 2" stroke="#8e1e3c" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-    <div><h1>توريا فلسطين</h1><div class="sub">${CFG.INSTRUCTOR} — ${CFG.AREA}</div></div>
+    <div><h1>${A("توريا فلسطين","Theory Palestine")}</h1><div class="sub">${A(CFG.INSTRUCTOR+" — "+CFG.AREA,"Instructor Mohammad Siwad — Bethlehem")}</div></div>
     <button class="tts-tgl" onclick="langToggle()" title="العربية / English" style="font-size:12px;font-weight:900">${isEN()?"ع":"EN"}</button>
-    <button class="tts-tgl" onclick="ttsToggle()" title="تشغيل/إيقاف الصوت">${TTS.on?"🔊":"🔇"}</button>
+    <button class="tts-tgl" onclick="ttsToggle()" title="${A('تشغيل/إيقاف الصوت','Sound on/off')}">${TTS.on?"🔊":"🔇"}</button>
     <div id="streakChip" class="streak-chip"></div>
   </div>
   <div class="demo-bar">
-    <span class="tag">نسخة تجريبية</span>
-    <span>دراسة التوريا بالذكاء الاصطناعي — للنسخة الكاملة تواصل مع المدرب</span>
-    <a href="https://wa.me/${CFG.WHATSAPP}" target="_blank" rel="noopener" onclick="TP.log('click_whatsapp_banner')">💬 تواصل</a>
+    <span class="tag">${A("نسخة تجريبية","Trial version")}</span>
+    <span>${A("دراسة التوريا بالذكاء الاصطناعي — للنسخة الكاملة تواصل مع المدرب","AI-powered Theory Test prep — contact the instructor for full access")}</span>
+    <a href="https://wa.me/${CFG.WHATSAPP}" target="_blank" rel="noopener" onclick="TP.log('click_whatsapp_banner')">${A('💬 تواصل','💬 Contact')}</a>
   </div>
   <div id="view"></div>
   ${navBar(active)}`;
@@ -712,26 +717,27 @@ function saveProg(p){ STORE.set(PKEY,p); }
 
 // المستويات حسب النقاط
 const LEVELS=[
-  {min:0,   name:"مبتدئ",   icon:"🌱", c:"#8b8390"},
-  {min:60,  name:"متدرّب",  icon:"🚗", c:"#2f6cc4"},
-  {min:160, name:"متقدّم",  icon:"⭐", c:"#c98a00"},
-  {min:320, name:"محترف",   icon:"🏆", c:"#9a2246"},
-  {min:600, name:"جاهز للامتحان", icon:"🎓", c:"#2fa46a"}
+  {min:0,   name:"مبتدئ", en:"Beginner",   icon:"🌱", c:"#8b8390"},
+  {min:60,  name:"متدرّب", en:"Learner",  icon:"🚗", c:"#2f6cc4"},
+  {min:160, name:"متقدّم", en:"Advanced",  icon:"⭐", c:"#c98a00"},
+  {min:320, name:"محترف", en:"Expert",   icon:"🏆", c:"#9a2246"},
+  {min:600, name:"جاهز للامتحان", en:"Exam-ready", icon:"🎓", c:"#2fa46a"}
 ];
+function lvName(l){ return isEN()?(l.en||l.name):l.name; }
 function levelOf(points){ let L=LEVELS[0]; for(const l of LEVELS) if(points>=l.min)L=l; return L; }
 function nextLevel(points){ for(const l of LEVELS) if(points<l.min) return l; return null; }
 
 // كل الأوسمة الممكنة + شرط فتحها
 const BADGES=[
-  {id:"first",   icon:"🎯", name:"أول امتحان",     desc:"حلّيت أول امتحان",        chk:p=>p.history.length>=1},
-  {id:"q100",    icon:"💯", name:"١٠٠ سؤال",        desc:"حلّيت ١٠٠ سؤال",          chk:p=>p.answered>=100},
-  {id:"q300",    icon:"📚", name:"٣٠٠ سؤال",        desc:"حلّيت ٣٠٠ سؤال",          chk:p=>p.answered>=300},
-  {id:"pass1",   icon:"✅", name:"أول نجاح",        desc:"نجحت بامتحان",            chk:p=>p.passes>=1},
-  {id:"pass5",   icon:"🏅", name:"٥ نجاحات",        desc:"نجحت ٥ مرات",             chk:p=>p.passes>=5},
-  {id:"streak3", icon:"🔥", name:"٣ أيام متتالية",  desc:"داومت ٣ أيام",            chk:p=>p.streak>=3},
-  {id:"streak7", icon:"⚡", name:"أسبوع كامل",      desc:"داومت ٧ أيام متتالية",    chk:p=>p.streak>=7},
-  {id:"acc90",   icon:"🎖️", name:"دقّة عالية",      desc:"دقّتك فوق ٩٠٪ (بعد ٥٠ سؤال)", chk:p=>p.answered>=50 && p.correct/p.answered>=0.9},
-  {id:"signs",   icon:"🚸", name:"خبير الإشارات",   desc:"أتقنت الإشارات (٩٠٪+)",   chk:p=>{const s=p.byTopic.signs;return s&&s.seen>=15&&s.correct/s.seen>=0.9;}}
+  {id:"first",   icon:"🎯", name:"أول امتحان", en:"First exam", desc:"حلّيت أول امتحان", den:"Completed your first exam", chk:p=>p.history.length>=1},
+  {id:"q100",    icon:"💯", name:"١٠٠ سؤال", en:"100 questions", desc:"حلّيت ١٠٠ سؤال", den:"Answered 100 questions", chk:p=>p.answered>=100},
+  {id:"q300",    icon:"📚", name:"٣٠٠ سؤال", en:"300 questions", desc:"حلّيت ٣٠٠ سؤال", den:"Answered 300 questions", chk:p=>p.answered>=300},
+  {id:"pass1",   icon:"✅", name:"أول نجاح", en:"First pass", desc:"نجحت بامتحان", den:"Passed an exam", chk:p=>p.passes>=1},
+  {id:"pass5",   icon:"🏅", name:"٥ نجاحات", en:"5 passes", desc:"نجحت ٥ مرات", den:"Passed 5 times", chk:p=>p.passes>=5},
+  {id:"streak3", icon:"🔥", name:"٣ أيام متتالية", en:"3-day streak", desc:"داومت ٣ أيام", den:"Practiced 3 days in a row", chk:p=>p.streak>=3},
+  {id:"streak7", icon:"⚡", name:"أسبوع كامل", en:"Full week", desc:"داومت ٧ أيام متتالية", den:"Practiced 7 days in a row", chk:p=>p.streak>=7},
+  {id:"acc90",   icon:"🎖️", name:"دقّة عالية", en:"High accuracy", desc:"دقّتك فوق ٩٠٪ (بعد ٥٠ سؤال)", den:"Over 90% accuracy (50+ questions)", chk:p=>p.answered>=50 && p.correct/p.answered>=0.9},
+  {id:"signs",   icon:"🚸", name:"خبير الإشارات", en:"Signs expert", desc:"أتقنت الإشارات (٩٠٪+)", den:"Mastered road signs (90%+)", chk:p=>{const s=p.byTopic.signs;return s&&s.seen>=15&&s.correct/s.seen>=0.9;}}
 ];
 // يفحص الأوسمة الجديدة ويرجّع المفتوحة حديثاً
 function checkBadges(p){
@@ -748,14 +754,14 @@ function today(){ const d=new Date(); return d.getFullYear()+"-"+(d.getMonth()+1
 function yesterday(){ const d=new Date(Date.now()-86400000); return d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate(); }
 
 const TOPICS={
-  signs:{name:"الإشارات",icon:"🚸",c:"#2e6cc4"},
-  priority:{name:"الأولوية والمفترقات",icon:"🚦",c:"#c0392b"},
-  turns:{name:"الاستدارة والانعطاف",icon:"↩️",c:"#7a41c4"},
-  overtake:{name:"التجاوز",icon:"↔️",c:"#0e9488"},
-  speed:{name:"السرعة والمسافات",icon:"🚗",c:"#c98a00"},
-  parking:{name:"الوقوف والاصطفاف",icon:"🅿️",c:"#3f7a3f"},
-  safety:{name:"السلامة والمركبة",icon:"🔧",c:"#8a6b73"},
-  laws:{name:"قوانين عامة",icon:"⚖️",c:"#8e1e3c"}
+  signs:{name:"الإشارات",en:"Road Signs",icon:"🚸",c:"#2e6cc4"},
+  priority:{name:"الأولوية والمفترقات",en:"Right-of-way & Junctions",icon:"🚦",c:"#c0392b"},
+  turns:{name:"الاستدارة والانعطاف",en:"Turning",icon:"↩️",c:"#7a41c4"},
+  overtake:{name:"التجاوز",en:"Overtaking",icon:"↔️",c:"#0e9488"},
+  speed:{name:"السرعة والمسافات",en:"Speed & Distances",icon:"🚗",c:"#c98a00"},
+  parking:{name:"الوقوف والاصطفاف",en:"Stopping & Parking",icon:"🅿️",c:"#3f7a3f"},
+  safety:{name:"السلامة والمركبة",en:"Safety & Vehicle",icon:"🔧",c:"#8a6b73"},
+  laws:{name:"قوانين عامة",en:"General Laws",icon:"⚖️",c:"#8e1e3c"}
 };
 function topicOf(q){
   if(/\[\[/.test(q.question)) return "signs";
@@ -781,19 +787,20 @@ function ttsInit(){
   if(!("speechSynthesis" in window)) { TTS.on=false; return; }
   const pick=()=>{
     const vs=speechSynthesis.getVoices();
-    // نفضّل صوت عربي — أولوية لأصوات Google/Microsoft العربية
-    TTS.voice = vs.find(v=>/^ar/i.test(v.lang) && /Google/i.test(v.name))
+    // صوت عربي + صوت إنجليزي
+    TTS.voiceAr = vs.find(v=>/^ar/i.test(v.lang) && /Google/i.test(v.name))
              || vs.find(v=>/^ar/i.test(v.lang) && /Microsoft|Hoda|Naayf|Hamed|Salma|Laila|Majed|Mariam/i.test(v.name))
-             || vs.find(v=>/^ar/i.test(v.lang))
-             || vs.find(v=>/ar[-_]/i.test(v.lang))
-             || null;
+             || vs.find(v=>/^ar/i.test(v.lang)) || null;
+    TTS.voiceEn = vs.find(v=>/^en/i.test(v.lang) && /Google/i.test(v.name))
+             || vs.find(v=>/^en/i.test(v.lang)) || null;
+    TTS.voice = TTS.voiceAr;
   };
   pick();
   speechSynthesis.onvoiceschanged = pick;
 }
 // نظّف النص قبل النطق: حوّل رموز الإشارات لأسمائها، شيل الإيموجي والرموز
 function ttsClean(t){
-  t=(t||"").replace(/\[\[(\w+)\]\]/g,(m,c)=>DATA&&DATA.signals[c]?("الشاخصة "+DATA.signals[c].code_ar):"");
+  t=(t||"").replace(/\[\[(\w+)\]\]/g,(m,c)=>DATA&&DATA.signals[c]?A("الشاخصة "+DATA.signals[c].code_ar,"sign "+tcode(c)):"");
   t=t.replace(/<[^>]*>/g," ");                       // HTML tags
   t=t.replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}✓✗×✅❌💡📖🔊•—«»]/gu," ");
   return t.replace(/\s+/g," ").trim();
@@ -804,12 +811,15 @@ function speak(text){
   if(!TTS.on || !("speechSynthesis" in window)) return;
   const t=ttsClean(text);
   if(!t) return;
-  // لازم صوت عربي — بدونه القراءة بتطلع خربطة إنجليزية
-  if(!TTS.voice){
+  // اختار الصوت المناسب للغة الحالية
+  const need = isEN()? TTS.voiceEn : TTS.voiceAr;
+  if(!need){
     const vs=speechSynthesis.getVoices();
-    TTS.voice = vs.find(v=>/^ar/i.test(v.lang)) || null;
-    if(!TTS.voice){ alert("جهازك ما فيه صوت عربي مثبّت 😕\nعلى الكمبيوتر: أضف اللغة العربية مع خاصية النطق من إعدادات النظام.\nعلى الموبايل غالباً بيشتغل مباشرة."); return; }
+    if(isEN()) TTS.voiceEn = vs.find(v=>/^en/i.test(v.lang))||null;
+    else TTS.voiceAr = vs.find(v=>/^ar/i.test(v.lang))||null;
+    if(!(isEN()?TTS.voiceEn:TTS.voiceAr)){ alert(A("جهازك ما فيه صوت عربي مثبّت 😕\nعلى الكمبيوتر: أضف اللغة العربية مع خاصية النطق من إعدادات النظام.\nعلى الموبايل غالباً بيشتغل مباشرة.","No matching voice is installed on your device 😕\nOn desktop: add the language with speech in your system settings.\nOn mobile it usually works out of the box.")); return; }
   }
+  TTS.voice = isEN()? TTS.voiceEn : TTS.voiceAr;
   speechSynthesis.cancel();
   // قسّم لجمل قصيرة
   let parts = t.split(/(?<=[.؟!،:])\s+|(?<=\.)\s+/).filter(s=>s.trim().length>0);
@@ -833,7 +843,7 @@ function ttsNext(){
   }
   const part=TTS_QUEUE.shift();
   const u=new SpeechSynthesisUtterance(part);
-  u.lang = TTS.voice ? TTS.voice.lang : "ar-SA";
+  u.lang = TTS.voice ? TTS.voice.lang : (isEN()?"en-US":"ar-SA");
   if(TTS.voice) u.voice=TTS.voice;
   u.rate=0.95;
   u.onend=()=>ttsNext();
@@ -846,8 +856,8 @@ function speakQuestion(q){
   const btn=$("#ttsQBtn");
   if(TTS.speaking){ stopSpeak(); if(btn)btn.classList.remove("playing"); return; }
   if(btn)btn.classList.add("playing");
-  const parts=[ "السؤال: "+stripCodes(q.question) ];
-  LET.forEach((L,i)=>{ const o=stripCodes(q[L]); if(o) parts.push(LET_AR[i]+": "+o); });
+  const parts=[ A("السؤال: ","Question: ")+stripCodes(tq(q,"q")) ];
+  LET.forEach((L,i)=>{ const o=stripCodes(tq(q,L)); if(o) parts.push(OPT_LET(i)+": "+o); });
   speak(parts.join(". "));
 }
 function ttsToggle(){
@@ -860,7 +870,7 @@ function ttsToggle(){
 function speakCur(){ if(STATE&&STATE.qs) speakQuestion(STATE.qs[STATE.idx]); }
 function speakPrac(){ if(PRAC&&PRAC.qs) speakQuestion(PRAC.qs[PRAC.i]); }
 function speakBeg(i){ const u=BEGST.seq[i]; if(u&&u.q) speakQuestion(u.q); }
-function speakSig(c){ const s=DATA.signals[c]; if(s) speak("الشاخصة "+s.code_ar+". "+s.text); }
+function speakSig(c){ const s=DATA.signals[c]; if(s) speak(A("الشاخصة "+s.code_ar+". "+s.text,"Sign "+tcode(c)+". "+tsig(c))); }
 
 
 // ===== تصنيف الأسئلة (غير الإشارات) إلى 3 أقسام =====
@@ -890,33 +900,33 @@ function sectionOf(q){
   // 🚗 قواعد السياقة (الباقي)
   return "driving";
 }
-function stripCodes(s){ return (s||"").replace(/\[\[(\w+)\]\]/g,(m,c)=>DATA.signals[c]?DATA.signals[c].code_ar:c).trim(); }
+function stripCodes(s){ return (s||"").replace(/\[\[(\w+)\]\]/g,(m,c)=>DATA.signals[c]?(isEN()?tcode(c):DATA.signals[c].code_ar):c).trim(); }
 
 function explainQ(q){
   const cor=LET[+q.answer-1];
   // 1) شرح جاهز مكتوب مسبقاً (الأفضل)
   const ready = DATA.explanations && DATA.explanations[qKey(q)];
-  if(ready) return `<div class="explain"><b>💡 ليش؟</b> ${esc(ready)}</div>`;
+  if(ready && !isEN()) return `<div class="explain"><b>💡 ليش؟</b> ${esc(ready)}</div>`;
   // 2) سؤال إشارة → المعنى الرسمي للإشارة
   let ex="";
   const codes=[...((q.question||"")+" "+(q[cor]||"")).matchAll(/\[\[(\w+)\]\]/g)].map(m=>m[1]);
   if(codes.length && DATA.signals[codes[0]]){
-    ex=`الشاخصة ${DATA.signals[codes[0]].code_ar} معناها: ${DATA.signals[codes[0]].text}`;
+    ex=A(`الشاخصة ${DATA.signals[codes[0]].code_ar} معناها: ${DATA.signals[codes[0]].text}`,`Sign ${tcode(codes[0])} means: ${tsig(codes[0])}`);
   }else{
     // 3) مقطع من الكتاب عند مطابقة قوية جداً فقط
     const toks=[...new Set(normAr(q.question).split(" ").filter(t=>t.length>2))];
-    const bk=searchBook(toks,1);
+    const bk=isEN()?[]:searchBook(toks,1); // الكتاب عربي فقط — ما منعرضه بوضع English
     if(bk.length && bk[0].hit>=4 && bk[0].sc>=10){
       let t=fixBook(bk[0].text);
       if(t.length>220) t=t.slice(0,220)+"…";
       ex=t;
     }
   }
-  return `<div class="explain"><b>💡 لماذا؟</b> الإجابة الصحيحة: «${esc(stripCodes(q[cor]))}».${ex?`<br><span style="color:var(--muted)">📖 ${esc(ex)}</span>`:""}</div>`;
+  return `<div class="explain"><b>${A("💡 لماذا؟","💡 Why?")}</b> ${A("الإجابة الصحيحة:","The correct answer:")} «${esc(stripCodes(tq(q,cor)))}».${ex?`<br><span style="color:var(--muted)">📖 ${esc(ex)}</span>`:""}</div>`;
 }
 function askTeacherBtn(q){
-  const txt=`استفسار عن سؤال التوريا:%0A${encodeURIComponent(stripCodes(q.question))}%0A(امتحان ${q.ex})`;
-  return `<a class="ask-teacher" href="https://wa.me/${CFG.WHATSAPP}?text=${txt}" target="_blank" rel="noopener" onclick="TP.log('ask_teacher')"><svg viewBox="0 0 24 24" fill="#fff"><path d="M12 2C6.5 2 2 6.5 2 12c0 1.8.5 3.4 1.3 4.9L2 22l5.3-1.4c1.4.8 3 1.2 4.7 1.2 5.5 0 10-4.5 10-10S17.5 2 12 2z"/></svg> اسأل المدرب عن هذا السؤال</a>`;
+  const txt=`${A("استفسار عن سؤال التوريا:","Theory question inquiry:")}%0A${encodeURIComponent(stripCodes(tq(q,"q")))}%0A(${T("exam_n")} ${q.ex})`;
+  return `<a class="ask-teacher" href="https://wa.me/${CFG.WHATSAPP}?text=${txt}" target="_blank" rel="noopener" onclick="TP.log('ask_teacher')"><svg viewBox="0 0 24 24" fill="#fff"><path d="M12 2C6.5 2 2 6.5 2 12c0 1.8.5 3.4 1.3 4.9L2 22l5.3-1.4c1.4.8 3 1.2 4.7 1.2 5.5 0 10-4.5 10-10S17.5 2 12 2z"/></svg> ${T("ask_teacher")}</a>`;
 }
 
 // تسجيل نتيجة امتحان بالتقدّم
@@ -950,7 +960,7 @@ function toggleFlag(k){
   else p.flagged.push({id:q.id,ex:q.ex,question:q.question,a:q.a,b:q.b,c:q.c,d:q.d,answer:q.answer});
   saveProg(p);
   const b=$("#flagBtn"); if(b)b.classList.toggle("on",i<0);
-  const ft=$("#flagTxt"); if(ft)ft.textContent = i<0?'معلّم':'علّم السؤال';
+  const ft=$("#flagTxt"); if(ft)ft.textContent = i<0?T('flagged_q'):T('flag_q');
   TP.log(i<0?'flag_add':'flag_remove');
 }
 function isFlagged(k){ return getProg().flagged.some(x=>qKey(x)===k); }
@@ -982,13 +992,13 @@ function gate(action){
   m.className="modal-bg"; m.id="pinModal";
   m.innerHTML=`<div class="modal">
     <div class="lock"><svg viewBox="0 0 24 24" fill="none"><rect x="4" y="10" width="16" height="11" rx="2.5" stroke="currentColor" stroke-width="2"/><path d="M8 10V7a4 4 0 018 0v3" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="15.5" r="1.6" fill="currentColor"/></svg></div>
-    <h3>أدخل كلمة السر</h3>
-    <p>هذا القسم متاح للطلاب المشتركين مع المدرب</p>
+    <h3>${A("أدخل كلمة السر","Enter the password")}</h3>
+    <p>${A("هذا القسم متاح للطلاب المشتركين مع المدرب","This section is for the instructor's enrolled students")}</p>
     <input class="pin" id="pinInput" type="tel" inputmode="numeric" maxlength="8" placeholder="••••" autocomplete="off">
     <div class="err" id="pinErr"></div>
-    <button class="btn" onclick="checkPin('${action}')">دخول</button>
-    <button class="btn ghost sm" style="margin-top:8px" onclick="closePin()">إلغاء</button>
-    <a class="m-wa" href="https://wa.me/${CFG.WHATSAPP}" target="_blank" rel="noopener">ما عندك كلمة سر؟ <b>تواصل مع المدرب</b></a>
+    <button class="btn" onclick="checkPin('${action}')">${A('دخول','Enter')}</button>
+    <button class="btn ghost sm" style="margin-top:8px" onclick="closePin()">${A("إلغاء","Cancel")}</button>
+    <a class="m-wa" href="https://wa.me/${CFG.WHATSAPP}" target="_blank" rel="noopener">${A("ما عندك كلمة سر؟ <b>تواصل مع المدرب</b>","No password? <b>Contact the instructor</b>")}</a>
   </div>`;
   document.body.appendChild(m);
   const inp=$("#pinInput"); inp.focus();
@@ -1001,7 +1011,7 @@ function checkPin(action){
   if(v===String(CFG.ACCESS_PASS)){
     UNLOCKED=true; TP.log('pin_ok'); closePin(); ACTIONS[action]();
   }else{
-    $("#pinErr").textContent="كلمة السر غير صحيحة";
+    $("#pinErr").textContent=A("كلمة السر غير صحيحة","Incorrect password");
     const inp=$("#pinInput"); inp.value=""; inp.focus();
     inp.style.borderColor="var(--danger)"; setTimeout(()=>inp.style.borderColor="",600);
     TP.log('pin_fail');
@@ -1013,25 +1023,24 @@ function closePin(){ const m=$("#pinModal"); if(m)m.remove(); }
 function landing(){
   $("#fab").style.display="none";
   root.innerHTML=`<div class="landing"><div class="landing-inner">
-    <div class="badge"><span class="dot"></span> مدعوم بالذكاء الاصطناعي</div>
+    <div class="badge"><span class="dot"></span> ${A("مدعوم بالذكاء الاصطناعي","Powered by AI")}</div>
     <div class="l-logo"><svg viewBox="0 0 24 24" fill="none"><path d="M12 2L3 6v6c0 5 3.8 8.5 9 10 5.2-1.5 9-5 9-10V6l-9-4z" fill="#fff"/><path d="M12 7v5l3 2" stroke="#8e1e3c" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-    <h1>جرّب دراسة التوريا <span class="ai">بالذكاء الاصطناعي</span></h1>
-    <p class="tagline">أسئلة رسمية · إشارات مصوّرة · مساعد ذكي 🤖</p>
+    <h1>${A('جرّب دراسة التوريا <span class="ai">بالذكاء الاصطناعي</span>','Study for your Theory Test <span class="ai">with AI</span>')}</h1>
+    <p class="tagline">${A("أسئلة رسمية · إشارات مصوّرة · مساعد ذكي 🤖","Official questions · Illustrated signs · AI assistant 🤖")}</p>
     <div class="demo-pill">
-      🚧 هذه <b>نسخة تجريبية</b> فقط<br>
-      للحصول على النسخة الكاملة ودروس السياقة، تواصل مع المدرب عبر واتساب
+      ${A("🚧 هذه <b>نسخة تجريبية</b> فقط<br>للحصول على النسخة الكاملة ودروس السياقة، تواصل مع المدرب عبر واتساب","🚧 This is a <b>trial version</b><br>For full access and driving lessons, contact the instructor on WhatsApp")}
     </div>
-    <button class="enter-btn" onclick="enterApp()">دخول للتجربة →</button>
+    <button class="enter-btn" onclick="enterApp()">${A("دخول للتجربة →","Enter the app →")}</button>
     <a class="wa-btn" href="https://wa.me/${CFG.WHATSAPP}" target="_blank" rel="noopener" onclick="TP.log('click_whatsapp_landing')">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="#fff"><path d="M12 2C6.5 2 2 6.5 2 12c0 1.8.5 3.4 1.3 4.9L2 22l5.3-1.4c1.4.8 3 1.2 4.7 1.2 5.5 0 10-4.5 10-10S17.5 2 12 2z"/></svg>
-      تواصل مع المدرب
+      ${A("تواصل مع المدرب","Contact the instructor")}
     </a>
     <div class="feats">
-      <div class="feat">📝 ${DATA.meta.total_questions} سؤال</div>
-      <div class="feat">🚸 ${DATA.meta.total_signals} إشارة</div>
-      <div class="feat">📚 ${DATA.meta.total_exams} امتحان</div>
+      <div class="feat">📝 ${DATA.meta.total_questions} ${A("سؤال","Questions")}</div>
+      <div class="feat">🚸 ${DATA.meta.total_signals} ${A("إشارة","Signs")}</div>
+      <div class="feat">📚 ${DATA.meta.total_exams} ${A("امتحان","Exams")}</div>
     </div>
-    <div class="l-foot">👨‍🏫 <b>${CFG.INSTRUCTOR}</b> — ${CFG.AREA}</div>
+    <div class="l-foot">👨‍🏫 <b>${A(CFG.INSTRUCTOR,"Instructor Mohammad Siwad")}</b> — ${A(CFG.AREA,"Bethlehem")}</div>
   </div></div>`;
   TP.log('view_landing');
 }
@@ -1042,14 +1051,14 @@ function home(){
   root.innerHTML = chrome("home");
   setView(`<div class="screen">
     <div class="hero">
-      <h2>ادرس التوريا بالذكاء الاصطناعي 🚦🤖</h2>
-      <p>أسئلة رسمية من الوزارة، إشارات، ومساعد ذكي — كله بمكان واحد.</p>
-      <div class="instructor">👨‍🏫 <span>مع <b>${CFG.INSTRUCTOR}</b></span></div>
+      <h2>${A("ادرس التوريا بالذكاء الاصطناعي 🚦🤖","Study for your Theory Test with AI 🚦🤖")}</h2>
+      <p>${A("أسئلة رسمية من الوزارة، إشارات، ومساعد ذكي — كله بمكان واحد.","Official Ministry questions, road signs, and an AI assistant — all in one place.")}</p>
+      <div class="instructor">👨‍🏫 <span>${A(`مع <b>${CFG.INSTRUCTOR}</b>`,`with <b>Instructor Mohammad Siwad</b>`)}</span></div>
     </div>
     <div class="stats">
-      <div class="stat"><div class="n">${DATA.meta.total_questions}</div><div class="l">سؤال</div></div>
-      <div class="stat"><div class="n">${DATA.meta.total_signals}</div><div class="l">إشارة</div></div>
-      <div class="stat"><div class="n">${DATA.meta.total_exams}</div><div class="l">امتحان</div></div>
+      <div class="stat"><div class="n">${DATA.meta.total_questions}</div><div class="l">${T("st_q")}</div></div>
+      <div class="stat"><div class="n">${DATA.meta.total_signals}</div><div class="l">${T("st_s")}</div></div>
+      <div class="stat"><div class="n">${DATA.meta.total_exams}</div><div class="l">${T("st_e")}</div></div>
     </div>
     ${examChipHtml()}
     <div class="menu">
@@ -1072,13 +1081,11 @@ function home(){
     </div>
     <button class="share-app" onclick="shareApp()">${T("share_app")}</button>
     <div class="demo-note">
-      ⚠️ هذا <b>موقع تجريبي</b> للتعريف بالخدمة.<br>
-      للحصول على <b>الموقع الكامل</b> ودروس السياقة، تواصل مع <b>${CFG.INSTRUCTOR}</b>:
-      <a href="https://wa.me/${CFG.WHATSAPP}" target="_blank" rel="noopener" onclick="TP.log('click_whatsapp_note')">واتساب ${CFG.WHATSAPP}</a>
+      ${A(`⚠️ هذا <b>موقع تجريبي</b> للتعريف بالخدمة.<br>للحصول على <b>الموقع الكامل</b> ودروس السياقة، تواصل مع <b>${CFG.INSTRUCTOR}</b>:`,`⚠️ This is a <b>trial version</b> of the service.<br>For <b>full access</b> and driving lessons, contact <b>Instructor Mohammad Siwad</b>:`)}
+      <a href="https://wa.me/${CFG.WHATSAPP}" target="_blank" rel="noopener" onclick="TP.log('click_whatsapp_note')">${A("واتساب","WhatsApp")} ${CFG.WHATSAPP}</a>
     </div>
     <div class="brand-footer">
-      🚗 لحجز دروس السياقة — <b>${CFG.INSTRUCTOR}</b> · ${CFG.AREA}<br>
-      واتساب: ${CFG.WHATSAPP} · سناب: ${CFG.SNAP}
+      ${A(`🚗 لحجز دروس السياقة — <b>${CFG.INSTRUCTOR}</b> · ${CFG.AREA}<br>واتساب: ${CFG.WHATSAPP} · سناب: ${CFG.SNAP}`,`🚗 Book driving lessons — <b>Instructor Mohammad Siwad</b> · Bethlehem<br>WhatsApp: ${CFG.WHATSAPP} · Snapchat: ${CFG.SNAP}`)}
     </div>
   </div>`);
   welcomeIfFirst();
@@ -1115,55 +1122,55 @@ function numbersPage(){
   root.innerHTML=chrome(null);
   setView(`<div class="screen">
     <div class="hero" style="background:linear-gradient(140deg,#c98600,#9a6600 60%,#6e4a00)">
-      <h2>الأرقام المهمة 📐</h2>
-      <p>كل أرقام التوريا بصفحة وحدة — راجعها قبل الامتحان بـ٥ دقايق.</p>
+      <h2>${T("numbers")} 📐</h2>
+      <p>${A("كل أرقام التوريا بصفحة وحدة — راجعها قبل الامتحان بـ٥ دقايق.","All Theory Test numbers on one page — a 5-minute pre-exam review.")}</p>
     </div>
 
-    ${G("💡 الأضواء والإنارة",[
-      ["100م","نور الطريق (العالي) يضيء لمسافة لا تقل عن"],
-      ["30م","نور الالتقاء (الواطئ/العبور) يضيء لمسافة لا تقل عن"],
-      ["10م","مصباح الرجوع للخلف ينير لمسافة لا تزيد عن"]
+    ${G(A("💡 الأضواء والإنارة","💡 Lights"),[
+      [A("100م","100m"),A("نور الطريق (العالي) يضيء لمسافة لا تقل عن","High beam illuminates at least")],
+      [A("30م","30m"),A("نور الالتقاء (الواطئ/العبور) يضيء لمسافة لا تقل عن","Low (dipped) beam illuminates at least")],
+      [A("10م","10m"),A("مصباح الرجوع للخلف ينير لمسافة لا تزيد عن","Reversing light illuminates no more than")]
     ])}
 
-    ${G("🚸 الشاخصات ومثلث التحذير",[
-      ["150م","المسافة بين شاخصة التحذير والشيء الذي تحذّر منه (عادةً)"],
-      ["100م","يُرى مثلث التحذير من قِبل القادم من الخلف من مسافة لا تقل عن"]
+    ${G(A("🚸 الشاخصات ومثلث التحذير","🚸 Signs & Warning Triangle"),[
+      [A("150م","150m"),A("المسافة بين شاخصة التحذير والشيء الذي تحذّر منه (عادةً)","Typical distance between a warning sign and the hazard")],
+      [A("100م","100m"),A("يُرى مثلث التحذير من قِبل القادم من الخلف من مسافة لا تقل عن","Warning triangle must be visible from behind for at least")]
     ])}
 
-    ${G("🅿️ الوقوف والتوقف — ممنوع بحدود",[
-      ["12م","قبل خط التوقف / قبل ممر المشاة"],
-      ["20م","من ملتقى سكة الحديد / من شاخصة محطة الباص"],
-      ["2م","من حنفية إطفاء الحريق"],
-      ["40سم","أقصى مسافة بين العجلات والرصيف عند الوقوف بمحاذاته"]
+    ${G(A("🅿️ الوقوف والتوقف — ممنوع بحدود","🅿️ No stopping/parking within"),[
+      [A("12م","12m"),A("قبل خط التوقف / قبل ممر المشاة","Before a stop line / pedestrian crossing")],
+      [A("20م","20m"),A("من ملتقى سكة الحديد / من شاخصة محطة الباص","From a railway crossing / bus stop sign")],
+      [A("2م","2m"),A("من حنفية إطفاء الحريق","From a fire hydrant")],
+      [A("40سم","40cm"),A("أقصى مسافة بين العجلات والرصيف عند الوقوف بمحاذاته","Max distance between wheels and curb when parking")]
     ])}
 
-    ${G("🏁 السرعات القصوى (مركبة خصوصية)",[
-      ["50 كم/س","طريق بلدية (بدون شاخصة تحدّد غير ذلك)"],
-      ["80 كم/س","طريق خارج المدن (ليست بلدية)"],
-      ["110 كم/س","الطريق السريعة"]
+    ${G(A("🏁 السرعات القصوى (مركبة خصوصية)","🏁 Speed limits (private car)"),[
+      [A("50 كم/س","50 km/h"),A("طريق بلدية (بدون شاخصة تحدّد غير ذلك)","Urban road (unless signed otherwise)")],
+      [A("80 كم/س","80 km/h"),A("طريق خارج المدن (ليست بلدية)","Non-urban road")],
+      [A("110 كم/س","110 km/h"),A("الطريق السريعة","Motorway / expressway")]
     ])}
 
-    ${G("🛣️ الطريق والمسافات",[
-      ["3م","مساحة طرف الطريق تمتد من حافة الشارع (أو لقناة الصرف)"],
-      ["100م","المسافة قبل متابعة السير خلف مركبة أمن أعطيتها الأولوية"]
+    ${G(A("🛣️ الطريق والمسافات","🛣️ Road & distances"),[
+      [A("3م","3m"),A("مساحة طرف الطريق تمتد من حافة الشارع (أو لقناة الصرف)","Road shoulder extends from the road edge (or to the drain)")],
+      [A("100م","100m"),A("المسافة قبل متابعة السير خلف مركبة أمن أعطيتها الأولوية","Gap before following an emergency vehicle you yielded to")]
     ])}
 
-    ${G("⏰ الأوقات والمُدد",[
-      ["ربع ساعة","الليل قانونياً: يبدأ بعد ربع ساعة من الغروب وينتهي قبل ربع ساعة من الشروق"],
-      ["24 ساعة","المدة القصوى لوقوف مركبة فيها خلل بسيط على الطريق"],
-      ["7 ركاب","العدد الأقصى لركاب المركبة الخصوصية (عدا السائق)"],
-      ["4 طن","الوزن الأقصى للمركبة التجارية برخصة درجة B"]
+    ${G(A("⏰ الأوقات والمُدد","⏰ Times & limits"),[
+      [A("ربع ساعة","15 min"),A("الليل قانونياً: يبدأ بعد ربع ساعة من الغروب وينتهي قبل ربع ساعة من الشروق","Legal night: 15 min after sunset until 15 min before sunrise")],
+      [A("24 ساعة","24 hrs"),A("المدة القصوى لوقوف مركبة فيها خلل بسيط على الطريق","Max time a vehicle with a minor fault may stay on the road")],
+      [A("7 ركاب","7 pax"),A("العدد الأقصى لركاب المركبة الخصوصية (عدا السائق)","Max passengers in a private car (excluding driver)")],
+      [A("4 طن","4 tons"),A("الوزن الأقصى للمركبة التجارية برخصة درجة B","Max commercial vehicle weight on a class-B licence")]
     ])}
 
-    ${G("🔧 المركبة",[
-      ["70-90°","درجة حرارة المحرك الطبيعية (وظيفة دورة التبريد)"],
-      ["كل يوم","فحص زيت المحرك وهواء الإطارات"],
-      ["كل أسبوع","فحص الماء المقطّر في البطارية"]
+    ${G(A("🔧 المركبة","🔧 Vehicle"),[
+      [A("70-90°","70–90°C"),A("درجة حرارة المحرك الطبيعية (وظيفة دورة التبريد)","Normal engine temperature (cooling system)")],
+      [A("كل يوم","Daily"),A("فحص زيت المحرك وهواء الإطارات","Check engine oil and tire pressure")],
+      [A("كل أسبوع","Weekly"),A("فحص الماء المقطّر في البطارية","Check battery distilled water")]
     ])}
 
-    <div class="hub-guide" style="margin-top:16px">💡 <b>نصيحة المدرب:</b> صوّر هاي الصفحة سكرين شوت وراجعها ليلة الامتحان 📸</div>
+    <div class="hub-guide" style="margin-top:16px">${T("tip")}${A("صوّر هاي الصفحة سكرين شوت وراجعها ليلة الامتحان 📸","Screenshot this page and review it the night before your exam 📸")}</div>
     <div style="height:14px"></div>
-    <button class="btn ghost" onclick="testHub()">‹ رجوع</button>
+    <button class="btn ghost" onclick="testHub()">${T("back")}</button>
   </div>`);
 }
 
@@ -1177,16 +1184,16 @@ function readiness(){
   const exams=(p.history||[]).filter(h=>h.total>=CFG.EXAM_LEN); // امتحانات كاملة فقط
   if(p.answered<30){
     setView(`<div class="screen">
-      <div class="hero" style="background:linear-gradient(140deg,#1f8a55,#136b40)"><h2>جاهز للامتحان؟ 🎯</h2><p>تحليل صريح لأدائك</p></div>
+      <div class="hero" style="background:linear-gradient(140deg,#1f8a55,#136b40)"><h2>${T("ready")} 🎯</h2><p>${A("تحليل صريح لأدائك","An honest analysis of your performance")}</p></div>
       <div class="beg-intro-card" style="margin-top:16px;text-align:center">
         <div style="font-size:44px">📊</div>
-        <b>لسا ما عندي بيانات كافية عنك</b><br><br>
-        حل على الأقل امتحان كامل أو ٣٠ سؤال تدريب، وارجعلي — بحلّلك أداءك بصراحة وبقولك وين لازم تركّز.
+        <b>${A("لسا ما عندي بيانات كافية عنك","Not enough data about you yet")}</b><br><br>
+        ${A("حل على الأقل امتحان كامل أو ٣٠ سؤال تدريب، وارجعلي — بحلّلك أداءك بصراحة وبقولك وين لازم تركّز.","Take at least one full exam or 30 practice questions, then come back — I will analyze your performance honestly and tell you where to focus.")}
       </div>
       <div style="height:14px"></div>
-      <button class="btn" onclick="gate('exam')">🏛️ ابدأ امتحان تجريبي</button>
+      <button class="btn" onclick="gate('exam')">${A("🏛️ ابدأ امتحان تجريبي","🏛️ Start a mock exam")}</button>
       <div style="height:10px"></div>
-      <button class="btn ghost" onclick="testHub()">‹ رجوع</button>
+      <button class="btn ghost" onclick="testHub()">${T("back")}</button>
     </div>`);
     return;
   }
@@ -1200,47 +1207,47 @@ function readiness(){
   const topics=Object.entries(p.byTopic||{}).filter(([k,v])=>v.seen>=5)
     .map(([k,v])=>({k,pct:Math.round(v.correct/v.seen*100),seen:v.seen}))
     .sort((a,b)=>a.pct-b.pct);
-  const TNAMES={signs:"🚸 الإشارات",rules:"🚗 قواعد السياقة",lights:"💡 الأضواء",vehicle:"🔧 المركبة",law:"📋 القوانين",general:"📚 عام"};
+  const TNAMES=isEN()?{signs:"🚸 Road Signs",rules:"🚗 Driving Rules",lights:"💡 Lights",vehicle:"🔧 Vehicle",law:"📋 Laws",general:"📚 General"}:{signs:"🚸 الإشارات",rules:"🚗 قواعد السياقة",lights:"💡 الأضواء",vehicle:"🔧 المركبة",law:"📋 القوانين",general:"📚 عام"};
 
   // درجة الجاهزية: مزيج من معدل آخر الامتحانات (الأهم) والدقة العامة
   let ready = lastAvg!=null ? Math.round(lastAvg/CFG.EXAM_LEN*100*.7 + acc*.3) : acc;
   ready=Math.min(100,Math.max(0,ready));
-  const verdict = ready>=85? {t:"جاهز — قدّم بثقة! 💪",c:"#1f8a55",m:"مستواك ممتاز. راجع أخطاءك الأخيرة والأرقام المهمة ليلة الامتحان، ونام بكير 😴"}
-    : ready>=70? {t:"قريب جداً — شد حالك شوي 📈",c:"#c98600",m:"أساسك قوي بس في ثغرات. ركّز على المواضيع الضعيفة تحت، وحل امتحانين كمان قبل ما تقدّم."}
-    : {t:"لسا بدري — لا تستعجل ⏳",c:"#d63b3b",m:"لو قدّمت هلأ في احتمال كبير ترسب وتخسر رسوم الامتحان. ادرس المواضيع الضعيفة، حل امتحانات أكثر، وارجع افحص حالك."};
+  const verdict = ready>=85? {t:A("جاهز — قدّم بثقة! 💪","Ready — book it with confidence! 💪"),c:"#1f8a55",m:A("مستواك ممتاز. راجع أخطاءك الأخيرة والأرقام المهمة ليلة الامتحان، ونام بكير 😴","Excellent level. Review your recent mistakes and the Key Numbers the night before, and sleep early 😴")}
+    : ready>=70? {t:A("قريب جداً — شد حالك شوي 📈","Very close — one more push 📈"),c:"#c98600",m:A("أساسك قوي بس في ثغرات. ركّز على المواضيع الضعيفة تحت، وحل امتحانين كمان قبل ما تقدّم.","Your base is strong but there are gaps. Focus on the weak topics below and take two more mock exams before booking.")}
+    : {t:A("لسا بدري — لا تستعجل ⏳","Not yet — don\'t rush ⏳"),c:"#d63b3b",m:A("لو قدّمت هلأ في احتمال كبير ترسب وتخسر رسوم الامتحان. ادرس المواضيع الضعيفة، حل امتحانات أكثر، وارجع افحص حالك.","If you book now, you\'re likely to fail and lose the exam fee. Study the weak topics, take more mock exams, then check again.")};
 
   setView(`<div class="screen">
-    <div class="hero" style="background:linear-gradient(140deg,#1f8a55,#136b40)"><h2>جاهز للامتحان؟ 🎯</h2><p>تحليل صريح مبني على أدائك الفعلي</p></div>
+    <div class="hero" style="background:linear-gradient(140deg,#1f8a55,#136b40)"><h2>${T("ready")} 🎯</h2><p>${A("تحليل صريح مبني على أدائك الفعلي","An honest analysis based on your actual performance")}</p></div>
 
     <div class="ready-card">
       <div class="result-ring" style="margin-top:0">
         <svg width="150" height="150"><circle cx="75" cy="75" r="64" fill="none" stroke="var(--line)" stroke-width="12"/>
         <circle cx="75" cy="75" r="64" fill="none" stroke="${verdict.c}" stroke-width="12" stroke-linecap="round" stroke-dasharray="${2*Math.PI*64}" stroke-dashoffset="${2*Math.PI*64*(1-ready/100)}"/></svg>
-        <div class="pct"><b>${ready}%</b><span>جاهزية</span></div>
+        <div class="pct"><b>${ready}%</b><span>${A("جاهزية","Ready")}</span></div>
       </div>
       <div class="rd-verdict" style="color:${verdict.c}">${verdict.t}</div>
       <div class="rd-msg">${verdict.m}</div>
     </div>
 
     <div class="num-grp">
-      <div class="ng-t">📊 أرقامك</div>
-      <div class="ng-row"><div class="ng-v">${acc}%</div><div class="ng-d">دقتك العامة (${p.correct} صح من ${p.answered} سؤال)</div></div>
-      ${lastAvg!=null?`<div class="ng-row"><div class="ng-v">${lastAvg}/${CFG.EXAM_LEN}</div><div class="ng-d">معدل آخر ${last3.length} ${last3.length===1?"امتحان":"امتحانات"} (النجاح ${CFG.PASS_MARK})</div></div>`:""}
-      ${passRate!=null?`<div class="ng-row"><div class="ng-v">${passRate}%</div><div class="ng-d">نسبة نجاحك بالامتحانات التجريبية (${exams.length} امتحان)</div></div>`:""}
-      <div class="ng-row"><div class="ng-v">${p.mistakes.length}</div><div class="ng-d">سؤال بقائمة أخطائك بستنى مراجعة</div></div>
+      <div class="ng-t">${A("📊 أرقامك","📊 Your numbers")}</div>
+      <div class="ng-row"><div class="ng-v">${acc}%</div><div class="ng-d">${A(`دقتك العامة (${p.correct} صح من ${p.answered} سؤال)`,`Overall accuracy (${p.correct} correct of ${p.answered})`)}</div></div>
+      ${lastAvg!=null?`<div class="ng-row"><div class="ng-v">${lastAvg}/${CFG.EXAM_LEN}</div><div class="ng-d">${A(`معدل آخر ${last3.length} ${last3.length===1?"امتحان":"امتحانات"} (النجاح ${CFG.PASS_MARK})`,`Average of last ${last3.length} exam${last3.length===1?"":"s"} (pass mark ${CFG.PASS_MARK})`)}</div></div>`:""}
+      ${passRate!=null?`<div class="ng-row"><div class="ng-v">${passRate}%</div><div class="ng-d">${A(`نسبة نجاحك بالامتحانات التجريبية (${exams.length} امتحان)`,`Pass rate across your mock exams (${exams.length})`)}</div></div>`:""}
+      <div class="ng-row"><div class="ng-v">${p.mistakes.length}</div><div class="ng-d">${A("سؤال بقائمة أخطائك بستنى مراجعة","questions in your mistakes list awaiting review")}</div></div>
     </div>
 
     ${topics.length?`<div class="num-grp">
-      <div class="ng-t">🎯 موضوعك الأضعف ← الأقوى</div>
-      ${topics.map(t=>`<div class="ng-row"><div class="ng-v" style="color:${t.pct<60?"#d63b3b":t.pct<80?"#c98600":"#1f8a55"}">${t.pct}%</div><div class="ng-d">${TNAMES[t.k]||t.k} (${t.seen} سؤال)</div></div>`).join("")}
-      <div class="wk-tip" style="margin-top:10px">💡 ابدأ مراجعتك من ${TNAMES[topics[0].k]||topics[0].k} — أضعف نقطة عندك.</div>
+      <div class="ng-t">${A("🎯 موضوعك الأضعف ← الأقوى","🎯 Weakest → strongest topic")}</div>
+      ${topics.map(t=>`<div class="ng-row"><div class="ng-v" style="color:${t.pct<60?"#d63b3b":t.pct<80?"#c98600":"#1f8a55"}">${t.pct}%</div><div class="ng-d">${TNAMES[t.k]||t.k} (${t.seen} ${A("سؤال","Qs")})</div></div>`).join("")}
+      <div class="wk-tip" style="margin-top:10px">${A(`💡 ابدأ مراجعتك من ${TNAMES[topics[0].k]||topics[0].k} — أضعف نقطة عندك.`,`💡 Start your review with ${TNAMES[topics[0].k]||topics[0].k} — your weakest area.`)}</div>
     </div>`:""}
 
     <div style="height:8px"></div>
-    ${p.mistakes.length?`<button class="btn" onclick="gate('mistakes')">🎯 راجع أخطاءك (${p.mistakes.length})</button><div style="height:10px"></div>`:""}
-    <button class="btn ${p.mistakes.length?'sec':''}" onclick="gate('exam')">🏛️ حل امتحان تجريبي</button>
+    ${p.mistakes.length?`<button class="btn" onclick="gate('mistakes')">${A(`🎯 راجع أخطاءك (${p.mistakes.length})`,`🎯 Review your mistakes (${p.mistakes.length})`)}</button><div style="height:10px"></div>`:""}
+    <button class="btn ${p.mistakes.length?'sec':''}" onclick="gate('exam')">${A("🏛️ حل امتحان تجريبي","🏛️ Take a mock exam")}</button>
     <div style="height:10px"></div>
-    <button class="btn ghost" onclick="testHub()">‹ رجوع</button>
+    <button class="btn ghost" onclick="testHub()">${T("back")}</button>
   </div>`);
 }
 
@@ -1281,7 +1288,7 @@ function testHub(){
       </button>
     </div>
     <div style="height:14px"></div>
-    <button class="btn ghost" onclick="home()">‹ الرئيسية</button>
+    <button class="btn ghost" onclick="home()">${T("back_home")}</button>
   </div>`);
 }
 
@@ -1290,8 +1297,8 @@ function chooseExam(){
   root.innerHTML = chrome(null);
   const chips = Object.keys(DATA.exams).map(n=>`<button class="exam-chip" onclick="startExam('exam',${n})">${n}</button>`).join("");
   setView(`<div class="screen">
-    <div class="sec-title">📚 اختر امتحان للتدريب</div>
-    <p style="color:var(--muted);margin:-6px 0 8px;font-size:14px">كل امتحان فيه أسئلته الرسمية كاملة.</p>
+    <div class="sec-title">${A("📚 اختر امتحان للتدريب","📚 Choose an exam to practice")}</div>
+    <p style="color:var(--muted);margin:-6px 0 8px;font-size:14px">${A("كل امتحان فيه أسئلته الرسمية كاملة.","Each exam contains its full official questions.")}</p>
     <div class="exam-grid">${chips}</div>
   </div>`);
 }
@@ -1303,12 +1310,12 @@ function startExam(mode,examNum){
   if(mode==='exam'){ qs = DATA.exams[examNum].map(q=>({...q,ex:String(examNum)})); }
   else if(mode==='mistakes'){
     qs = getProg().mistakes.slice();
-    if(!qs.length) return emptyState("ما عندك أخطاء محفوظة 🎉","حِل امتحانات أول، والأسئلة اللي بتغلط فيها بتنحفظ هون للمراجعة.");
+    if(!qs.length) return emptyState(A("ما عندك أخطاء محفوظة 🎉","No saved mistakes 🎉"),A("حِل امتحانات أول، والأسئلة اللي بتغلط فيها بتنحفظ هون للمراجعة.","Take some exams first — questions you get wrong are saved here for review."));
     qs=shuffle(qs);
   }
   else if(mode==='flagged'){
     qs = getProg().flagged.slice();
-    if(!qs.length) return emptyState("ما في أسئلة معلّمة ⭐","علّم أي سؤال صعب بزر العلم أثناء الحل، وبيجيك هون تراجعه.");
+    if(!qs.length) return emptyState(A("ما في أسئلة معلّمة ⭐","No flagged questions ⭐"),A("علّم أي سؤال صعب بزر العلم أثناء الحل، وبيجيك هون تراجعه.","Flag any hard question while practicing, and review it here."));
     qs=shuffle(qs);
   }
   else if(mode==='daily'){ qs = shuffle(ALLQ).slice(0,10); }
@@ -1326,7 +1333,7 @@ function emptyState(title,sub){
     <div style="font-size:52px">🗂️</div>
     <div style="font-weight:900;font-size:20px;margin-top:8px">${title}</div>
     <div style="color:var(--muted);margin-top:6px">${sub}</div>
-    <button class="btn" style="max-width:220px;margin:18px auto 0" onclick="gate('exam')">ابدأ امتحان</button>
+    <button class="btn" style="max-width:220px;margin:18px auto 0" onclick="gate('exam')">${A("ابدأ امتحان","Start an exam")}</button>
   </div></div>`);
 }
 function startTimer(){
@@ -1344,10 +1351,10 @@ function renderQ(){
   const {qs,idx,ans}=STATE, q=qs[idx];
   const total=qs.length, answered=ans.filter(a=>a!==null).length;
   const opts = LET.map((L,i)=>{
-    const raw=q[L], img=isImgOnly(raw);
+    const raw=tq(q,L), img=isImgOnly(raw);
     const sel = ans[idx]===L?'sel':'';
     return `<button class="opt ${sel}" id="opt-${L}" onclick="pick('${L}')">
-      <span class="lbl">${LET_AR[i]}</span>
+      <span class="lbl">${OPT_LET(i)}</span>
       <span class="otx">${renderSig(raw,img)}</span>
     </button>`;
   }).join("");
@@ -1355,41 +1362,41 @@ function renderQ(){
     <div class="quiz-head">
       <div class="progress-wrap">
         <div class="progress-bar"><div class="progress-fill" style="width:${(idx+1)/total*100}%"></div></div>
-        <div class="q-count">سؤال ${idx+1} من ${total} · تمّت الإجابة على ${answered}</div>
+        <div class="q-count">${A(`سؤال ${idx+1} من ${total} · تمّت الإجابة على ${answered}`,`Question ${idx+1} of ${total} · ${answered} answered`)}</div>
       </div>
       ${STATE.endAt?`<div class="timer" id="timer">⏱ --:--</div>`:''}
     </div>
     <div class="q-card">
-      <div class="wm">${CFG.INSTRUCTOR} · ${CFG.SNAP}</div>
-      <button class="flag-btn ${isFlagged(qKey(q))?'on':''}" id="flagBtn" onclick="toggleFlag('${qKey(q)}')" title="علّم للمراجعة">
+      <div class="wm">${A(CFG.INSTRUCTOR,"Instructor Mohammad Siwad")} · ${CFG.SNAP}</div>
+      <button class="flag-btn ${isFlagged(qKey(q))?'on':''}" id="flagBtn" onclick="toggleFlag('${qKey(q)}')" title="${A('علّم للمراجعة','Flag for review')}">
         <svg viewBox="0 0 24 24" fill="none"><path d="M5 21V4h11l-1.5 4L16 12H5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        <span id="flagTxt">${isFlagged(qKey(q))?'معلّم':'علّم السؤال'}</span>
+        <span id="flagTxt">${isFlagged(qKey(q))?T('flagged_q'):T('flag_q')}</span>
       </button>
-      <span class="q-num">${STATE.mode==='exam'?'امتحان '+STATE.examNum+' — ':STATE.mode==='mistakes'?'مراجعة أخطاء — ':STATE.mode==='flagged'?'أسئلة معلّمة — ':STATE.mode==='daily'?'تمرين سريع — ':''}السؤال ${idx+1}</span>
-      <button class="tts-btn" id="ttsQBtn" onclick="speakCur()" title="اسمع السؤال والإجابات">🔊</button>
-      <div class="q-text">${renderSig(q.question)}</div>
+      <span class="q-num">${STATE.mode==='exam'?T('exam_n')+' '+STATE.examNum+' — ':STATE.mode==='mistakes'?A('مراجعة أخطاء','Mistakes review')+' — ':STATE.mode==='flagged'?A('أسئلة معلّمة','Flagged')+' — ':STATE.mode==='daily'?A('تمرين سريع','Quick practice')+' — ':''}${T('question_n')} ${idx+1}</span>
+      <button class="tts-btn" id="ttsQBtn" onclick="speakCur()" title="${T('listen')}">🔊</button>
+      <div class="q-text">${renderSig(tq(q,"q"))}</div>
       <div class="opts">${opts}</div>
     </div>
     <div class="quiz-nav">
-      ${idx>0?`<button class="btn ghost" onclick="navQ(-1)">السابق ›</button>`:''}
+      ${idx>0?`<button class="btn ghost" onclick="navQ(-1)">${A("السابق ›","‹ Previous")}</button>`:''}
       ${idx<total-1
-        ?`<button class="btn" onclick="navQ(1)">‹ التالي</button>`
-        :`<button class="btn" style="background:var(--accent);color:#3a2c00" onclick="confirmFinish()">✓ إنهاء وتصحيح</button>`}
+        ?`<button class="btn" onclick="navQ(1)">${A("‹ التالي","Next ›")}</button>`
+        :`<button class="btn" style="background:var(--accent);color:#3a2c00" onclick="confirmFinish()">${A("✓ إنهاء وتصحيح","✓ Finish & Grade")}</button>`}
     </div>
     <div style="text-align:center;margin-top:12px">
-      <button class="btn sm ghost" style="width:auto;display:inline-flex;padding:8px 16px" onclick="confirmFinish()">إنهاء الامتحان الآن</button>
+      <button class="btn sm ghost" style="width:auto;display:inline-flex;padding:8px 16px" onclick="confirmFinish()">${A("إنهاء الامتحان الآن","End the exam now")}</button>
     </div>
   </div>`);
   if(STATE.endAt) startTimer();
 }
 function pick(L){ STATE.ans[STATE.idx]=L;
   LET.forEach(x=>$("#opt-"+x).classList.toggle('sel',x===L));
-  $(".q-count").textContent=`سؤال ${STATE.idx+1} من ${STATE.qs.length} · تمّت الإجابة على ${STATE.ans.filter(a=>a!==null).length}`;
+  $(".q-count").textContent=A(`سؤال ${STATE.idx+1} من ${STATE.qs.length} · تمّت الإجابة على ${STATE.ans.filter(a=>a!==null).length}`,`Question ${STATE.idx+1} of ${STATE.qs.length} · ${STATE.ans.filter(a=>a!==null).length} answered`);
 }
 function navQ(d){ STATE.idx+=d; renderQ(); }
 function confirmFinish(){
   const un=STATE.ans.filter(a=>a===null).length;
-  if(un>0 && !confirm(`باقي ${un} سؤال بدون إجابة. متأكد بدك تنهي؟`)) return;
+  if(un>0 && !confirm(A(`باقي ${un} سؤال بدون إجابة. متأكد بدك تنهي؟`,`${un} questions are unanswered. Finish anyway?`))) return;
   finishExam();
 }
 function finishExam(){
@@ -1421,50 +1428,51 @@ function renderResult(){
   const R=64,C=2*Math.PI*R, off=C*(1-pct/100);
   const p=getProg(), lvl=levelOf(p.points), nxt=nextLevel(p.points);
   const msgArr = pass?MOTIVATE.pass:(close?MOTIVATE.close:MOTIVATE.fail);
-  const msg = msgArr[Math.floor(Math.random()*msgArr.length)];
+  const msgEN = pass?["Amazing work! You're ready 💪","Excellent! Keep this level up 🔥","That's how it's done! 🏆"]:(close?["So close! One more push 📈","Almost there — review your mistakes 💡"]:["Don't give up — every expert started here 🌱","Review your mistakes and try again 💪"]);
+  const msg = isEN()? msgEN[Math.floor(Math.random()*msgEN.length)] : msgArr[Math.floor(Math.random()*msgArr.length)];
   const nb = STATE.newBadges||[];
   // تحليل نقاط الضعف: توزيع الأخطاء على المواضيع
   const weak={};
   qs.forEach((q,i)=>{
     if(STATE.ans[i]!==LET[+q.answer-1]){
       const raw=(q.question||"")+(q.a||"")+(q.b||"")+(q.c||"")+(q.d||"");
-      const k=/\[\[/.test(raw)?"🚸 الإشارات":(SECTIONS[sectionOf(q)]?SECTIONS[sectionOf(q)].icon+" "+SECTIONS[sectionOf(q)].name:"عام");
+      const k=/\[\[/.test(raw)?A("🚸 الإشارات","🚸 Road Signs"):(SECTIONS[sectionOf(q)]?SECTIONS[sectionOf(q)].icon+" "+secName(sectionOf(q)):A("عام","General"));
       weak[k]=(weak[k]||0)+1;
     }
   });
   const weakArr=Object.entries(weak).sort((a,b)=>b[1]-a[1]);
   const weakHtml = weakArr.length?`<div class="weak-box">
-      <div class="wk-t">🎯 وين غلطت؟</div>
-      <div class="wk-rows">${weakArr.map(([k,n])=>`<div class="wk-row"><span>${k}</span><b>${n} ${n===1?"خطأ":"أخطاء"}</b></div>`).join("")}</div>
-      <div class="wk-tip">💡 ركّز مراجعتك على ${weakArr[0][0]} — أكثر مكان بتغلط فيه.</div>
+      <div class="wk-t">${A("🎯 وين غلطت؟","🎯 Where did you go wrong?")}</div>
+      <div class="wk-rows">${weakArr.map(([k,n])=>`<div class="wk-row"><span>${k}</span><b>${n} ${A(n===1?"خطأ":"أخطاء",n===1?"mistake":"mistakes")}</b></div>`).join("")}</div>
+      <div class="wk-tip">${A(`💡 ركّز مراجعتك على ${weakArr[0][0]} — أكثر مكان بتغلط فيه.`,`💡 Focus your review on ${weakArr[0][0]} — your most frequent mistake area.`)}</div>
     </div>`:"";
   root.innerHTML=chrome(null);
   setView(`<div class="screen">
     ${pass?'<div class="confetti" id="confetti"></div>':''}
     <div class="result-card">
-      <div class="result-badge ${pass?'pass':'fail'}">${pass?'🎉 ناجح':'💪 حاول مرة ثانية'}</div>
+      <div class="result-badge ${pass?'pass':'fail'}">${pass?A('🎉 ناجح','🎉 Passed'):A('💪 حاول مرة ثانية','💪 Try again')}</div>
       <div class="result-ring">
         <svg width="150" height="150"><circle cx="75" cy="75" r="${R}" fill="none" stroke="var(--line)" stroke-width="12"/>
         <circle cx="75" cy="75" r="${R}" fill="none" stroke="${pass?'var(--ok)':'var(--danger)'}" stroke-width="12" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${off}"/></svg>
         <div class="pct"><b>${correct}<span style="font-size:20px">/${total}</span></b><span>${pct}%</span></div>
       </div>
       <div class="motivate">${msg}</div>
-      <div class="result-sub">أجبت صح على <b>${correct}</b> من <b>${total}</b>${need?` · النجاح يحتاج <b>${CFG.PASS_MARK}</b> فأكثر`:''}</div>
+      <div class="result-sub">${A(`أجبت صح على <b>${correct}</b> من <b>${total}</b>`,`You answered <b>${correct}</b> of <b>${total}</b> correctly`)}${need?A(` · النجاح يحتاج <b>${CFG.PASS_MARK}</b> فأكثر`,` · Pass mark: <b>${CFG.PASS_MARK}</b>+`):''}</div>
       <div class="level-bar">
-        <div class="lv-top"><span>${lvl.icon} ${lvl.name}</span>${nxt?`<span style="color:var(--muted)">التالي: ${nxt.icon} ${nxt.name}</span>`:'<span style="color:var(--ok)">أعلى مستوى 🎓</span>'}</div>
+        <div class="lv-top"><span>${lvl.icon} ${lvName(lvl)}</span>${nxt?`<span style="color:var(--muted)">${A('التالي:','Next:')} ${nxt.icon} ${lvName(nxt)}</span>`:`<span style="color:var(--ok)">${A('أعلى مستوى 🎓','Top level 🎓')}</span>`}</div>
         <div class="lv-track"><div class="lv-fill" style="width:${nxt?Math.round((p.points-lvl.min)/(nxt.min-lvl.min)*100):100}%;background:${lvl.c}"></div></div>
-        <div class="lv-pts">${p.points} نقطة${nxt?` · باقي ${nxt.min-p.points} للترقية`:''}</div>
+        <div class="lv-pts">${p.points} ${A('نقطة','pts')}${nxt?A(` · باقي ${nxt.min-p.points} للترقية`,` · ${nxt.min-p.points} to level up`):''}</div>
       </div>
-      ${nb.length?`<div class="new-badges"><div class="nb-t">🎖️ أوسمة جديدة!</div><div class="nb-row">${nb.map(b=>`<div class="nb"><div class="nb-ic">${b.icon}</div><div class="nb-nm">${b.name}</div></div>`).join("")}</div></div>`:''}
+      ${nb.length?`<div class="new-badges"><div class="nb-t">${A("🎖️ أوسمة جديدة!","🎖️ New badges!")}</div><div class="nb-row">${nb.map(b=>`<div class="nb"><div class="nb-ic">${b.icon}</div><div class="nb-nm">${isEN()?(b.en||b.name):b.name}</div></div>`).join("")}</div></div>`:''}
       ${weakHtml}
-      ${pass?`<button class="btn" style="background:linear-gradient(135deg,#c98a00,#e0a92e);color:#2a2000" onclick="shareResultCard()">📸 شارك نتيجتك (صورة)</button><div style="height:10px"></div>`:''}
-      ${pass?`<button class="btn sec" onclick="certificate()">🏅 شهادة النجاح</button><div style="height:10px"></div>`:''}
-      <button class="btn ${pass?'ghost':''}" onclick="reviewExam()">📝 مراجعة الأخطاء والإجابات</button>
+      ${pass?`<button class="btn" style="background:linear-gradient(135deg,#c98a00,#e0a92e);color:#2a2000" onclick="shareResultCard()">${A("📸 شارك نتيجتك (صورة)","📸 Share your result (image)")}</button><div style="height:10px"></div>`:''}
+      ${pass?`<button class="btn sec" onclick="certificate()">${A("🏅 شهادة النجاح","🏅 Pass certificate")}</button><div style="height:10px"></div>`:''}
+      <button class="btn ${pass?'ghost':''}" onclick="reviewExam()">${A("📝 مراجعة الأخطاء والإجابات","📝 Review answers & mistakes")}</button>
       <div style="height:10px"></div>
-      <button class="btn ${pass?'ghost':'sec'}" onclick="${STATE.mode==='exam'?`startExam('exam',${STATE.examNum})`:`startExam('random')`}">🔄 إعادة</button>
-      ${p.mistakes.length?`<div style="height:10px"></div><button class="btn ghost" onclick="gate('mistakes')">🎯 تدرّب على أخطائك (${p.mistakes.length})</button>`:''}
+      <button class="btn ${pass?'ghost':'sec'}" onclick="${STATE.mode==='exam'?`startExam('exam',${STATE.examNum})`:`startExam('random')`}">${A("🔄 إعادة","🔄 Retry")}</button>
+      ${p.mistakes.length?`<div style="height:10px"></div><button class="btn ghost" onclick="gate('mistakes')">${A(`🎯 تدرّب على أخطائك (${p.mistakes.length})`,`🎯 Practice your mistakes (${p.mistakes.length})`)}</button>`:''}
     </div>
-    <div class="brand-footer">💡 للحجز مع <b>${CFG.INSTRUCTOR}</b> · واتساب ${CFG.WHATSAPP}</div>
+    <div class="brand-footer">${A(`💡 للحجز مع <b>${CFG.INSTRUCTOR}</b> · واتساب ${CFG.WHATSAPP}`,`💡 Book lessons with <b>Instructor Mohammad Siwad</b> · WhatsApp ${CFG.WHATSAPP}`)}</div>
   </div>`);
   if(pass) fireConfetti();
 }
@@ -1474,8 +1482,8 @@ const APP_URL="tinyurl.com/teoria26";
 async function shareResultCard(){
   const p=getProg();
   let nm=p.name;
-  if(!nm){ nm=(prompt("اكتب اسمك ليظهر على البطاقة:")||"").trim(); if(nm){p.name=nm;saveProg(p);} }
-  nm=nm||"طالب توريا";
+  if(!nm){ nm=(prompt(A("اكتب اسمك ليظهر على البطاقة:","Enter your name for the card:"))||"").trim(); if(nm){p.name=nm;saveProg(p);} }
+  nm=nm||A("طالب توريا","Theory student");
   const {correct,qs}=STATE, total=qs.length, pct=Math.round(correct/total*100);
   TP.log('share_result_card');
   const W=1080,H=1350, cv=document.createElement("canvas"); cv.width=W; cv.height=H;
@@ -1488,19 +1496,19 @@ async function shareResultCard(){
   x.beginPath();x.arc(90,120,180,0,7);x.fill();
   x.beginPath();x.arc(W-60,H-160,220,0,7);x.fill();
   x.globalAlpha=1;
-  x.textAlign="center"; x.direction="rtl";
+  x.textAlign="center"; x.direction=isEN()?"ltr":"rtl";
   // العنوان
   x.fillStyle="#ffffff"; x.font="900 54px Tajawal, Arial";
-  x.fillText("توريا فلسطين 🚦",W/2,130);
+  x.fillText(A("توريا فلسطين 🚦","Theory Palestine 🚦"),W/2,130);
   x.font="700 34px Tajawal, Arial"; x.globalAlpha=.85;
-  x.fillText("دراسة التوريا بالذكاء الاصطناعي",W/2,185); x.globalAlpha=1;
+  x.fillText(A("دراسة التوريا بالذكاء الاصطناعي","AI-powered Theory Test prep"),W/2,185); x.globalAlpha=1;
   // بطاقة بيضاء
   const cx=70,cy=250,cw=W-140,ch=760,r=48;
   x.fillStyle="#fff";
   x.beginPath();x.moveTo(cx+r,cy);x.arcTo(cx+cw,cy,cx+cw,cy+ch,r);x.arcTo(cx+cw,cy+ch,cx,cy+ch,r);x.arcTo(cx,cy+ch,cx,cy,r);x.arcTo(cx,cy,cx+cw,cy,r);x.fill();
   // نجحت!
   x.fillStyle="#1f8a55"; x.font="900 72px Tajawal, Arial";
-  x.fillText("🎉 نجحت بالامتحان التجريبي",W/2,cy+120);
+  x.fillText(A("🎉 نجحت بالامتحان التجريبي","🎉 Passed the mock exam"),W/2,cy+120);
   // الاسم
   x.fillStyle="#1c1420"; x.font="900 64px Tajawal, Arial";
   x.fillText(nm,W/2,cy+230);
@@ -1516,19 +1524,19 @@ async function shareResultCard(){
   x.fillText(pct+"%",ccx,ccy+75);
   // سطر تحفيزي
   x.fillStyle="#6d6d78"; x.font="700 36px Tajawal, Arial";
-  x.fillText("جاهز/ة لامتحان الوزاره 💪",W/2,cy+660);
+  x.fillText(A("جاهز/ة لامتحان الوزاره 💪","Ready for the Ministry exam 💪"),W/2,cy+660);
   // معلومات المدرب
   x.fillStyle="#ffffff"; x.font="900 46px Tajawal, Arial";
-  x.fillText("👨‍🏫 "+CFG.INSTRUCTOR+" — "+CFG.AREA,W/2,H-220);
+  x.fillText(A("👨‍🏫 "+CFG.INSTRUCTOR+" — "+CFG.AREA,"👨‍🏫 Instructor Mohammad Siwad — Bethlehem"),W/2,H-220);
   x.font="800 40px Tajawal, Arial"; x.globalAlpha=.95;
-  x.fillText("واتساب: "+CFG.WHATSAPP+"  ·  سناب: "+CFG.SNAP,W/2,H-150);
+  x.fillText(A("واتساب: "+CFG.WHATSAPP+"  ·  سناب: "+CFG.SNAP,"WhatsApp: "+CFG.WHATSAPP+"  ·  Snap: "+CFG.SNAP),W/2,H-150);
   x.font="800 42px Tajawal, Arial"; x.fillStyle="#ffd66e";
-  x.fillText("جرّب حالك: "+APP_URL,W/2,H-70);
+  x.fillText(A("جرّب حالك: "+APP_URL,"Try it yourself: "+APP_URL),W/2,H-70);
   // مشاركة أو تنزيل
   cv.toBlob(async b=>{
     const f=new File([b],"teoria-result.png",{type:"image/png"});
     if(navigator.canShare && navigator.canShare({files:[f]})){
-      try{ await navigator.share({files:[f],title:"نتيجتي بالتوريا 🎉"}); return; }catch(e){}
+      try{ await navigator.share({files:[f],title:A("نتيجتي بالتوريا 🎉","My Theory Test result 🎉")}); return; }catch(e){}
     }
     const a=document.createElement("a");
     a.href=URL.createObjectURL(b); a.download="teoria-result.png"; a.click();
@@ -1538,30 +1546,30 @@ async function shareResultCard(){
 /* ============ شارك التطبيق ============ */
 async function shareApp(){
   TP.log('share_app');
-  const txt=`جرّب دراسة التوريا بالذكاء الاصطناعي 🚦🤖 أسئلة رسمية + إشارات + مساعد ذكي — مع ${CFG.INSTRUCTOR}:\nhttps://${APP_URL}`;
-  if(navigator.share){ try{ await navigator.share({title:"توريا فلسطين",text:txt}); return; }catch(e){} }
+  const txt=A(`جرّب دراسة التوريا بالذكاء الاصطناعي 🚦🤖 أسئلة رسمية + إشارات + مساعد ذكي — مع ${CFG.INSTRUCTOR}:\nhttps://${APP_URL}`,`Study for the Palestinian driving Theory Test with AI 🚦🤖 Official questions + signs + AI assistant — with Instructor Mohammad Siwad:\nhttps://${APP_URL}`);
+  if(navigator.share){ try{ await navigator.share({title:A("توريا فلسطين","Theory Palestine"),text:txt}); return; }catch(e){} }
   window.open("https://wa.me/?text="+encodeURIComponent(txt),"_blank");
 }
 
 /* ============ عدّاد الامتحان ============ */
 function examChipHtml(){
   const p=getProg();
-  if(!p.examDate) return `<button class="exam-chip-cta" onclick="setExamDate()">📅 متى امتحانك؟ حدّد التاريخ وبنعدّلك الأيام</button>`;
+  if(!p.examDate) return `<button class="exam-chip-cta" onclick="setExamDate()">${A("📅 متى امتحانك؟ حدّد التاريخ وبنعدّلك الأيام","📅 When is your exam? Set the date for a countdown")}</button>`;
   const days=Math.ceil((new Date(p.examDate+"T00:00:00") - new Date(new Date().toDateString()))/86400000);
-  if(days<0) return `<button class="exam-chip-cta" onclick="setExamDate()">📅 مرّ تاريخ امتحانك — حدّثه</button>`;
-  const txt = days===0 ? "🍀 امتحانك اليوم! بالتوفيق يا بطل" : days===1 ? "🔥 امتحانك بكرة! راجع أخطاءك" : `🔥 باقي <b>${days}</b> يوم على امتحانك — كمّل دراسة`;
+  if(days<0) return `<button class="exam-chip-cta" onclick="setExamDate()">${A("📅 مرّ تاريخ امتحانك — حدّثه","📅 Your exam date has passed — update it")}</button>`;
+  const txt = days===0 ? A("🍀 امتحانك اليوم! بالتوفيق يا بطل","🍀 Your exam is today! Good luck, champ") : days===1 ? A("🔥 امتحانك بكرة! راجع أخطاءك","🔥 Your exam is tomorrow! Review your mistakes") : A(`🔥 باقي <b>${days}</b> يوم على امتحانك — كمّل دراسة`,`🔥 <b>${days}</b> days until your exam — keep studying`);
   return `<button class="exam-chip-on" onclick="setExamDate()">${txt}</button>`;
 }
 function setExamDate(){
   const p=getProg();
   const ov=document.createElement("div"); ov.className="ov";
   ov.innerHTML=`<div class="ov-card">
-    <h3>📅 تاريخ امتحان التوريا</h3>
-    <p>حدّد التاريخ وبنذكّرك بالأيام الباقية كل ما تفتح التطبيق.</p>
+    <h3>${A("📅 تاريخ امتحان التوريا","📅 Your Theory Test date")}</h3>
+    <p>${A("حدّد التاريخ وبنذكّرك بالأيام الباقية كل ما تفتح التطبيق.","Set the date and a countdown will show every time you open the app.")}</p>
     <input type="date" id="exDate" value="${p.examDate||""}" min="${new Date().toISOString().slice(0,10)}">
-    <button class="btn" onclick="saveExamDate()">حفظ</button>
-    ${p.examDate?`<button class="btn ghost" onclick="clearExamDate()">إزالة التاريخ</button>`:""}
-    <button class="btn ghost" onclick="this.closest('.ov').remove()">إلغاء</button>
+    <button class="btn" onclick="saveExamDate()">${A("حفظ","Save")}</button>
+    ${p.examDate?`<button class="btn ghost" onclick="clearExamDate()">${A("إزالة التاريخ","Remove date")}</button>`:""}
+    <button class="btn ghost" onclick="this.closest('.ov').remove()">${A("إلغاء","Cancel")}</button>
   </div>`;
   document.body.appendChild(ov);
 }
@@ -1582,12 +1590,10 @@ function welcomeIfFirst(){
   const ov=document.createElement("div"); ov.className="ov";
   ov.innerHTML=`<div class="ov-card" style="text-align:center">
     <div style="font-size:52px">👋</div>
-    <h3>أهلاً فيك بتطبيق التوريا!</h3>
-    <p style="line-height:1.9">أنا تطبيق <b>${CFG.INSTRUCTOR}</b> لدراسة التوريا بالذكاء الاصطناعي.<br>
-    🌱 <b>أول مرة بالتوريا؟</b> ابدأ من قسم المبتدئين.<br>
-    📝 <b>عندك خلفية؟</b> روح اختبر حالك مباشرة.</p>
-    <button class="btn" style="background:linear-gradient(135deg,#1f8a55,#136b40)" onclick="STORE.set('tp_welcomed',true);this.closest('.ov').remove();begHub()">🌱 ابدأ من قسم المبتدئين</button>
-    <button class="btn ghost" onclick="STORE.set('tp_welcomed',true);this.closest('.ov').remove()">بعرف التطبيق — يلا</button>
+    <h3>${A("أهلاً فيك بتطبيق التوريا!","Welcome to the Theory Test app!")}</h3>
+    <p style="line-height:1.9">${A(`أنا تطبيق <b>${CFG.INSTRUCTOR}</b> لدراسة التوريا بالذكاء الاصطناعي.<br>🌱 <b>أول مرة بالتوريا؟</b> ابدأ من قسم المبتدئين.<br>📝 <b>عندك خلفية؟</b> روح اختبر حالك مباشرة.`,`This is the AI-powered Theory Test app by <b>Instructor Mohammad Siwad</b>.<br>🌱 <b>New to the Theory Test?</b> Start with the Beginners Section.<br>📝 <b>Already know the basics?</b> Go straight to Test Yourself.`)}</p>
+    <button class="btn" style="background:linear-gradient(135deg,#1f8a55,#136b40)" onclick="STORE.set('tp_welcomed',true);this.closest('.ov').remove();begHub()">${A("🌱 ابدأ من قسم المبتدئين","🌱 Start with the Beginners Section")}</button>
+    <button class="btn ghost" onclick="STORE.set('tp_welcomed',true);this.closest('.ov').remove()">${A("بعرف التطبيق — يلا","I know the app — go")}</button>
   </div>`;
   document.body.appendChild(ov);
 }
@@ -1611,7 +1617,7 @@ function fireConfetti(){
 function certificate(){
   const p=getProg();
   let nm=p.name;
-  if(!nm){ nm=(prompt("اكتب اسمك ليظهر على الشهادة:")||"").trim(); if(nm){p.name=nm;saveProg(p);} }
+  if(!nm){ nm=(prompt(A("اكتب اسمك ليظهر على الشهادة:","Enter your name for the certificate:"))||"").trim(); if(nm){p.name=nm;saveProg(p);} }
   const {correct,qs}=STATE, total=qs.length, pct=Math.round(correct/total*100);
   const d=new Date(), date=d.getDate()+"/"+(d.getMonth()+1)+"/"+d.getFullYear();
   TP.log('certificate');
@@ -1619,25 +1625,25 @@ function certificate(){
   setView(`<div class="screen">
     <div class="cert" id="cert">
       <div class="cert-in">
-        <div class="cert-top">🎓 شهادة اجتياز</div>
-        <div class="cert-app">توريا فلسطين — بالذكاء الاصطناعي</div>
+        <div class="cert-top">${A("🎓 شهادة اجتياز","🎓 Certificate of Achievement")}</div>
+        <div class="cert-app">${A("توريا فلسطين — بالذكاء الاصطناعي","Theory Palestine — AI-powered")}</div>
         <div class="cert-line"></div>
-        <div class="cert-lbl">تشهد المنصة بأن</div>
-        <div class="cert-name">${esc(nm||"الطالب")}</div>
-        <div class="cert-lbl">اجتاز الامتحان التدريبي بنتيجة</div>
+        <div class="cert-lbl">${A("تشهد المنصة بأن","This certifies that")}</div>
+        <div class="cert-name">${esc(nm||A("الطالب","Student"))}</div>
+        <div class="cert-lbl">${A("اجتاز الامتحان التدريبي بنتيجة","passed the mock exam with a score of")}</div>
         <div class="cert-score">${correct}/${total} · ${pct}%</div>
         <div class="cert-foot">
           <div>📅 ${date}</div>
-          <div>👨‍🏫 ${CFG.INSTRUCTOR}</div>
+          <div>👨‍🏫 ${A(CFG.INSTRUCTOR,"Instructor Mohammad Siwad")}</div>
         </div>
-        <div class="cert-wa">📲 للحجز: واتساب ${CFG.WHATSAPP} · سناب ${CFG.SNAP}</div>
+        <div class="cert-wa">${A(`📲 للحجز: واتساب ${CFG.WHATSAPP} · سناب ${CFG.SNAP}`,`📲 Bookings: WhatsApp ${CFG.WHATSAPP} · Snap ${CFG.SNAP}`)}</div>
       </div>
     </div>
     <div style="height:14px"></div>
-    <div style="text-align:center;color:var(--muted);font-size:13px;margin-bottom:10px">📸 خُد سكرين شوت للشهادة وشاركها!</div>
-    <button class="btn sec" onclick="renderResult()">‹ رجوع</button>
+    <div style="text-align:center;color:var(--muted);font-size:13px;margin-bottom:10px">${A("📸 خُد سكرين شوت للشهادة وشاركها!","📸 Screenshot your certificate and share it!")}</div>
+    <button class="btn sec" onclick="renderResult()">${T("back")}</button>
     <div style="height:10px"></div>
-    <button class="btn ghost" onclick="home()">الرئيسية</button>
+    <button class="btn ghost" onclick="home()">${A("الرئيسية","Home")}</button>
   </div>`);
 }
 function reviewExam(){
@@ -1647,25 +1653,25 @@ function reviewExam(){
     const cor=LET[+q.answer-1], mine=ans[i];
     const opts=LET.map((L,j)=>{
       let cls=''; if(L===cor)cls='correct'; else if(L===mine&&mine!==cor)cls='wrong';
-      const img=isImgOnly(q[L]);
+      const img=isImgOnly(tq(q,L));
       const mark = L===cor?'<span class="mark">✓</span>':(L===mine&&mine!==cor?'<span class="mark">✕</span>':'');
-      return `<div class="opt ${cls}"><span class="lbl">${LET_AR[j]}</span><span class="otx">${renderSig(q[L],img)}</span>${mark}</div>`;
+      return `<div class="opt ${cls}"><span class="lbl">${OPT_LET(j)}</span><span class="otx">${renderSig(tq(q,L),img)}</span>${mark}</div>`;
     }).join("");
     return `<div class="q-card" style="margin-bottom:14px">
       <span class="q-num" style="${mine===cor?'background:var(--ok-l);color:var(--ok)':(mine===null?'background:#eee;color:#888':'background:var(--danger-l);color:var(--danger)')}">
-        ${i+1} · ${mine===cor?'صحيح':(mine===null?'بدون إجابة':'خطأ')}</span>
-      <div class="q-text" style="font-size:16px">${renderSig(q.question)}</div>
+        ${i+1} · ${mine===cor?A('صحيح','Correct'):(mine===null?A('بدون إجابة','Unanswered'):A('خطأ','Wrong'))}</span>
+      <div class="q-text" style="font-size:16px">${renderSig(tq(q,"q"))}</div>
       <div class="opts">${opts}</div>
       ${explainQ(q)}
       ${mine!==cor?askTeacherBtn(q):''}
     </div>`;
   }).join("");
   setView(`<div class="screen">
-    <div class="sec-title">📝 المراجعة</div>
+    <div class="sec-title">${A("📝 المراجعة","📝 Review")}</div>
     ${items}
-    <button class="btn ghost" onclick="renderResult()">‹ رجوع للنتيجة</button>
+    <button class="btn ghost" onclick="renderResult()">${A("‹ رجوع للنتيجة","‹ Back to result")}</button>
     <div style="height:10px"></div>
-    <button class="btn" onclick="home()">الرئيسية</button>
+    <button class="btn" onclick="home()">${A("الرئيسية","Home")}</button>
   </div>`);
 }
 
@@ -1678,7 +1684,7 @@ function progress(){
   // جاهزية: مزيج من الدقة وعدد الأسئلة المحلولة (تغطية)
   const coverage=Math.min(1, p.answered/300);
   const ready=Math.round(acc*0.7 + coverage*100*0.3);
-  const rmsg = ready>=85?"جاهز للامتحان! 🎉":ready>=60?"قربت — كمّل تدريب 💪":ready>=30?"على الطريق الصحيح 🚦":"لسا بالبداية — تدرّب أكتر";
+  const rmsg = ready>=85?A("جاهز للامتحان! 🎉","Exam-ready! 🎉"):ready>=60?A("قربت — كمّل تدريب 💪","Getting close — keep practicing 💪"):ready>=30?A("على الطريق الصحيح 🚦","On the right track 🚦"):A("لسا بالبداية — تدرّب أكتر","Just starting — practice more");
   const R=58,C=2*Math.PI*R, off=C*(1-ready/100);
   const lvl=levelOf(p.points), nxt=nextLevel(p.points);
 
@@ -1690,53 +1696,53 @@ function progress(){
 
   const topicHtml = topics.length? topics.map(t=>{
     const T=TOPICS[t.k];
-    return `<div class="topic-row"><div class="th"><span>${T.icon}</span> ${T.name}
+    return `<div class="topic-row"><div class="th"><span>${T.icon}</span> ${isEN()?(T.en||T.name):T.name}
       <span class="pc" style="color:${t.pc>=70?'var(--ok)':t.pc>=40?'var(--accent)':'var(--danger)'}">${t.pc}%</span></div>
       <div class="tbar"><div class="tfill" style="width:${t.pc}%;background:${t.pc>=70?'var(--ok)':t.pc>=40?'var(--accent)':'var(--danger)'}"></div></div>
-      <div style="font-size:11px;color:var(--muted);margin-top:5px">${t.seen} سؤال</div></div>`;
-  }).join("") : `<div style="text-align:center;color:var(--muted);padding:20px;background:var(--surface);border-radius:14px;border:1px solid var(--line)">حِل امتحانات عشان تظهر نقاط قوّتك وضعفك حسب الموضوع 📊</div>`;
+      <div style="font-size:11px;color:var(--muted);margin-top:5px">${t.seen} ${A("سؤال","Qs")}</div></div>`;
+  }).join("") : `<div style="text-align:center;color:var(--muted);padding:20px;background:var(--surface);border-radius:14px;border:1px solid var(--line)">${A("حِل امتحانات عشان تظهر نقاط قوّتك وضعفك حسب الموضوع 📊","Take exams to reveal your strengths and weaknesses by topic 📊")}</div>`;
 
   setView(`<div class="screen">
-    <div class="sec-title">📊 تقدّمي</div>
+    <div class="sec-title">📊 ${T("nav_prog")}</div>
     <div class="ready-card">
-      <div style="font-size:13px;opacity:.9;font-weight:700">مقياس الجاهزية للامتحان</div>
+      <div style="font-size:13px;opacity:.9;font-weight:700">${A("مقياس الجاهزية للامتحان","Exam readiness meter")}</div>
       <div class="rr"><svg width="130" height="130" style="transform:rotate(-90deg)"><circle cx="65" cy="65" r="${R}" fill="none" stroke="rgba(255,255,255,.25)" stroke-width="11"/><circle cx="65" cy="65" r="${R}" fill="none" stroke="#fff" stroke-width="11" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${off}"/></svg>
         <div class="pct"><b>${ready}%</b></div></div>
       <div class="rmsg">${rmsg}</div>
     </div>
     <div class="prog-stats">
-      <div class="pstat"><div class="n">${p.answered}</div><div class="l">سؤال محلول</div></div>
-      <div class="pstat"><div class="n">${acc}%</div><div class="l">نسبة الصح</div></div>
-      <div class="pstat"><div class="n">${p.points}</div><div class="l">نقطة 🏆</div></div>
+      <div class="pstat"><div class="n">${p.answered}</div><div class="l">${A("سؤال محلول","answered")}</div></div>
+      <div class="pstat"><div class="n">${acc}%</div><div class="l">${A("نسبة الصح","accuracy")}</div></div>
+      <div class="pstat"><div class="n">${p.points}</div><div class="l">${A("نقطة 🏆","points 🏆")}</div></div>
     </div>
     <div class="level-bar" style="margin-bottom:16px">
-      <div class="lv-top"><span>${lvl.icon} مستواك: ${lvl.name}</span>${nxt?`<span style="color:var(--muted)">${nxt.icon} ${nxt.name}</span>`:'<span style="color:var(--ok)">أعلى مستوى 🎓</span>'}</div>
+      <div class="lv-top"><span>${lvl.icon} ${A("مستواك:","Your level:")} ${lvName(lvl)}</span>${nxt?`<span style="color:var(--muted)">${nxt.icon} ${lvName(nxt)}</span>`:`<span style="color:var(--ok)">${A("أعلى مستوى 🎓","Top level 🎓")}</span>`}</div>
       <div class="lv-track"><div class="lv-fill" style="width:${nxt?Math.round((p.points-lvl.min)/(nxt.min-lvl.min)*100):100}%;background:${lvl.c}"></div></div>
-      <div class="lv-pts">${p.points} نقطة${nxt?` · باقي ${nxt.min-p.points} للمستوى الجاي`:''}</div>
+      <div class="lv-pts">${p.points} ${A("نقطة","pts")}${nxt?A(` · باقي ${nxt.min-p.points} للمستوى الجاي`,` · ${nxt.min-p.points} to next level`):""}</div>
     </div>
     <div class="act-cards">
       <button class="act-card" onclick="gate('mistakes')">
         ${p.mistakes.length?`<span class="ac-badge">${p.mistakes.length}</span>`:''}
-        <div class="ac-ic">🎯</div><div class="ac-t">أخطائي</div><div class="ac-n">${p.mistakes.length} سؤال للمراجعة</div>
+        <div class="ac-ic">🎯</div><div class="ac-t">${T("mistakes")}</div><div class="ac-n">${p.mistakes.length} ${A("سؤال للمراجعة","to review")}</div>
       </button>
       <button class="act-card" onclick="gate('flagged')">
         ${p.flagged.length?`<span class="ac-badge">${p.flagged.length}</span>`:''}
-        <div class="ac-ic">⭐</div><div class="ac-t">المعلّمة</div><div class="ac-n">${p.flagged.length} سؤال محفوظ</div>
+        <div class="ac-ic">⭐</div><div class="ac-t">${A("المعلّمة","Flagged")}</div><div class="ac-n">${p.flagged.length} ${A("سؤال محفوظ","saved")}</div>
       </button>
     </div>
-    <div class="sec-title" style="font-size:16px">🎖️ أوسمتك (${p.badges.length}/${BADGES.length})</div>
+    <div class="sec-title" style="font-size:16px">${A("🎖️ أوسمتك","🎖️ Your badges")} (${p.badges.length}/${BADGES.length})</div>
     <div class="badges-grid">
-      ${BADGES.map(b=>{const un=p.badges.includes(b.id);return `<div class="bdg ${un?'':'locked'}"><div class="bic">${b.icon}</div><div class="bnm">${b.name}</div><div class="bds">${un?b.desc:'مقفل'}</div></div>`;}).join("")}
+      ${BADGES.map(b=>{const un=p.badges.includes(b.id);return `<div class="bdg ${un?"":"locked"}"><div class="bic">${b.icon}</div><div class="bnm">${isEN()?(b.en||b.name):b.name}</div><div class="bds">${un?(isEN()?(b.den||b.desc):b.desc):A("مقفل","Locked")}</div></div>`;}).join("")}
     </div>
     <div style="height:16px"></div>
-    <div class="sec-title" style="font-size:16px">حسب الموضوع</div>
+    <div class="sec-title" style="font-size:16px">${A("حسب الموضوع","By topic")}</div>
     ${topicHtml}
     <div style="height:14px"></div>
-    <button class="btn sec" onclick="gate('exam')">ابدأ امتحان جديد</button>
-    ${p.answered?`<div style="height:8px"></div><button class="btn ghost sm" onclick="resetProg()">تصفير التقدّم</button>`:''}
+    <button class="btn sec" onclick="gate('exam')">${A("ابدأ امتحان جديد","Start a new exam")}</button>
+    ${p.answered?`<div style="height:8px"></div><button class="btn ghost sm" onclick="resetProg()">${A("تصفير التقدّم","Reset progress")}</button>`:''}
   </div>`);
 }
-function resetProg(){ if(confirm("متأكد بدك تصفّر كل تقدّمك؟ ما بينرجع.")){ saveProg({answered:0,correct:0,byTopic:{},exams:{},mistakes:[],flagged:[],points:0,streak:0,lastDaily:null,history:[],badges:[],name:"",passes:0}); progress(); } }
+function resetProg(){ if(confirm(A("متأكد بدك تصفّر كل تقدّمك؟ ما بينرجع.","Reset ALL your progress? This cannot be undone."))){ saveProg({answered:0,correct:0,byTopic:{},exams:{},mistakes:[],flagged:[],points:0,streak:0,lastDaily:null,history:[],badges:[],name:"",passes:0}); progress(); } }
 
 /* ================= التحدّي اليومي ================= */
 function daily(){
@@ -1747,19 +1753,19 @@ function daily(){
   setView(`<div class="screen">
     <div class="daily-hero">
       <div class="fire">🔥</div>
-      <h2>تمرين سريع</h2>
-      <p>١٠ أسئلة عشوائية · حافظ على سلسلتك اليومية!</p>
+      <h2>${T("quick")}</h2>
+      <p>${A("١٠ أسئلة عشوائية · حافظ على سلسلتك اليومية!","10 random questions · Keep your daily streak!")}</p>
     </div>
     <div class="prog-stats">
-      <div class="pstat"><div class="n">${p.streak} 🔥</div><div class="l">يوم متتالي</div></div>
-      <div class="pstat"><div class="n">${p.points}</div><div class="l">نقطة</div></div>
+      <div class="pstat"><div class="n">${p.streak} 🔥</div><div class="l">${A("يوم متتالي","day streak")}</div></div>
+      <div class="pstat"><div class="n">${p.points}</div><div class="l">${A("نقطة","points")}</div></div>
     </div>
     ${done
-      ? `<div class="daily-done">✅ خلّصت تمرين اليوم!<br><span style="font-weight:600;color:var(--muted)">ارجع بكرة تكمّل سلسلتك 🔥</span></div>
-         <button class="btn sec" onclick="startExam('daily')">إعادة التمرين (بدون نقاط)</button>`
-      : `<button class="btn" style="background:linear-gradient(135deg,#ff9a45,#e0601a);box-shadow:0 8px 24px rgba(224,96,26,.35)" onclick="startExam('daily')">ابدأ التمرين →</button>`}
+      ? `<div class="daily-done">${A("✅ خلّصت تمرين اليوم!","✅ Today\u2019s practice done!")}<br><span style="font-weight:600;color:var(--muted)">${A("ارجع بكرة تكمّل سلسلتك 🔥","Come back tomorrow to keep your streak 🔥")}</span></div>
+         <button class="btn sec" onclick="startExam('daily')">${A("إعادة التمرين (بدون نقاط)","Repeat (no points)")}</button>`
+      : `<button class="btn" style="background:linear-gradient(135deg,#ff9a45,#e0601a);box-shadow:0 8px 24px rgba(224,96,26,.35)" onclick="startExam('daily')">${A("ابدأ التمرين →","Start practice →")}</button>`}
     <div style="height:12px"></div>
-    <div style="text-align:center;color:var(--muted);font-size:13px">كل يوم بتخلّصه = +١٠ نقاط وسلسلة أطول 💪</div>
+    <div style="text-align:center;color:var(--muted);font-size:13px">${A("كل يوم بتخلّصه = +١٠ نقاط وسلسلة أطول 💪","Each day completed = +10 points and a longer streak 💪")}</div>
   </div>`);
 }
 
@@ -1827,22 +1833,21 @@ function begIntro(){
   root.innerHTML=chrome(null);
   setView(`<div class="screen">
     <div class="hero" style="background:linear-gradient(140deg,#1f8a55,#136b40 60%,#0c4b2c)">
-      <h2>إشارات للمبتدئين 🌱</h2>
-      <p>اختَر نوع الإشارات، وتعلّمها إشارة إشارة مع أسئلتها الرسمية.</p>
+      <h2>${T("beg_signs")} 🌱</h2>
+      <p>${A("اختَر نوع الإشارات، وتعلّمها إشارة إشارة مع أسئلتها الرسمية.","Choose a sign type and learn it sign by sign with its official questions.")}</p>
     </div>
     <div class="beg-intro-card" style="margin-top:14px">
-      <b>🚸 الإشارات مقسّمة حسب نوعها الرسمي</b><br>
-      كل نوع له شكله ومعناه: التحذير مثلث 🔺، الإرشاد والمنع دائرة ⭕... تعلّم نوع نوع بهدوء.
+      ${A("<b>🚸 الإشارات مقسّمة حسب نوعها الرسمي</b><br>كل نوع له شكله ومعناه: التحذير مثلث 🔺، الإرشاد والمنع دائرة ⭕... تعلّم نوع نوع بهدوء.","<b>🚸 Signs are grouped by their official type</b><br>Each type has its shape and meaning: Warning = triangle 🔺, Guidance & Prohibition = circle ⭕... Learn one type at a time.")}
     </div>
     <div class="menu" style="margin-top:14px">
       ${Object.entries(CAT).map(([k,c])=>`
         <button class="card" onclick="begType('${k}')">
           <div class="ic" style="background:${c.c}1a;color:${c.c};font-weight:900;font-size:20px">${LET_AR2(k)}</div>
-          <div class="tx"><h3>إشارات ${esc(c.name)}</h3><p>${counts[k]} إشارة</p></div><div class="arrow">‹</div>
+          <div class="tx"><h3>${A("إشارات "+c.name,catName(k)+" Signs")}</h3><p>${counts[k]} ${A("إشارة","signs")}</p></div><div class="arrow">‹</div>
         </button>`).join("")}
     </div>
     <div style="height:12px"></div>
-    <button class="btn ghost" onclick="begHub()">‹ قسم المبتدئين</button>
+    <button class="btn ghost" onclick="begHub()">${T("back_beg")}</button>
   </div>`);
 }
 function LET_AR2(k){ return ({a:"أ",b:"ب",c:"ج",d:"د",e:"هـ",f:"و"})[k]||k; }
@@ -1851,7 +1856,7 @@ function LET_AR2(k){ return ({a:"أ",b:"ب",c:"ج",d:"د",e:"هـ",f:"و"})[k]||
 function begType(letter){
   const seq=buildBegType(letter);
   if(!seq.length) return begIntro();
-  begStart(seq,`إشارات ${CAT[letter].name}`);
+  begStart(seq,A(`إشارات ${CAT[letter].name}`,`${catName(letter)} Signs`));
 }
 function begStart(seq,label){ BEGST={seq,i:0,label}; begRun(0); }
 
@@ -1871,48 +1876,48 @@ function begRun(i){
     const s=DATA.signals[u.c];
     setView(`<div class="screen">${head}
       <div class="beg-sig-card">
-        <div class="bsc-tag">إشارة جديدة 🌱</div>
+        <div class="bsc-tag">${A("إشارة جديدة 🌱","New sign 🌱")}</div>
         <div class="bsc-img">${s.no_image?`<span class="noimg" style="font-size:40px">🚸</span>`:`<img src="${IMG_BASE}${u.c}.jpg" alt="${esc(s.code_ar)}" onerror="this.outerHTML='<span style=\\'font-size:40px\\'>🚸</span>'">`}</div>
-        <div class="bsc-code">${esc(s.code_ar)} <button class="tts-btn" style="position:static;display:inline-grid;vertical-align:middle" onclick="speakSig('${u.c}')" title="اسمع معنى الإشارة">🔊</button></div>
-        <div class="bsc-txt">${esc(s.text)}</div>
-        <div class="bsc-note">📝 عليها <b>${u.n}</b> ${u.n===1?"سؤال رسمي":"أسئلة رسمية"}</div>
+        <div class="bsc-code">${esc(tcode(u.c))} <button class="tts-btn" style="position:static;display:inline-grid;vertical-align:middle" onclick="speakSig('${u.c}')" title="${A('اسمع معنى الإشارة','Hear the meaning')}">🔊</button></div>
+        <div class="bsc-txt">${esc(tsig(u.c))}</div>
+        <div class="bsc-note">${A(`📝 عليها <b>${u.n}</b> ${u.n===1?"سؤال رسمي":"أسئلة رسمية"}`,`📝 Has <b>${u.n}</b> official ${u.n===1?"question":"questions"}`)}</div>
       </div>
       <div style="height:14px"></div>
-      <button class="btn" style="background:linear-gradient(135deg,#1f8a55,#136b40)" onclick="begRun(${i+1})">فهمتها — ورّيني أسئلتها ←</button>
+      <button class="btn" style="background:linear-gradient(135deg,#1f8a55,#136b40)" onclick="begRun(${i+1})">${A("فهمتها — ورّيني أسئلتها ←","Got it — show me its questions →")}</button>
     </div>`);
   }
   else if(u.t==="sq"||u.t==="tq"){
     const q=u.q;
     const pin = u.t==="sq" ? (()=>{const s=DATA.signals[u.c];return `<div class="beg-pin">
         <div class="bp-img">${s.no_image?"🚸":`<img src="${IMG_BASE}${u.c}.jpg" onerror="this.outerHTML='🚸'">`}</div>
-        <div class="bp-tx"><b>${esc(s.code_ar)}</b> — ${esc(s.text)}<div class="bp-n">سؤال ${u.i} من ${u.n}</div></div>
-      </div>`;})() : `<div class="beg-pin" style="background:#fff7e8"><div class="bp-img">${u.tag.startsWith("🚦")?"🚦":"🔺"}</div><div class="bp-tx"><b>${esc(u.tag)}</b><div class="bp-n">بدون صورة</div></div></div>`;
+        <div class="bp-tx"><b>${esc(tcode(u.c))}</b> — ${esc(tsig(u.c))}<div class="bp-n">${A(`سؤال ${u.i} من ${u.n}`,`Question ${u.i} of ${u.n}`)}</div></div>
+      </div>`;})() : `<div class="beg-pin" style="background:#fff7e8"><div class="bp-img">${u.tag.startsWith("🚦")?"🚦":"🔺"}</div><div class="bp-tx"><b>${esc(u.tag)}</b><div class="bp-n">${A("بدون صورة","Text question")}</div></div></div>`;
     const prev=getBeg().answered[qKey(q)];
     setView(`<div class="screen">${head}
       ${pin}
       <div class="q-card" style="margin-top:12px">
-        <div class="q-num">امتحان ${q.ex}</div>
-        <button class="tts-btn" onclick="speakBeg(${i})" title="اسمع السؤال والإجابات">🔊</button>
-        <div class="q-text">${renderSig(q.question,true)}</div>
+        <div class="q-num">${T("exam_n")} ${q.ex}</div>
+        <button class="tts-btn" onclick="speakBeg(${i})" title="${T('listen')}">🔊</button>
+        <div class="q-text">${renderSig(tq(q,"q"),true)}</div>
         <div class="opts" id="begOpts">
-          ${LET.map((L,j)=>{const key=["a","b","c","d"][j];return `<button class="opt" id="bo${j}" onclick="begAnswer(${i},${j})"><span class="lbl">${LET_AR[j]}</span><span class="otx">${renderSig(q[key])}</span></button>`;}).join("")}
+          ${LET.map((L,j)=>{const key=["a","b","c","d"][j];return `<button class="opt" id="bo${j}" onclick="begAnswer(${i},${j})"><span class="lbl">${OPT_LET(j)}</span><span class="otx">${renderSig(tq(q,key))}</span></button>`;}).join("")}
         </div>
         <div id="begFx"></div>
       </div>
       <div style="height:12px"></div>
-      <div id="begNext">${prev!=null?`<button class="btn" onclick="begRun(${i+1})">التالي ←</button>`:""}</div>
+      <div id="begNext">${prev!=null?`<button class="btn" onclick="begRun(${i+1})">${T("next")}</button>`:""}</div>
     </div>`);
     if(prev!=null) begReveal(i,prev);
   }
   else if(u.t==="mem"){
     setView(`<div class="screen">${head}
-      <div class="sec-title">📌 إشارات للحفظ</div>
-      <p style="color:var(--muted);margin:-6px 0 12px;font-size:14px">ما إجا عليها أسئلة رسمية — بس مهم تحفظها.</p>
+      <div class="sec-title">${A("📌 إشارات للحفظ","📌 Signs to memorize")}</div>
+      <p style="color:var(--muted);margin:-6px 0 12px;font-size:14px">${A("ما إجا عليها أسئلة رسمية — بس مهم تحفظها.","No official questions on these — but you should memorize them.")}</p>
       <div class="sig-grid">
-        ${u.codes.map(c=>{const s=DATA.signals[c];return `<div class="sig"><div class="imgw">${s.no_image?`<span class="noimg">🚸</span>`:`<img src="${IMG_BASE}${c}.jpg" loading="lazy" onerror="this.parentElement.innerHTML='<span class=noimg>🚸</span>'">`}<span class="code">${esc(s.code_ar)}</span></div><div class="txt">${esc(s.text)}</div></div>`;}).join("")}
+        ${u.codes.map(c=>{const s=DATA.signals[c];return `<div class="sig"><div class="imgw">${s.no_image?`<span class="noimg">🚸</span>`:`<img src="${IMG_BASE}${c}.jpg" loading="lazy" onerror="this.parentElement.innerHTML='<span class=noimg>🚸</span>'">`}<span class="code">${esc(tcode(c))}</span></div><div class="txt">${esc(tsig(c))}</div></div>`;}).join("")}
       </div>
       <div style="height:14px"></div>
-      <button class="btn" style="background:linear-gradient(135deg,#1f8a55,#136b40)" onclick="begRun(${i+1})">حفظتهن ←</button>
+      <button class="btn" style="background:linear-gradient(135deg,#1f8a55,#136b40)" onclick="begRun(${i+1})">${A("حفظتهن ←","Memorized →")}</button>
     </div>`);
   }
 }
@@ -1936,8 +1941,8 @@ function begReveal(i,j){
   LET.forEach((L,x)=>{ const el=$("#bo"+x); if(!el)return; el.disabled=true;
     if(x===corIdx)el.classList.add("correct"); else if(x===j)el.classList.add("wrong"); });
   const fx=$("#begFx");
-  if(fx) fx.innerHTML=(j===corIdx?`<div class="motivate" style="margin-top:12px">✅ صح عليك!</div>`:`<div class="motivate" style="margin-top:12px;color:var(--danger)">❌ ولا يهمك — شوف ليش:</div>`)+explainQ(q)+askTeacherBtn(q);
-  const nx=$("#begNext"); if(nx) nx.innerHTML=`<button class="btn" onclick="begRun(${i+1})">التالي ←</button>`;
+  if(fx) fx.innerHTML=(j===corIdx?`<div class="motivate" style="margin-top:12px">${T("correct_fb")}</div>`:`<div class="motivate" style="margin-top:12px;color:var(--danger)">${T("wrong_fb")}</div>`)+explainQ(q)+askTeacherBtn(q);
+  const nx=$("#begNext"); if(nx) nx.innerHTML=`<button class="btn" onclick="begRun(${i+1})">${T("next")}</button>`;
 }
 
 function begDone(){
@@ -1950,13 +1955,13 @@ function begDone(){
   setView(`<div class="screen">
     <div class="confetti" id="confetti"></div>
     <div class="result-card">
-      <div class="result-badge pass">🎓 خلّصت المجموعة!</div>
+      <div class="result-badge pass">${A("🎓 خلّصت المجموعة!","🎓 Section complete!")}</div>
       <div style="font-size:44px;margin:10px 0">🌱→🌳</div>
-      <div class="motivate">مبروك! ${esc(BEGST.label)}</div>
-      ${qs.length?`<div class="result-sub">جاوبت صح على <b>${cor}</b> من <b>${qs.length}</b> (${pct}%)</div>`:''}
-      <button class="btn" style="background:linear-gradient(135deg,#1f8a55,#136b40)" onclick="begIntro()">‹ باقي الأنواع والمجموعات</button>
+      <div class="motivate">${A("مبروك!","Congrats!")} ${esc(BEGST.label)}</div>
+      ${qs.length?`<div class="result-sub">${A(`جاوبت صح على <b>${cor}</b> من <b>${qs.length}</b>`,`You got <b>${cor}</b> of <b>${qs.length}</b> right`)} (${pct}%)</div>`:''}
+      <button class="btn" style="background:linear-gradient(135deg,#1f8a55,#136b40)" onclick="begIntro()">${A("‹ باقي الأنواع والمجموعات","‹ Other sign types")}</button>
       <div style="height:10px"></div>
-      <button class="btn ghost" onclick="home()">الرئيسية</button>
+      <button class="btn ghost" onclick="home()">${A("الرئيسية","Home")}</button>
     </div>
   </div>`);
   fireConfetti();
@@ -1970,24 +1975,24 @@ function topics(){
   ALLQ.forEach(q=>{ const s=sectionOf(q); if(s)pools[s].push(q); });
   root.innerHTML=chrome(null);
   setView(`<div class="screen">
-    <div class="sec-title">📚 تدريب حسب الموضوع</div>
-    <p style="color:var(--muted);margin:-6px 0 14px;font-size:14px">اختَر موضوع، وتمرّن على أسئلته الرسمية بمجموعات صغيرة. (الإشارات إلها قسمها 🌱)</p>
+    <div class="sec-title">📚 ${T("beg_topics")}</div>
+    <p style="color:var(--muted);margin:-6px 0 14px;font-size:14px">${A("اختَر موضوع، وتمرّن على أسئلته الرسمية سؤال سؤال مع شرح فوري. (الإشارات إلها قسمها 🌱)","Pick a topic and practice its official questions with instant explanations. (Signs have their own section 🌱)")}</p>
     <div class="menu">
       ${Object.entries(SECTIONS).map(([id,s])=>`
         <button class="card" onclick="topicPick('${id}')">
           <div class="ic" style="background:${s.c}1a;color:${s.c};font-size:26px">${s.icon}</div>
-          <div class="tx"><h3>${s.name}</h3><p>${s.desc}</p></div>
-          <div style="text-align:center;flex:none"><div style="font-size:20px;font-weight:900;color:${s.c}">${pools[id].length}</div><div style="font-size:10px;color:var(--muted);font-weight:700">سؤال</div></div>
+          <div class="tx"><h3>${secName(id)}</h3><p>${secDesc(id)}</p></div>
+          <div style="text-align:center;flex:none"><div style="font-size:20px;font-weight:900;color:${s.c}">${pools[id].length}</div><div style="font-size:10px;color:var(--muted);font-weight:700">${A("سؤال","Qs")}</div></div>
         </button>`).join("")}
     </div>
     <div style="height:14px"></div>
-    <button class="btn ghost" onclick="begHub()">‹ قسم المبتدئين</button>
+    <button class="btn ghost" onclick="begHub()">${T("back_beg")}</button>
   </div>`);
 }
 function topicPick(id){
   const pool=shuffle(ALLQ.filter(q=>sectionOf(q)===id));
   if(!pool.length) return topics();
-  startCustom(pool,SECTIONS[id].name);
+  startCustom(pool,secName(id));
 }
 // مشغّل تدريب سؤال-سؤال مع شرح فوري (نفس أسلوب المبتدئين)
 let PRAC={qs:[],i:0,label:"",ans:{},cor:0};
@@ -2010,20 +2015,20 @@ function pracRun(i){
     </div>
     <button class="btn sm ghost" style="flex:none;width:auto" onclick="topics()">✕</button></div>
     <div class="q-card">
-      <button class="flag-btn ${isFlagged(qKey(q))?'on':''}" id="flagBtn" onclick="toggleFlag('${qKey(q)}')" title="علّم للمراجعة">
+      <button class="flag-btn ${isFlagged(qKey(q))?'on':''}" id="flagBtn" onclick="toggleFlag('${qKey(q)}')" title="${A('علّم للمراجعة','Flag for review')}">
         <svg viewBox="0 0 24 24" fill="none"><path d="M5 21V4h11l-1.5 4L16 12H5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        <span id="flagTxt">${isFlagged(qKey(q))?'معلّم':'علّم السؤال'}</span>
+        <span id="flagTxt">${isFlagged(qKey(q))?T('flagged_q'):T('flag_q')}</span>
       </button>
-      <div class="q-num">امتحان ${q.ex}</div>
-      <button class="tts-btn" onclick="speakPrac()" title="اسمع السؤال والإجابات">🔊</button>
-      <div class="q-text">${renderSig(q.question,true)}</div>
+      <div class="q-num">${T("exam_n")} ${q.ex}</div>
+      <button class="tts-btn" onclick="speakPrac()" title="${T('listen')}">🔊</button>
+      <div class="q-text">${renderSig(tq(q,"q"),true)}</div>
       <div class="opts">
-        ${LET.map((L,j)=>{const key=["a","b","c","d"][j];return `<button class="opt" id="po${j}" onclick="pracAnswer(${j})"><span class="lbl">${LET_AR[j]}</span><span class="otx">${renderSig(q[key])}</span></button>`;}).join("")}
+        ${LET.map((L,j)=>{const key=["a","b","c","d"][j];return `<button class="opt" id="po${j}" onclick="pracAnswer(${j})"><span class="lbl">${OPT_LET(j)}</span><span class="otx">${renderSig(tq(q,key))}</span></button>`;}).join("")}
       </div>
       <div id="pracFx"></div>
     </div>
     <div style="height:12px"></div>
-    <div id="pracNext">${answered!=null&&PRAC.ans[i]!=null?`<button class="btn" onclick="pracRun(${i+1})">التالي ←</button>`:""}</div>
+    <div id="pracNext">${answered!=null&&PRAC.ans[i]!=null?`<button class="btn" onclick="pracRun(${i+1})">${T("next")}</button>`:""}</div>
   </div>`);
   if(PRAC.ans[i]!=null) pracReveal(PRAC.ans[i]);
 }
@@ -2045,8 +2050,8 @@ function pracReveal(j){
   LET.forEach((L,x)=>{ const el=$("#po"+x); if(!el)return; el.disabled=true;
     if(x===corIdx)el.classList.add("correct"); else if(x===j)el.classList.add("wrong"); });
   const fx=$("#pracFx");
-  if(fx) fx.innerHTML=(j===corIdx?`<div class="motivate" style="margin-top:12px">✅ صح عليك!</div>`:`<div class="motivate" style="margin-top:12px;color:var(--danger)">❌ ولا يهمك — شوف ليش:</div>`)+explainQ(q)+askTeacherBtn(q);
-  const nx=$("#pracNext"); if(nx) nx.innerHTML=`<button class="btn" onclick="pracRun(${PRAC.i+1})">التالي ←</button>`;
+  if(fx) fx.innerHTML=(j===corIdx?`<div class="motivate" style="margin-top:12px">${T("correct_fb")}</div>`:`<div class="motivate" style="margin-top:12px;color:var(--danger)">${T("wrong_fb")}</div>`)+explainQ(q)+askTeacherBtn(q);
+  const nx=$("#pracNext"); if(nx) nx.innerHTML=`<button class="btn" onclick="pracRun(${PRAC.i+1})">${T("next")}</button>`;
 }
 function pracDone(){
   const total=PRAC.qs.length, cor=PRAC.cor, pct=total?Math.round(cor/total*100):0;
@@ -2055,18 +2060,18 @@ function pracDone(){
   setView(`<div class="screen">
     ${pct>=80?'<div class="confetti" id="confetti"></div>':''}
     <div class="result-card">
-      <div class="result-badge ${pct>=60?'pass':'fail'}">${pct>=60?'🎉 أحسنت':'💪 كمّل تدريب'}</div>
+      <div class="result-badge ${pct>=60?'pass':'fail'}">${pct>=60?A('🎉 أحسنت','🎉 Well done'):A('💪 كمّل تدريب','💪 Keep practicing')}</div>
       <div class="result-ring">
         <svg width="150" height="150"><circle cx="75" cy="75" r="64" fill="none" stroke="var(--line)" stroke-width="12"/>
         <circle cx="75" cy="75" r="64" fill="none" stroke="${pct>=60?'var(--ok)':'var(--danger)'}" stroke-width="12" stroke-linecap="round" stroke-dasharray="${2*Math.PI*64}" stroke-dashoffset="${2*Math.PI*64*(1-pct/100)}"/></svg>
         <div class="pct"><b>${cor}<span style="font-size:20px">/${total}</span></b><span>${pct}%</span></div>
       </div>
       <div class="motivate">${esc(PRAC.label)}</div>
-      <button class="btn" onclick="startCustom(PRAC.qs.slice(),PRAC.label)">↻ أعد نفس المجموعة</button>
+      <button class="btn" onclick="startCustom(PRAC.qs.slice(),PRAC.label)">${A("↻ أعد نفس المجموعة","↻ Retry this set")}</button>
       <div style="height:10px"></div>
-      <button class="btn sec" onclick="topics()">📚 مواضيع ومجموعات ثانية</button>
+      <button class="btn sec" onclick="topics()">${A("📚 مواضيع ومجموعات ثانية","📚 Other topics")}</button>
       <div style="height:10px"></div>
-      <button class="btn ghost" onclick="home()">الرئيسية</button>
+      <button class="btn ghost" onclick="home()">${A("الرئيسية","Home")}</button>
     </div>
   </div>`);
   if(pct>=80) fireConfetti();
@@ -2079,12 +2084,12 @@ function signals(){
   sigFilter='a'; sigSearch='';
   TP.log('open_signals');
   root.innerHTML=chrome(null);
-  const tabs = Object.keys(CAT).map(k=>`<button class="tab ${k==='a'?'active':''}" data-cat="${k}" onclick="filterSig('${k}')">${CAT[k].name}</button>`).join("");
+  const tabs = Object.keys(CAT).map(k=>`<button class="tab ${k==='a'?'active':''}" data-cat="${k}" onclick="filterSig('${k}')">${catName(k)}</button>`).join("");
   setView(`<div class="screen">
-    <div class="sec-title">🚸 مكتبة الإشارات</div>
+    <div class="sec-title">${A("🚸 مكتبة الإشارات","🚸 Signs Library")}</div>
     <div class="search-box">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="#5e6f66" stroke-width="2"/><path d="M21 21l-4-4" stroke="#5e6f66" stroke-width="2" stroke-linecap="round"/></svg>
-      <input id="sigq" placeholder="ابحث عن إشارة… (مثلاً: قف، تجاوز، ب-28)" oninput="searchSig(this.value)">
+      <input id="sigq" placeholder="${A("ابحث عن إشارة… (مثلاً: قف، تجاوز، ب-28)","Search signs… (e.g. stop, B-28)")}" oninput="searchSig(this.value)">
     </div>
     <div class="tabs" id="sigtabs">${tabs}</div>
     <div class="sig-grid" id="siggrid"></div>
@@ -2100,21 +2105,21 @@ function drawSignals(){
   const q=normAr(sigSearch);
   let list=Object.entries(DATA.signals);
   if(q){
-    list=list.filter(([code,s])=> normAr(s.text).includes(q) || normAr(s.code_ar).includes(q) || code.includes(q.replace(/\s/g,'')));
+    list=list.filter(([code,s])=> normAr(tsig(code)).includes(q) || (tsig(code)||"").toLowerCase().includes(sigSearch.toLowerCase()) || normAr(s.code_ar).includes(q) || code.includes(q.replace(/\s/g,"").toLowerCase()));
   }else{
     list=list.filter(([code])=>code[0]===sigFilter);
   }
   list.sort((a,b)=>(parseInt(a[0].replace(/\D/g,''))||0)-(parseInt(b[0].replace(/\D/g,''))||0));
   const grid=$("#siggrid");
-  if(!list.length){grid.innerHTML=`<div style="grid-column:1/-1;text-align:center;color:var(--muted);padding:30px">ما في نتائج 🤷‍♂️</div>`;return;}
+  if(!list.length){grid.innerHTML=`<div style="grid-column:1/-1;text-align:center;color:var(--muted);padding:30px">${A("ما في نتائج 🤷‍♂️","No results 🤷‍♂️")}</div>`;return;}
   grid.innerHTML=list.map(([code,s])=>`
     <div class="sig">
       <div class="imgw">
-        <span class="code">${esc(s.code_ar)}</span>
-        ${s.no_image?`<span class="noimg">${esc(s.code_ar)}</span>`
-          :`<img src="${IMG_BASE}${code}.jpg" loading="lazy" alt="${esc(s.code_ar)}" onerror="this.parentElement.innerHTML='<span class=\\'code\\'>${esc(s.code_ar)}</span><span class=\\'noimg\\'>🚸</span>'">`}
+        <span class="code">${esc(tcode(code))}</span>
+        ${s.no_image?`<span class="noimg">${esc(tcode(code))}</span>`
+          :`<img src="${IMG_BASE}${code}.jpg" loading="lazy" alt="${esc(tcode(code))}" onerror="this.parentElement.innerHTML='<span class=\\'code\\'>${esc(tcode(code))}</span><span class=\\'noimg\\'>🚸</span>'">`}
       </div>
-      <div class="txt">${esc(s.text)}</div>
+      <div class="txt">${esc(tsig(code))}</div>
     </div>`).join("");
 }
 
@@ -2127,19 +2132,19 @@ function chat(){
     <div class="chat-wrap">
       <div class="chat-msgs" id="cmsgs"></div>
       <div class="chips" id="cchips">
-        <button class="chip" onclick="quickChat('شو معنى إشارة قف')">شو معنى إشارة قف؟</button>
-        <button class="chip" onclick="quickChat('شو أقسام إشارات المرور')">أقسام الإشارات</button>
-        <button class="chip" onclick="quickChat('ب-28')">ب-28</button>
-        <button class="chip" onclick="quickChat('أسئلة عن التجاوز')">أسئلة عن التجاوز</button>
+        <button class="chip" onclick="quickChat('${A("شو معنى إشارة قف","What does the Stop sign mean?")}')">${A("شو معنى إشارة قف؟","Stop sign meaning?")}</button>
+        <button class="chip" onclick="quickChat('${A("شو أقسام إشارات المرور","What are the road sign categories?")}')">${A("أقسام الإشارات","Sign categories")}</button>
+        <button class="chip" onclick="quickChat('${A("ب-28","B-28")}')">${A("ب-28","B-28")}</button>
+        <button class="chip" onclick="quickChat('${A("أسئلة عن التجاوز","Questions about overtaking")}')">${A("أسئلة عن التجاوز","Overtaking questions")}</button>
       </div>
       <div class="chat-input">
-        <input id="cin" placeholder="اكتب سؤالك…" onkeydown="if(event.key==='Enter')sendChat()">
+        <input id="cin" placeholder="${A("اكتب سؤالك…","Type your question…")}" onkeydown="if(event.key==='Enter')sendChat()">
         <button class="send" onclick="sendChat()"><svg viewBox="0 0 24 24" fill="none"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" stroke="#fff" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/></svg></button>
       </div>
     </div>
   </div>`);
   chatHist=[];
-  botSay(`أهلاً! 👋 أنا مساعد <b>توريا فلسطين</b>.<br>اسألني عن أي إشارة، أو موضوع بالتوريا، وبجاوبك من <b>كتاب التوريا</b> والأسئلة الرسمية.`);
+  botSay(A("أهلاً! 👋 أنا مساعد <b>توريا فلسطين</b>.<br>اسألني عن أي إشارة، أو موضوع بالتوريا، وبجاوبك من <b>كتاب التوريا</b> والأسئلة الرسمية.","Hi! 👋 I am the <b>Theory Palestine</b> assistant.<br>Ask me about any road sign or theory topic and I will answer from the <b>official book</b> and questions."));
 }
 function quickChat(t){ $("#cin").value=t; sendChat(); }
 function addMsg(html,who){
@@ -2147,7 +2152,7 @@ function addMsg(html,who){
   d.className="msg "+who; d.innerHTML=html;
   if(who==='bot' && ("speechSynthesis" in window)){
     const b=document.createElement("button");
-    b.className="msg-tts"; b.textContent="🔊"; b.title="اسمع الرد";
+    b.className="msg-tts"; b.textContent="🔊"; b.title=A("اسمع الرد","Hear the reply");
     b.onclick=()=>{ if(TTS.speaking){stopSpeak();} else speak(d.innerText); };
     d.appendChild(b);
   }
@@ -2165,6 +2170,7 @@ function sendChat(){
 
 // المساعد الذكي الحقيقي (يمر عبر Worker يخفي المفتاح)
 async function askAI(query){
+  if(isEN()) query = "[Answer in English only] " + query;
   // جهّز السياق محلياً (RAG): الكتاب + الإشارات + الأسئلة الأقرب
   const q=normAr(query);
   const toks=[...new Set(q.split(" ").filter(t=>t.length>1))];
@@ -2179,11 +2185,11 @@ async function askAI(query){
 
   const box=$("#cmsgs");
   const typing=document.createElement("div");
-  typing.className="msg bot"; typing.innerHTML=`<span style="opacity:.6">يفكّر…</span>`;
+  typing.className="msg bot"; typing.innerHTML=`<span style="opacity:.6">${A("يفكّر…","Thinking…")}</span>`;
   box.appendChild(typing); box.scrollTop=box.scrollHeight;
   try{
     const r=await fetch(CFG.AI_ENDPOINT,{method:"POST",headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({question:query, context:ctx})});
+      body:JSON.stringify({question:(isEN()?"Answer in English only. ":"")+query, context:ctx, lang:LANG||"ar"})});
     const data=await r.json();
     typing.remove();
     const ans=(data.answer||"").trim();
@@ -2195,7 +2201,7 @@ async function askAI(query){
     TP.log('ai_answer');
   }catch(e){
     typing.remove();
-    botSay("تعذّر الاتصال بالمساعد الذكي حالياً — بجاوبك من الأسئلة الرسمية:");
+    botSay(A("تعذّر الاتصال بالمساعد الذكي حالياً — بجاوبك من الأسئلة الرسمية:","The AI assistant is unavailable right now — answering from the official questions:"));
     botReply(query);
   }
 }
@@ -2207,37 +2213,37 @@ function botReply(query){
 
   // ردود جاهزة
   if(/^(مرحب|هلا|السلام|اهلا|هاي|صباح|مسا|هلو)/.test(q) && q.length<25)
-    return botSay(`هلا وغلا 👋 اسألني عن أي إشارة أو موضوع بالتوريا، وبجاوبك من <b>الكتاب</b> والأسئلة الرسمية.`);
+    return botSay(A(`هلا وغلا 👋 اسألني عن أي إشارة أو موضوع بالتوريا، وبجاوبك من <b>الكتاب</b> والأسئلة الرسمية.`,`Hey! 👋 Ask me about any sign or theory topic and I will answer from the <b>book</b> and official questions.`));
   if(/(كيف|ازاي).*(انجح|بنجح|ادرس|بدرس)|نصيح|كيف احفظ|طريقه.*دراس/.test(q))
-    return botSay(`نصيحتي عشان تنجح 💪<br>• حِل كل امتحان من الـ${DATA.meta.total_exams} امتحانات وراجع أخطاءك.<br>• احفظ الإشارات من <b>مكتبة الإشارات</b>.<br>• كرّر <b>الامتحان الرسمي</b> لحد ما تعدّي ${CFG.PASS_MARK}/${CFG.EXAM_LEN} بثبات.<br>وأي إشارة مش فاهمها اسألني عنها 👌`);
+    return botSay(A(`نصيحتي عشان تنجح 💪<br>• حِل كل امتحان من الـ${DATA.meta.total_exams} امتحانات وراجع أخطاءك.<br>• احفظ الإشارات من قسم المبتدئين 🌱.<br>• قبل الامتحان راجع «الأرقام المهمة» و«أخطائي».`,`My advice to pass 💪<br>• Take all ${DATA.meta.total_exams} exams and review your mistakes.<br>• Memorize the signs in the Beginners Section 🌱.<br>• Before the exam, review Key Numbers and My Mistakes.`));
 
   // رمز إشارة مباشر (ب-28 / a14)
   const dc=parseCode(raw);
-  if(dc && DATA.signals[dc]) return botSay(`إشارة <b>${esc(DATA.signals[dc].code_ar)}</b>:`+sigResHtml(dc));
+  if(dc && DATA.signals[dc]) return botSay(`${A("إشارة","Sign")} <b>${esc(tcode(dc))}</b>:`+sigResHtml(dc));
 
-  if(!toks.length) return botSay(`اكتب سؤالك بكلمات أوضح شوي 🙏`);
+  if(!toks.length) return botSay(A(`اكتب سؤالك بكلمات أوضح شوي 🙏`,`Please phrase your question a bit more clearly 🙏`));
 
   // بحث بعتبة ثقة
   const need = Math.min(3, Math.max(1, Math.ceil(toks.length/2)));
   const rel = x => x && x.hit>=need && x.sc>=3;
 
   const sig  = searchSignals(toks,3).filter(rel);
-  const book = searchBook(toks,1).filter(rel);
+  const book = isEN()?[]:searchBook(toks,1).filter(rel); // الكتاب عربي فقط
   const qs   = searchQuestions(toks,3).filter(rel);
 
   const wantsQ = /سؤال|اسئل|امتحان|تمرين/.test(q);
 
   if(!sig.length && !book.length && !qs.length){
-    return botSay(`ما لقيت إجابة مضبوطة 🤔 جرّب:<br>• رمز الإشارة مثل <b>ب-28</b><br>• أو موضوع أوضح مثل «الأولوية»، «التجاوز»، «سكة الحديد»، «خط متواصل».`);
+    return botSay(A(`ما لقيت إجابة مضبوطة 🤔 جرّب:<br>• رمز الإشارة مثل <b>ب-28</b><br>• أو موضوع أوضح مثل «الأولوية»، «التجاوز»، «الأضواء».`,`I could not find an exact answer 🤔 Try:<br>• A sign code like <b>B-28</b><br>• Or a clearer topic like right-of-way, overtaking, or lights.`));
   }
 
   let html="";
   if(sig.length && !wantsQ)
-    html += (sig.length>1?`الإشارات المرتبطة:`:`الإشارة:`) + sig.map(x=>sigResHtml(x.code)).join("");
+    html += (sig.length>1?A(`الإشارات المرتبطة:`,`Related signs:`):A(`الإشارة:`,`The sign:`)) + sig.map(x=>sigResHtml(x.code)).join("");
   if(book.length)
     html += `<div style="background:var(--surface-2);border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-top:8px;font-size:13.5px;line-height:1.7"><b style="color:var(--primary)">📖 من كتاب التوريا:</b><br>${esc(fixBook(book[0].text))}</div>`;
   if(qs.length && (wantsQ || (!sig.length))){
-    html += `<div style="margin-top:8px;font-weight:700">أسئلة رسمية عن الموضوع:</div>` + qs.map(x=>qResHtml(x.item)).join("");
+    html += `<div style="margin-top:8px;font-weight:700">${A("أسئلة رسمية عن الموضوع:","Official questions on this topic:")}</div>` + qs.map(x=>qResHtml(x.item)).join("");
   }
   botSay(html);
 }
@@ -2258,12 +2264,15 @@ function scoreText(text, toks){
 }
 function searchSignals(toks,n){
   return Object.entries(DATA.signals).map(([code,s])=>{
-    const {sc,hit}=scoreText(s.text+" "+s.code_ar, toks); return {code,sc,hit};
+    const base=isEN()?(tsig(code)+" "+tcode(code)+" "+code):(s.text+" "+s.code_ar);
+    const {sc,hit}=scoreText(base, toks); return {code,sc,hit};
   }).filter(x=>x.hit>0).sort((a,b)=>b.sc-a.sc).slice(0,n);
 }
 function searchQuestions(toks,n){
   return ALLQ.map(item=>{
-    const {sc,hit}=scoreText(item.question+" "+item.a+" "+item.b+" "+item.c+" "+item.d, toks); return {item,sc,hit};
+    const base=isEN()?[tq(item,"q"),tq(item,"a"),tq(item,"b"),tq(item,"c"),tq(item,"d")].join(" ")
+                     :(item.question+" "+item.a+" "+item.b+" "+item.c+" "+item.d);
+    const {sc,hit}=scoreText(base, toks); return {item,sc,hit};
   }).filter(x=>x.hit>0).sort((a,b)=>b.sc-a.sc).slice(0,n);
 }
 function searchBook(toks,n){
@@ -2273,15 +2282,15 @@ function searchBook(toks,n){
 }
 function sigResHtml(code){
   const s=DATA.signals[code];
-  const img=s.no_image?`<div style="width:56px;height:56px;display:grid;place-items:center;background:#fff;border-radius:8px;border:1px solid var(--line);font-weight:800;flex:none">${esc(s.code_ar)}</div>`
+  const img=s.no_image?`<div style="width:56px;height:56px;display:grid;place-items:center;background:#fff;border-radius:8px;border:1px solid var(--line);font-weight:800;flex:none">${esc(tcode(code))}</div>`
     :`<img src="${IMG_BASE}${code}.jpg" onerror="this.style.display='none'">`;
-  return `<div class="res-sig">${img}<div class="rc"><b>${esc(s.code_ar)}</b><br>${esc(s.text)}</div></div>`;
+  return `<div class="res-sig">${img}<div class="rc"><b>${esc(tcode(code))}</b><br>${esc(tsig(code))}</div></div>`;
 }
 function qResHtml(item){
   const cor=LET[+item.answer-1];
-  return `<div class="res-q"><div class="qq">${renderSig(item.question)}</div>
-    <div class="aa">✅ ${renderSig(item[cor], isImgOnly(item[cor]))}</div>
-    <div style="font-size:11px;color:var(--muted);margin-top:3px">امتحان ${item.ex}</div></div>`;
+  return `<div class="res-q"><div class="qq">${renderSig(tq(item,"q"))}</div>
+    <div class="aa">✅ ${renderSig(tq(item,cor), isImgOnly(item[cor]))}</div>
+    <div style="font-size:11px;color:var(--muted);margin-top:3px">${T("exam_n")} ${item.ex}</div></div>`;
 }
 
 /* ================= بدء ================= */
