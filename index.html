@@ -424,6 +424,20 @@ body{background:var(--bg)}
 .exam-chip{border:1px solid var(--line);border-radius:14px}
 .chip{border:1px solid var(--line);box-shadow:none}
 .fab{filter:drop-shadow(0 6px 14px rgba(23,27,33,.18))}
+
+/* ===== الوضع الليلي 🌙 ===== */
+html[data-theme="dark"]{
+  --bg:#0F1216; --surface:#171B21; --surface-2:#1F242B;
+  --ink:#ECEFF3; --muted:#9AA3AF; --line:rgba(236,239,243,.13);
+  --primary:#4D8AE8; --primary-d:#2F6BD0; --primary-l:#16263F;
+  --ok:#2FB575; --ok-l:#12291C; --danger:#E85468; --danger-l:#301A1E;
+  --shadow:0 14px 40px rgba(0,0,0,.5); --shadow-s:0 2px 12px rgba(0,0,0,.35);
+}
+html[data-theme="dark"] .topbar{background:rgba(15,18,22,.9)}
+html[data-theme="dark"] .botnav{background:rgba(23,27,33,.95)}
+html[data-theme="dark"] .sig-chip{background:#fff;color:#171B21;border-color:#fff}
+html[data-theme="dark"] .opt .lbl{background:var(--surface-2)}
+html[data-theme="dark"] .cert,html[data-theme="dark"] .cert-in{color:#171B21}
 </style>
 </head>
 <body>
@@ -452,7 +466,7 @@ body{background:var(--bg)}
    ================================================================== */
 
 const CFG = {
-  VERSION: "3.2.0",       // ⬅ غيّر هذا الرقم مع كل تحديث ترفعه (مثلاً 2.0.1)
+  VERSION: "3.3.0",       // ⬅ غيّر هذا الرقم مع كل تحديث ترفعه (مثلاً 2.0.1)
   REPO: "mohdsiwad25-eng/teoria-app",
   INSTRUCTOR: "المدرب محمد سواد",
   AREA: "بيت لحم",
@@ -560,6 +574,10 @@ function setLang(l){
   if(isEN()) loadEnOverlay().then(()=>landing()); else landing();
 }
 function langToggle(){ setLang(isEN()?"ar":"en"); }
+function isDark(){ return (localStorage.getItem("tp_theme")||"light")==="dark"; }
+function applyTheme(){ document.documentElement.dataset.theme = isDark()?"dark":"light"; }
+function themeToggle(){ localStorage.setItem("tp_theme", isDark()?"light":"dark"); applyTheme(); try{event.target.textContent=isDark()?"☀️":"🌙";}catch(e){} }
+applyTheme();
 // حروف الخيارات حسب اللغة
 function OPT_LET(i){ return isEN()?["A","B","C","D"][i]:LET_AR[i]; }
 // ترجمة سؤال (لو متوفرة)
@@ -681,6 +699,10 @@ async function boot(){
       const er = await fetch(`https://raw.githubusercontent.com/${CFG.REPO}/main/explanations.json?t=`+Date.now(),{cache:"no-store"});
       if(er.ok){ DATA.explanations = await er.json(); }
     }catch(e){ /* ما في ملف شروحات = عادي */ }
+    try{
+      const er2 = await fetch(`https://raw.githubusercontent.com/${CFG.REPO}/main/explanations_en.json?t=`+Date.now(),{cache:"no-store"});
+      if(er2.ok){ DATA.explanations_en = await er2.json(); }
+    }catch(e){ /* الشروحات الإنجليزية اختيارية */ }
     ALLQ = [];
     for(const ex in DATA.exams) DATA.exams[ex].forEach(q=>ALLQ.push({...q,ex}));
     $("#fab").style.display="flex";
@@ -714,6 +736,7 @@ function chrome(active){
   return `<div class="topbar">
     <div class="logo" onclick="landing()"><svg viewBox="0 0 24 24" fill="none"><path d="M12 2L3 6v6c0 5 3.8 8.5 9 10 5.2-1.5 9-5 9-10V6l-9-4z" fill="#fff"/><path d="M12 7v5l3 2" stroke="#154A97" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
     <div><h1>${A("توريا فلسطين","Theory Palestine")}</h1><div class="sub">${A(CFG.INSTRUCTOR+" — "+CFG.AREA,"Instructor Mohammad Siwad — Bethlehem")}</div></div>
+    <button class="tts-tgl" onclick="themeToggle()" title="${A('الوضع الليلي','Dark mode')}">${isDark()?"☀️":"🌙"}</button>
     <button class="tts-tgl" onclick="langToggle()" title="العربية / English" style="font-size:12px;font-weight:900">${isEN()?"ع":"EN"}</button>
     <button class="tts-tgl" onclick="ttsToggle()" title="${A('تشغيل/إيقاف الصوت','Sound on/off')}">${TTS.on?"🔊":"🔇"}</button>
     <div id="streakChip" class="streak-chip"></div>
@@ -835,6 +858,7 @@ function ttsInit(){
 // نظّف النص قبل النطق: حوّل رموز الإشارات لأسمائها، شيل الإيموجي والرموز
 function ttsClean(t){
   t=(t||"").replace(/\[\[(\w+)\]\]/g,(m,c)=>DATA&&DATA.signals[c]?A("الشاخصة "+DATA.signals[c].code_ar,"sign "+tcode(c)):"");
+  t=t.replace(/كم\s*\/\s*ساعة/g," كيلومتر بالساعة ").replace(/كغم(?![\u0600-\u06FF])/g," كيلوغرام ").replace(/(\d+)\s*م(?![\u0600-\u06FF])/g,"$1 متر").replace(/km\/h/gi," kilometers per hour ").replace(/(\d+)\s*m\b/g,"$1 meters").replace(/(\d+)\s*kg\b/gi,"$1 kilograms");
   t=t.replace(/<[^>]*>/g," ");                       // HTML tags
   t=t.replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}✓✗×✅❌💡📖🔊•—«»]/gu," ");
   return t.replace(/\s+/g," ").trim();
@@ -939,8 +963,9 @@ function stripCodes(s){ return (s||"").replace(/\[\[(\w+)\]\]/g,(m,c)=>DATA.sign
 function explainQ(q){
   const cor=LET[+q.answer-1];
   // 1) شرح جاهز مكتوب مسبقاً (الأفضل)
-  const ready = DATA.explanations && DATA.explanations[qKey(q)];
-  if(ready && !isEN()) return `<div class="explain"><b>💡 ليش؟</b> ${esc(ready)}</div>`;
+  const ready = isEN() ? (DATA.explanations_en && DATA.explanations_en[qKey(q)])
+                       : (DATA.explanations && DATA.explanations[qKey(q)]);
+  if(ready) return `<div class="explain"><b>${A("💡 ليش؟","💡 Why?")}</b> ${esc(ready)}</div>`;
   // 2) سؤال إشارة → المعنى الرسمي للإشارة
   let ex="";
   const codes=[...((q.question||"")+" "+(q[cor]||"")).matchAll(/\[\[(\w+)\]\]/g)].map(m=>m[1]);
@@ -1073,6 +1098,11 @@ function landing(){
       <div class="feat">📝 ${DATA.meta.total_questions} ${A("سؤال","Questions")}</div>
       <div class="feat">🚸 ${DATA.meta.total_signals} ${A("إشارة","Signs")}</div>
       <div class="feat">📚 ${DATA.meta.total_exams} ${A("امتحان","Exams")}</div>
+    </div>
+    <div class="feats" style="margin-top:10px">
+      <div class="feat">1️⃣ ${A("ادرس الإشارات","Learn the signs")}</div>
+      <div class="feat">2️⃣ ${A("حِل الامتحانات","Do the exams")}</div>
+      <div class="feat">3️⃣ ${A("انجح وشارك شهادتك","Pass & share it")}</div>
     </div>
     <div class="l-foot">👨‍🏫 <b>${A(CFG.INSTRUCTOR,"Instructor Mohammad Siwad")}</b> — ${A(CFG.AREA,"Bethlehem")}</div>
   </div></div>`;
@@ -1285,6 +1315,32 @@ function readiness(){
   </div>`);
 }
 
+let QS_T=null;
+function qSearch(){
+  TP.log('open_search');
+  root.innerHTML=chrome(null);
+  setView(`<div class="screen">
+    <div class="sec-title">🔎 ${A("ابحث بالأسئلة","Search the questions")}</div>
+    <input class="search-box" id="qsIn" placeholder="${A("اكتب كلمة… مثلاً: أولوية، تجاوز، مطبات","Type a word… e.g. overtaking, right of way")}" oninput="qsRun()" autocomplete="off">
+    <div id="qsOut" style="margin-top:12px;color:var(--muted);font-size:13.5px">${A("اكتب حرفين على الأقل للبحث","Type at least 2 characters")}</div>
+    <div style="height:12px"></div>
+    <button class="btn ghost" onclick="testHub()">${A("‹ رجوع","‹ Back")}</button>
+  </div>`);
+  const el=$("#qsIn"); if(el) el.focus();
+}
+function qsRun(){
+  clearTimeout(QS_T);
+  QS_T=setTimeout(()=>{
+    const inp=$("#qsIn"), out=$("#qsOut"); if(!inp||!out) return;
+    const raw=inp.value.trim();
+    const toks=[...new Set(normAr(raw).split(" ").filter(t=>t.length>1))];
+    if(raw.length<2||!toks.length){ out.innerHTML=A("اكتب حرفين على الأقل للبحث","Type at least 2 characters"); return; }
+    const res=searchQuestions(toks,12).filter(x=>x.hit>=Math.min(2,toks.length));
+    if(!res.length){ out.innerHTML=A("ما في نتائج 🤔 جرّب كلمة تانية","No results 🤔 try another word"); return; }
+    out.innerHTML=`<div style="font-weight:800;margin-bottom:8px">${res.length} ${A("نتيجة","results")}</div>`+res.map(x=>qResHtml(x.item)).join("");
+    TP.log('search_q');
+  },250);
+}
 function testHub(){
   TP.log('open_test_hub');
   const p=getProg();
@@ -1299,6 +1355,10 @@ function testHub(){
       <button class="card" onclick="gate('choose')">
         <div class="ic a"><svg viewBox="0 0 24 24" fill="none"><path d="M4 6h16M4 12h16M4 18h10" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></div>
         <div class="tx"><h3>${T("by_exam")}</h3><p>${T("by_exam_p",{n:DATA.meta.total_exams})}</p></div><div class="arrow">‹</div>
+      </button>
+      <button class="card" onclick="qSearch()">
+        <div class="ic" style="background:var(--primary-l);color:var(--primary);font-size:22px">🔎</div>
+        <div class="tx"><h3>${A("ابحث بالأسئلة","Search the questions")}</h3><p>${A("اكتب كلمة زي «أولوية» وشوف كل أسئلتها","Type a word like overtaking and see its questions")}</p></div><div class="arrow">‹</div>
       </button>
       <button class="card" onclick="gate('daily')">
         <div class="ic g"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3c1 3-1 4-1 6a3 3 0 006 0c0-1 0-2-.5-3 2 2 3.5 4 3.5 7a7 7 0 11-14 0c0-4 3-6 6-10z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></div>
@@ -1674,11 +1734,35 @@ function certificate(){
       </div>
     </div>
     <div style="height:14px"></div>
-    <div style="text-align:center;color:var(--muted);font-size:13px;margin-bottom:10px">${A("📸 خُد سكرين شوت للشهادة وشاركها!","📸 Screenshot your certificate and share it!")}</div>
+    <button class="btn" onclick="shareCert()">${A("📸 شارك الشهادة كصورة","📸 Share the certificate as an image")}</button>
+    <div style="height:8px"></div>
+    <div style="text-align:center;color:var(--muted);font-size:12.5px;margin-bottom:10px">${A("أو خُد سكرين شوت وشاركها عالسناب والواتس","or screenshot it for Snap & WhatsApp")}</div>
     <button class="btn sec" onclick="renderResult()">${T("back")}</button>
     <div style="height:10px"></div>
     <button class="btn ghost" onclick="home()">${A("الرئيسية","Home")}</button>
   </div>`);
+}
+async function shareCert(){
+  TP.log('share_cert');
+  try{
+    if(!window.html2canvas){
+      await new Promise((res,rej)=>{ const s=document.createElement("script");
+        s.src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js";
+        s.onload=res; s.onerror=rej; document.head.appendChild(s); });
+    }
+    const el=document.getElementById("cert");
+    const canvas=await html2canvas(el,{scale:2,useCORS:true});
+    const blob=await new Promise(r=>canvas.toBlob(r,"image/png"));
+    const file=new File([blob],"theory-certificate.png",{type:"image/png"});
+    if(navigator.canShare && navigator.canShare({files:[file]})){
+      await navigator.share({files:[file], title:A("شهادتي بالتوريا","My Theory certificate"), text:A("نجحت بالامتحان التجريبي 🚗 جرّبوا: ","I passed the mock exam 🚗 Try it: ")+"https://"+CFG.APP_URL});
+    }else{
+      const url=canvas.toDataURL("image/png");
+      const w=window.open("about:blank");
+      if(w){ w.document.write('<img src="'+url+'" style="width:100%">'); }
+      alert(A("انفتحت الصورة — اضغط عليها مطولاً للحفظ والمشاركة","Image opened — long-press to save or share"));
+    }
+  }catch(e){ alert(A("ما زبطت الصورة — خُد سكرين شوت عادي 📸","Could not generate the image — please screenshot instead 📸")); }
 }
 function reviewExam(){
   const {qs,ans}=STATE;
