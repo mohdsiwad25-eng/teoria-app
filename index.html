@@ -462,6 +462,27 @@ html[data-theme="dark"] .cert,html[data-theme="dark"] .cert-in{color:#171B21}
 .ptask.done .pchk{background:var(--ok);border-color:var(--ok)}
 .ptask .pt-tx{flex:1;font-size:14.5px;font-weight:700;color:var(--ink)}
 .ptask .pt-go{color:var(--muted);font-size:18px}
+
+/* ===== شاشة "عندك 3 خيارات" ===== */
+.path-wrap{display:flex;flex-direction:column;gap:14px;margin-top:10px}
+.path-card{display:flex;align-items:center;gap:16px;width:100%;text-align:start;font-family:inherit;cursor:pointer;
+  background:var(--surface);border:2px solid var(--line);border-radius:var(--r);padding:20px 18px;transition:.15s}
+.path-card:active{transform:scale(.985)}
+.path-card .pc-num{width:44px;height:44px;border-radius:14px;flex:none;display:grid;place-items:center;
+  font-weight:900;font-size:20px;background:var(--ink);color:var(--accent)}
+.path-card .pc-ic{font-size:34px;flex:none}
+.path-card h3{font-size:17.5px;font-weight:900;color:var(--ink);margin-bottom:4px}
+.path-card p{font-size:13.5px;color:var(--muted);line-height:1.6}
+.path-card.p1{border-color:#178A50}.path-card.p1 .pc-num{background:#178A50;color:#fff}
+.path-card.p2{border-color:var(--primary)}.path-card.p2 .pc-num{background:var(--primary);color:#fff}
+.path-card.p3{border-color:#D6273B}.path-card.p3 .pc-num{background:#D6273B;color:#fff}
+.path-head{text-align:center;margin:16px 0 6px}
+.path-head h2{font-size:24px;font-weight:900}
+.path-head p{color:var(--muted);font-size:14.5px;margin-top:6px}
+.path-skip{display:block;margin:14px auto 0;background:none;border:none;color:var(--muted);
+  font-family:inherit;font-size:13.5px;font-weight:700;text-decoration:underline;cursor:pointer}
+.path-mini{width:100%;text-align:center;background:var(--primary-l);color:var(--primary);border:none;
+  font-family:inherit;font-weight:800;font-size:13px;padding:10px;border-radius:12px;margin-bottom:12px;cursor:pointer}
 </style>
 </head>
 <body>
@@ -490,7 +511,7 @@ html[data-theme="dark"] .cert,html[data-theme="dark"] .cert-in{color:#171B21}
    ================================================================== */
 
 const CFG = {
-  VERSION: "3.4.0",       // ⬅ غيّر هذا الرقم مع كل تحديث ترفعه (مثلاً 2.0.1)
+  VERSION: "3.5.0",       // ⬅ غيّر هذا الرقم مع كل تحديث ترفعه (مثلاً 2.0.1)
   REPO: "mohdsiwad25-eng/teoria-app",
   INSTRUCTOR: "المدرب محمد سواد",
   AREA: "بيت لحم",
@@ -1088,6 +1109,42 @@ function planMark(k){ if(!k)return; const p=getProg(); p.plan=p.plan||{}; if(!p.
 let PLAN_EX=1;
 function planGoExam(n){ PLAN_EX=n; gate('planex'); }
 function planGoStudy(k,action){ if(k&&UNLOCKED) planMark(k); gate(action); }
+function pathChoice(fromHome){
+  TP.log('open_path_choice');
+  root.innerHTML=chrome(null);
+  setView(`<div class="screen">
+    <div class="path-head">
+      <h2>${A("عندك ٣ خيارات 👇","You have 3 options 👇")}</h2>
+      <p>${A("اختار اللي بناسبك — وبتقدر تغيّر بأي وقت","Pick what suits you — you can change anytime")}</p>
+    </div>
+    <div class="path-wrap">
+      <button class="path-card p1" onclick="setPath(1)">
+        <span class="pc-num">١</span><span class="pc-ic">🌱</span>
+        <span><h3>${A("قسم المبتدئين","Beginners section")}</h3>
+        <p>${A("لسا ببلّش من الصفر؟ تعلّم خطوة خطوة بشرح مبسّط قبل ما تحل أسئلة","Starting from zero? Learn step by step with simple lessons before any questions")}</p></span>
+      </button>
+      <button class="path-card p2" onclick="setPath(2)">
+        <span class="pc-num">٢</span><span class="pc-ic">🗺️</span>
+        <span><h3>${A("خطة ٣ أيام — التوريا كلها","3-Day Plan — the whole Theory")}</h3>
+        <p>${A("للمبتدئين كمان، بس بخطة كاملة منظمة: إشارات ← قوانين ← مركبة ← امتحان رسمي، بعلامات إنجاز تلقائية ✓","Also for beginners — a complete organized plan: signs, rules, vehicle, then the mock exam, with automatic checkmarks ✓")}</p></span>
+      </button>
+      <button class="path-card p3" onclick="setPath(3)">
+        <span class="pc-num">٣</span><span class="pc-ic">🏛️</span>
+        <span><h3>${A("جاهز؟ عالأسئلة مباشرة","Ready? Straight to the questions")}</h3>
+        <p>${A("دارس وبدك تجرب حالك — امتحانات رسمية وأسئلة على طول بدون مقدمات","Already studied? Official exams and questions right away, no intros")}</p></span>
+      </button>
+    </div>
+    ${fromHome?`<button class="path-skip" onclick="home()">${A("‹ رجوع للرئيسية","‹ Back to home")}</button>`
+              :`<button class="path-skip" onclick="localStorage.setItem('tp_path','0');home()">${A("تخطّي — ودّيني عالرئيسية","Skip — take me to the home screen")}</button>`}
+  </div>`);
+}
+function setPath(n){
+  localStorage.setItem("tp_path", String(n));
+  TP.log('set_path',{path:n});
+  if(n===1) begHub();
+  else if(n===2) planScreen();
+  else gate('choose');
+}
 function planScreen(){
   TP.log('open_plan');
   const done=planKeys();
@@ -1124,6 +1181,7 @@ function planScreen(){
 const ACTIONS={
   planex:()=>startExam('exam',PLAN_EX),
   exam:()=>startExam('random'),
+  path:()=>pathChoice(true),
   choose:()=>chooseExam(),
   signals:()=>signals(),
   chat:()=>chat(),
@@ -1201,6 +1259,7 @@ function enterApp(){ TP.log('enter_app'); $("#fab").style.display="flex"; home()
 
 /* ================= الرئيسية ================= */
 function home(){
+  if(!localStorage.getItem("tp_path")){ pathChoice(false); return; }
   root.innerHTML = chrome("home");
   setView(`<div class="screen">
     <div class="hero">
@@ -1214,6 +1273,7 @@ function home(){
       <div class="stat"><div class="n">${DATA.meta.total_exams}</div><div class="l">${T("st_e")}</div></div>
     </div>
     ${examChipHtml()}
+    <button class="path-mini" onclick="pathChoice(true)">🧭 ${A("مش عارف من وين تبلّش؟ عندك ٣ خيارات — اضغط هون","Not sure where to start? You have 3 options — tap here")}</button>
     <div class="menu">
       <button class="card big-sec" onclick="begHub()">
         <div class="ic" style="background:linear-gradient(135deg,#e9f7f0,#cdeeda);color:#1f8a55;font-size:26px">🌱</div>
