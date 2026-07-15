@@ -649,7 +649,7 @@ html[data-theme="light"] select,html[data-theme="light"] textarea,html[data-them
    ================================================================== */
 
 const CFG = {
-  VERSION: "5.0.0",       // ⬅ غيّر هذا الرقم مع كل تحديث ترفعه (مثلاً 2.0.1)
+  VERSION: "5.1.0",       // ⬅ غيّر هذا الرقم مع كل تحديث ترفعه (مثلاً 2.0.1)
   REPO: "mohdsiwad25-eng/teoria-app",
   INSTRUCTOR: "المدرب محمد سواد",
   AREA: "بيت لحم",
@@ -688,14 +688,14 @@ const I18N = {
   nav_prog:{ar:"تقدّمي",en:"Progress"}, nav_chat:{ar:"مساعد",en:"Assistant"},
   // الرئيسية
   hero_t:{ar:"جاهز تنجح بالتوريا؟ 🚗",en:"Ready to pass your Theory Test? 🚗"},
-  hero_p:{ar:"ادرس، تدرّب، وجرّب حالك — كل شي بمكان واحد",en:"Study, practice, and test yourself — all in one place"},
+  hero_p:{ar:"ادرس، تدرّب، وانجح — كل شي بمكان واحد",en:"Study, practice, and test yourself — all in one place"},
   st_q:{ar:"سؤال",en:"Questions"}, st_s:{ar:"إشارة",en:"Signs"}, st_e:{ar:"امتحان",en:"Exams"},
   sec_beg:{ar:"قسم المبتدئين",en:"Beginners Section"},
   sec_beg_p:{ar:"أول مرة بالتوريا؟ ابدأ من هون — تعلّم خطوة بخطوة",en:"New to the Theory Test? Start here — learn step by step"},
   sec_test:{ar:"اختبر حالك",en:"Test Yourself"},
   sec_test_p:{ar:"تدرّب على الأسئلة، راجع أخطاءك، وتحدّى نفسك",en:"Practice questions, review mistakes, challenge yourself"},
-  sec_exam:{ar:"امتحان رسمي تجريبي",en:"Official Mock Exam"},
-  sec_exam_p:{ar:"سؤال · {m} دقيقة · تجربة مطابقة لامتحان الوزارة",en:"questions · {m} min · just like the Ministry exam"},
+  sec_exam:{ar:"الامتحان الرسمي",en:"Official Exam"},
+  sec_exam_p:{ar:"سؤال · {m} دقيقة · مطابق لامتحان الوزارة",en:"questions · {m} min · just like the Ministry exam"},
   sec_chat:{ar:"المساعد الذكي",en:"AI Assistant"},
   sec_chat_p:{ar:"اسأل عن أي إشارة أو قاعدة — بيجاوبك فوراً",en:"Ask about any sign or rule — instant answers"},
   share_app:{ar:"📤 شارك التطبيق مع أصحابك — خليهم ينجحوا معك",en:"📤 Share the app with friends — help them pass too"},
@@ -942,11 +942,7 @@ function chrome(active){
     <button class="tts-tgl" onclick="ttsToggle()" title="${A('تشغيل/إيقاف الصوت','Sound on/off')}">${TTS.on?"🔊":"🔇"}</button>
     <div id="streakChip" class="streak-chip"></div>
   </div>
-  <div class="demo-bar">
-    <span class="tag">${A("نسخة تجريبية","Trial version")}</span>
-    <span>${A("دراسة التوريا بالذكاء الاصطناعي — للنسخة الكاملة تواصل مع المدرب","AI-powered Theory Test prep — contact the instructor for full access")}</span>
-    <a href="https://wa.me/${CFG.WHATSAPP}" target="_blank" rel="noopener" onclick="TP.log('click_whatsapp_banner')">${A('💬 تواصل','💬 Contact')}</a>
-  </div>
+  
   <div id="view"></div>
   ${navBar(active)}`;
 }
@@ -1318,7 +1314,7 @@ function authWelcome(){
   setView(`<div class="screen"><div class="path-head" style="margin-top:26px">
     <div style="font-size:52px">🚗</div>
     <h2>${A("أهلاً فيك بـ TeoriaAI","Welcome to TeoriaAI")}</h2>
-    <p>${A("حط رقمك واسمك وبتفوت — بدون تعقيد","Your number and name — that's it")}</p></div>
+    <p>${A("اسمك ورقمك — وبتفوت","Your name and number — that's it")}</p></div>
     <div class="card" style="display:block;padding:18px;margin-top:14px">
       <label style="font-weight:800;font-size:13.5px">${A("اسمك","Your name")}</label>
       <input class="search-box" id="rNm" style="margin:6px 0 14px" autocomplete="name">
@@ -1328,7 +1324,7 @@ function authWelcome(){
       <div id="rErr" style="color:var(--danger);font-weight:800;font-size:13px;min-height:20px;margin-top:8px"></div>
       <button class="btn" style="width:100%" id="rGo" onclick="doEnter()">${A("دخول ←","Enter")}</button>
     </div>
-    <button class="path-skip" onclick="waTeacher()">${A("عندك سؤال؟ احكي مع المدرب 💬","Questions? Talk to the instructor 💬")}</button>
+    <button class="path-skip" onclick="waTeacher()">${A("احكي مع المدرب 💬","Talk to the instructor 💬")}</button>
   </div>`);
 }
 function waTeacher(){ window.open("https://wa.me/"+CFG.WHATSAPP+"?text="+encodeURIComponent(A("مرحبا، بدي أسأل عن تطبيق TeoriaAI","Hi, I have a question about TeoriaAI")),"_blank"); }
@@ -1414,7 +1410,7 @@ const PLAN=[
    {k:"ex17",ar:"حِل امتحان 17",en:"Take exam 17",go:()=>planGoExam(17)},
    {k:"ex19",ar:"حِل امتحان 19",en:"Take exam 19",go:()=>planGoExam(19)},
    {k:"ex21",ar:"حِل امتحان 21",en:"Take exam 21",go:()=>planGoExam(21)},
-   {k:"mock",ar:"الامتحان الرسمي التجريبي 🏛️",en:"The official mock exam 🏛️",go:()=>planGoStudy("",  "exam")}]}
+   {k:"mock",ar:"الامتحان الرسمي 🏛️",en:"The official mock exam 🏛️",go:()=>planGoStudy("",  "exam")}]}
 ];
 function planKeys(){ const p=getProg(); return p.plan||{}; }
 function planMark(k){ if(!k)return; const p=getProg(); p.plan=p.plan||{}; if(!p.plan[k]){ p.plan[k]=1; saveProg(p); } }
@@ -1442,7 +1438,7 @@ function pathChoice(fromHome){
       </button>
       <button class="path-card p3" onclick="setPath(3)">
         <span class="pc-num">٣</span><span class="pc-ic">🏛️</span>
-        <span><h3>${A("جاهز؟ عالأسئلة مباشرة","Ready? Straight to the questions")}</h3>
+        <span><h3>${A("عالأسئلة مباشرة","Straight to the questions")}</h3>
         <p>${A("دارس وبدك تجرب حالك — امتحانات رسمية وأسئلة على طول بدون مقدمات","Already studied? Official exams and questions right away, no intros")}</p></span>
       </button>
     </div>
@@ -1527,12 +1523,10 @@ function landing(){
   root.innerHTML=`<div class="landing"><div class="landing-inner">
     <div class="badge"><span class="dot"></span> ${A("مدعوم بالذكاء الاصطناعي","Powered by AI")}</div>
     <div class="l-logo"><svg viewBox="0 0 24 24" fill="none"><path d="M12 2L3 6v6c0 5 3.8 8.5 9 10 5.2-1.5 9-5 9-10V6l-9-4z" fill="#fff"/><path d="M12 7v5l3 2" stroke="#154A97" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-    <h1>${A('جرّب دراسة التوريا <span class="ai">بالذكاء الاصطناعي</span>','Study for your Theory Test <span class="ai">with AI</span>')}</h1>
-    <p class="tagline">${A("أسئلة رسمية · إشارات مصوّرة · مساعد ذكي 🤖","Official questions · Illustrated signs · AI assistant 🤖")}</p>
-    <div class="demo-pill">
-      ${A("🚧 هذه <b>نسخة تجريبية</b> فقط<br>للحصول على النسخة الكاملة ودروس السياقة، تواصل مع المدرب عبر واتساب","🚧 This is a <b>trial version</b><br>For full access and driving lessons, contact the instructor on WhatsApp")}
-    </div>
-    <button class="enter-btn" onclick="enterApp()">${A("دخول للتجربة →","Enter the app →")}</button>
+    <h1>${A('التوريا الفلسطينية <span class="ai">بالذكاء الاصطناعي</span>','Palestinian Theory Test <span class="ai">powered by AI</span>')}</h1>
+    <p class="tagline">${A("٦٧٨ سؤال رسمي · ١٤١ إشارة · مساعد ذكي بيشرحلك كل غلطة","678 official questions · 141 signs · an AI tutor that explains every mistake")}</p>
+    
+    <button class="enter-btn" onclick="enterApp()">${A("ابدأ الآن ←","Start now →")}</button>
     <a class="wa-btn" href="https://wa.me/${CFG.WHATSAPP}" target="_blank" rel="noopener" onclick="TP.log('click_whatsapp_landing')">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="#fff"><path d="M12 2C6.5 2 2 6.5 2 12c0 1.8.5 3.4 1.3 4.9L2 22l5.3-1.4c1.4.8 3 1.2 4.7 1.2 5.5 0 10-4.5 10-10S17.5 2 12 2z"/></svg>
       ${A("تواصل مع المدرب","Contact the instructor")}
@@ -1580,7 +1574,7 @@ function home(){
   if(p.answered<5) sm={ic:"🚀",t:A("يلا نبلّش","Let's start"),s:A("امتحان قصير نشوف وين إنت","A quick exam to see where you are"),go:"gate('daily')"};
   else if((p.mistakes||[]).length>=5) sm={ic:"🎯",t:A("راجع أخطاءك","Review your mistakes"),s:p.mistakes.length+" "+A("سؤال · حوالي "+Math.max(2,Math.round(p.mistakes.length*0.5))+" دقايق","questions · about "+Math.max(2,Math.round(p.mistakes.length*0.5))+" min"),go:"gate('mistakes')"};
   else if(weak && weak.r<0.8) sm={ic:"🎯",t:A("راجع "+tname(weak.k),"Practice "+tname(weak.k)),s:A(weak.miss+" أخطاء متكررة هون","+"+weak.miss+" repeated mistakes here"),go:"pracTopic('"+weak.k+"')"};
-  else if(ready>=70) sm={ic:"🏛️",t:A("جرّب الامتحان الرسمي","Take the official mock"),s:A("٣٠ سؤال · ٤٠ دقيقة — إنت جاهز","30 questions · 40 min — you're ready"),go:"gate('exam')"};
+  else if(ready>=70) sm={ic:"🏛️",t:A("الامتحان الرسمي","The official exam"),s:A("٣٠ سؤال · ٤٠ دقيقة — إنت جاهز","30 questions · 40 min — you're ready"),go:"gate('exam')"};
   else sm={ic:"📚",t:A("كمّل تمرين","Keep practicing"),s:A("امتحان جديد يقوّي جاهزيتك","A new exam to boost your readiness"),go:"gate('daily')"};
   // ---- نص الحالة ----
   let line;
@@ -1780,7 +1774,7 @@ function readiness(){
         ${A("حل على الأقل امتحان كامل أو ٣٠ سؤال تدريب، وارجعلي — بحلّلك أداءك بصراحة وبقولك وين لازم تركّز.","Take at least one full exam or 30 practice questions, then come back — I will analyze your performance honestly and tell you where to focus.")}
       </div>
       <div style="height:14px"></div>
-      <button class="btn" onclick="gate('exam')">${A("🏛️ ابدأ امتحان تجريبي","🏛️ Start a mock exam")}</button>
+      <button class="btn" onclick="gate('exam')">${A("🏛️ الامتحان الرسمي","🏛️ Official exam")}</button>
       <div style="height:10px"></div>
       <button class="btn ghost" onclick="testHub()">${T("back")}</button>
     </div>`);
@@ -1822,7 +1816,7 @@ function readiness(){
       <div class="ng-t">${A("📊 أرقامك","📊 Your numbers")}</div>
       <div class="ng-row"><div class="ng-v">${acc}%</div><div class="ng-d">${A(`دقتك العامة (${p.correct} صح من ${p.answered} سؤال)`,`Overall accuracy (${p.correct} correct of ${p.answered})`)}</div></div>
       ${lastAvg!=null?`<div class="ng-row"><div class="ng-v">${lastAvg}/${CFG.EXAM_LEN}</div><div class="ng-d">${A(`معدل آخر ${last3.length} ${last3.length===1?"امتحان":"امتحانات"} (النجاح ${CFG.PASS_MARK})`,`Average of last ${last3.length} exam${last3.length===1?"":"s"} (pass mark ${CFG.PASS_MARK})`)}</div></div>`:""}
-      ${passRate!=null?`<div class="ng-row"><div class="ng-v">${passRate}%</div><div class="ng-d">${A(`نسبة نجاحك بالامتحانات التجريبية (${exams.length} امتحان)`,`Pass rate across your mock exams (${exams.length})`)}</div></div>`:""}
+      ${passRate!=null?`<div class="ng-row"><div class="ng-v">${passRate}%</div><div class="ng-d">${A(`نسبة نجاحك بالامتحانات (${exams.length} امتحان)`,`Pass rate across your mock exams (${exams.length})`)}</div></div>`:""}
       <div class="ng-row"><div class="ng-v">${p.mistakes.length}</div><div class="ng-d">${A("سؤال بقائمة أخطائك بستنى مراجعة","questions in your mistakes list awaiting review")}</div></div>
     </div>
 
@@ -1834,7 +1828,7 @@ function readiness(){
 
     <div style="height:8px"></div>
     ${p.mistakes.length?`<button class="btn" onclick="gate('mistakes')">${A(`🎯 راجع أخطاءك (${p.mistakes.length})`,`🎯 Review your mistakes (${p.mistakes.length})`)}</button><div style="height:10px"></div>`:""}
-    <button class="btn ${p.mistakes.length?'sec':''}" onclick="gate('exam')">${A("🏛️ حل امتحان تجريبي","🏛️ Take a mock exam")}</button>
+    <button class="btn ${p.mistakes.length?'sec':''}" onclick="gate('exam')">${A("🏛️ الامتحان الرسمي","🏛️ Official exam")}</button>
     <div style="height:10px"></div>
     <button class="btn ghost" onclick="testHub()">${T("back")}</button>
   </div>`);
@@ -2140,7 +2134,7 @@ async function shareResultCard(){
   x.beginPath();x.moveTo(cx+r,cy);x.arcTo(cx+cw,cy,cx+cw,cy+ch,r);x.arcTo(cx+cw,cy+ch,cx,cy+ch,r);x.arcTo(cx,cy+ch,cx,cy,r);x.arcTo(cx,cy,cx+cw,cy,r);x.fill();
   // نجحت!
   x.fillStyle="#1f8a55"; x.font="900 72px Tajawal, Arial";
-  x.fillText(A("🎉 نجحت بالامتحان التجريبي","🎉 Passed the mock exam"),W/2,cy+120);
+  x.fillText(A("🎉 نجحت بالامتحان الرسمي","🎉 Passed the official exam"),W/2,cy+120);
   // الاسم
   x.fillStyle="#1c1420"; x.font="900 64px Tajawal, Arial";
   x.fillText(nm,W/2,cy+230);
@@ -2163,7 +2157,7 @@ async function shareResultCard(){
   x.font="800 40px Tajawal, Arial"; x.globalAlpha=.95;
   x.fillText(A("واتساب: "+CFG.WHATSAPP+"  ·  سناب: "+CFG.SNAP,"WhatsApp: "+CFG.WHATSAPP+"  ·  Snap: "+CFG.SNAP),W/2,H-150);
   x.font="800 42px Tajawal, Arial"; x.fillStyle="#ffd66e";
-  x.fillText(A("جرّب حالك: "+APP_URL,"Try it yourself: "+APP_URL),W/2,H-70);
+  x.fillText(A(APP_URL,APP_URL),W/2,H-70);
   // مشاركة أو تنزيل
   cv.toBlob(async b=>{
     const f=new File([b],"teoria-result.png",{type:"image/png"});
@@ -2178,7 +2172,7 @@ async function shareResultCard(){
 /* ============ شارك التطبيق ============ */
 async function shareApp(){
   TP.log('share_app');
-  const txt=A(`جرّب دراسة التوريا بالذكاء الاصطناعي 🚦🤖 أسئلة رسمية + إشارات + مساعد ذكي — مع ${CFG.INSTRUCTOR}:\nhttps://${APP_URL}`,`Study for the Palestinian driving Theory Test with AI 🚦🤖 Official questions + signs + AI assistant — with Instructor Mohammad Siwad:\nhttps://${APP_URL}`);
+  const txt=A(`التوريا الفلسطينية بالذكاء الاصطناعي 🚦🤖 أسئلة رسمية + إشارات + مساعد ذكي — مع ${CFG.INSTRUCTOR}:\nhttps://${APP_URL}`,`Study for the Palestinian driving Theory Test with AI 🚦🤖 Official questions + signs + AI assistant — with Instructor Mohammad Siwad:\nhttps://${APP_URL}`);
   if(navigator.share){ try{ await navigator.share({title:A("توريا فلسطين","Theory Palestine"),text:txt}); return; }catch(e){} }
   window.open("https://wa.me/?text="+encodeURIComponent(txt),"_blank");
 }
@@ -2293,7 +2287,7 @@ async function shareCert(){
     const blob=await new Promise(r=>canvas.toBlob(r,"image/png"));
     const file=new File([blob],"theory-certificate.png",{type:"image/png"});
     if(navigator.canShare && navigator.canShare({files:[file]})){
-      await navigator.share({files:[file], title:A("شهادتي بالتوريا","My Theory certificate"), text:A("نجحت بالامتحان التجريبي 🚗 جرّبوا: ","I passed the mock exam 🚗 Try it: ")+"https://"+CFG.APP_URL});
+      await navigator.share({files:[file], title:A("شهادتي بالتوريا","My Theory certificate"), text:A("نجحت بامتحان التوريا 🚗 ","I passed my Theory exam 🚗 ")+"https://"+CFG.APP_URL});
     }else{
       const url=canvas.toDataURL("image/png");
       const w=window.open("about:blank");
