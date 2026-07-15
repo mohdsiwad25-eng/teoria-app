@@ -511,13 +511,15 @@ html[data-theme="dark"] .cert,html[data-theme="dark"] .cert-in{color:#171B21}
    ================================================================== */
 
 const CFG = {
-  VERSION: "3.5.0",       // ⬅ غيّر هذا الرقم مع كل تحديث ترفعه (مثلاً 2.0.1)
+  VERSION: "4.0.0",       // ⬅ غيّر هذا الرقم مع كل تحديث ترفعه (مثلاً 2.0.1)
   REPO: "mohdsiwad25-eng/teoria-app",
   INSTRUCTOR: "المدرب محمد سواد",
   AREA: "بيت لحم",
   WHATSAPP: "970569999478",
   SNAP: "bethlehem.2024",
   PASS_MARK: 26,          // عدد الإجابات الصحيحة للنجاح (قابل للتعديل)
+  AUTH_API: "https://teoriaai.com",  // سيرفر التسجيل والتفعيل
+  TRIAL_EXAMS: 2,         // كم امتحان مجاني قبل ما يطلب تسجيل
   ACCESS_PASS: "1234",    // كلمة السر للدخول للأقسام (غيّرها وقت ما بدك)
   EXAM_LEN: 30,           // عدد أسئلة الامتحان
   EXAM_MINUTES: 40,       // مدة الامتحان بالدقائق
@@ -759,6 +761,7 @@ async function boot(){
     $("#fab").style.display="flex";
     initTracking();
     ttsInit();
+    authPing();
     applyLangDir();
     if(isEN()) await loadEnOverlay();
     if(!CFG.FIREBASE) TP.log('visit');
@@ -1084,6 +1087,115 @@ function paintStreak(){
 
 /* ================= بوابة كلمة السر ================= */
 let UNLOCKED=false;
+/* ===== نظام الحساب والتجربة ===== */
+const AUTH={ get(){ try{return JSON.parse(localStorage.getItem("tp_auth")||"null");}catch(e){return null;} },
+  set(o){ localStorage.setItem("tp_auth", JSON.stringify(o)); },
+  clear(){ localStorage.removeItem("tp_auth"); },
+  ok(){ const a=this.get(); return !!(a && a.token); } };
+const trialUsed=()=>parseInt(localStorage.getItem("tp_trial_used")||"0");
+const trialLeft=()=>Math.max(0, CFG.TRIAL_EXAMS - trialUsed());
+async function authPing(){
+  const a=AUTH.get(); if(!a) return;
+  try{
+    const r=await fetch(CFG.AUTH_API+"/api/check",{method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({phone:a.phone, token:a.token})});
+    const d=await r.json();
+    if(d && d.ok===0){ suspendedScreen(); }
+    else UNLOCKED=true;
+  }catch(e){ UNLOCKED=AUTH.ok(); /* نت واقع؟ منسمحله يدرس */ }
+}
+function authWelcome(){
+  TP.log('auth_welcome');
+  root.innerHTML=chrome(null);
+  const left=trialLeft();
+  setView(`<div class="screen"><div class="path-head" style="margin-top:26px">
+    <div style="font-size:52px">🚗</div>
+    <h2>${A("أهلاً فيك بتطبيق TeoriaAI","Welcome to TeoriaAI")}</h2>
+    <p>${A("سجّل مرة وحدة بكود واتساب — وبعدها بتفوت دايماً مباشرة","Register once with a WhatsApp code — then you are always in")}</p></div>
+    <div class="path-wrap">
+      <button class="path-card p2" onclick="regScreen()">
+        <span class="pc-ic">📱</span><span><h3>${A("سجّل حسابك","Register your account")}</h3>
+        <p>${A("اسمك ورقمك ← كود بيوصلك واتساب ← وخلص، لمرة واحدة","Your name & number, a WhatsApp code, done — once only")}</p></span></button>
+      ${left>0?`<button class="path-card p1" onclick="startTrial()">
+        <span class="pc-ic">🎁</span><span><h3>${A("جرّب مجاناً أول","Try it free first")}</h3>
+        <p>${A(`معك ${left} امتحان مجاني تجرب فيهم قبل التسجيل`, left+" free exams before registering")}</p></span></button>`:""}
+    </div>
+    <button class="path-skip" onclick="waTeacher()">${A("عندك سؤال؟ احكي مع المدرب 💬","Questions? Talk to the instructor 💬")}</button>
+  </div>`);
+}
+function waTeacher(){ window.open("https://wa.me/"+CFG.WHATSAPP+"?text="+encodeURIComponent(A("مرحبا، بدي أسأل عن تطبيق TeoriaAI","Hi, I have a question about TeoriaAI")),"_blank"); }
+function startTrial(){ localStorage.setItem("tp_mode","trial"); TP.log('trial_start'); home(); }
+function regScreen(msg){
+  root.innerHTML=chrome(null);
+  setView(`<div class="screen"><div class="sec-title">📱 ${A("سجّل حسابك","Register your account")}</div>
+    ${msg?`<div class="explain" style="margin-bottom:12px">${msg}</div>`:""}
+    <div class="card" style="display:block;padding:18px">
+      <label style="font-weight:800;font-size:13.5px">${A("اسمك الكامل","Your full name")}</label>
+      <input class="search-box" id="rNm" style="margin:6px 0 14px" autocomplete="name">
+      <label style="font-weight:800;font-size:13.5px">${A("رقم الواتساب","WhatsApp number")}</label>
+      <input class="search-box" id="rPh" style="margin:6px 0 4px;direction:ltr;text-align:left" type="tel" placeholder="059XXXXXXX" autocomplete="tel">
+      <div style="font-size:12px;color:var(--muted)">${A("رح يوصلك كود تفعيل على هاد الرقم واتساب","An activation code will arrive on WhatsApp")}</div>
+      <div id="rErr" style="color:var(--danger);font-weight:800;font-size:13px;min-height:20px;margin-top:8px"></div>
+      <button class="btn" style="width:100%" id="rGo" onclick="doReg()">${A("ابعتلي الكود ←","Send me the code")}</button>
+    </div>
+    <button class="path-skip" onclick="${AUTH.ok()?"home()":"authWelcome()"}">${A("‹ رجوع","‹ Back")}</button>
+  </div>`);
+}
+async function doReg(){
+  const nm=$("#rNm").value.trim(), ph=$("#rPh").value.trim(), err=$("#rErr"), b=$("#rGo");
+  if(nm.length<2){ err.textContent=A("اكتب اسمك","Enter your name"); return; }
+  if(ph.replace(/\D/g,"").length<9){ err.textContent=A("الرقم مش كامل","Number incomplete"); return; }
+  b.disabled=true; b.textContent=A("لحظة…","One sec…"); err.textContent="";
+  try{
+    const r=await fetch(CFG.AUTH_API+"/api/register",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({name:nm,phone:ph})});
+    const d=await r.json();
+    if(d.ok){ TP.log('reg_sent'); codeScreen(nm,ph); }
+    else{ err.textContent=d.err||A("صار خطأ","Error"); b.disabled=false; b.textContent=A("ابعتلي الكود ←","Send me the code"); }
+  }catch(e){ err.textContent=A("مشكلة اتصال — جرب كمان مرة","Connection problem"); b.disabled=false; b.textContent=A("ابعتلي الكود ←","Send me the code"); }
+}
+function codeScreen(nm,ph){
+  root.innerHTML=chrome(null);
+  setView(`<div class="screen"><div class="sec-title">💬 ${A("أدخل الكود","Enter the code")}</div>
+    <div class="card" style="display:block;padding:18px;text-align:center">
+      <div style="font-size:40px">📨</div>
+      <p style="font-size:14px;color:var(--muted);margin:8px 0 14px">${A("بعتنالك كود من 6 أرقام على واتساب","We sent a 6-digit code to your WhatsApp")}<br><b dir="ltr">${esc(ph)}</b></p>
+      <input class="search-box" id="cIn" type="tel" maxlength="6" style="text-align:center;font-size:26px;letter-spacing:8px;direction:ltr" placeholder="______">
+      <div id="cErr" style="color:var(--danger);font-weight:800;font-size:13px;min-height:20px;margin-top:8px"></div>
+      <button class="btn" style="width:100%" id="cGo" onclick="doVerify('${esc(nm)}','${esc(ph)}')">${A("فعّل حسابي ✓","Activate my account")}</button>
+    </div>
+    <button class="path-skip" onclick="regScreen()">${A("ما وصلك؟ ارجع وجرب من جديد","Nothing arrived? Go back and retry")}</button>
+  </div>`);
+  $("#cIn").focus();
+}
+async function doVerify(nm,ph){
+  const code=$("#cIn").value.trim(), err=$("#cErr"), b=$("#cGo");
+  if(code.length<6){ err.textContent=A("الكود 6 أرقام","6 digits"); return; }
+  b.disabled=true; b.textContent="…";
+  try{
+    const r=await fetch(CFG.AUTH_API+"/api/verify",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({phone:ph,code})});
+    const d=await r.json();
+    if(d.ok){ AUTH.set({name:nm,phone:ph,token:d.token}); UNLOCKED=true; TP.log('reg_done');
+      root.innerHTML=chrome(null);
+      setView(`<div class="screen" style="text-align:center;padding-top:40px">
+        <div style="font-size:64px">🎉</div>
+        <h2 style="font-weight:900;margin:10px 0">${A("تفعّل حسابك يا "+nm+"!","Account activated, "+nm+"!")}</h2>
+        <p style="color:var(--muted)">${A("من هلأ ورايح بتفوت مباشرة — بالتوفيق بالتوريا 🚗","From now on you go straight in. Good luck!")}</p>
+        <div style="height:16px"></div>
+        <button class="btn" onclick="home()">${A("يلا نبلش ←","Let's start")}</button></div>`);
+    } else { err.textContent=d.err||A("الكود غلط","Wrong code"); b.disabled=false; b.textContent=A("فعّل حسابي ✓","Activate my account"); }
+  }catch(e){ err.textContent=A("مشكلة اتصال","Connection problem"); b.disabled=false; b.textContent=A("فعّل حسابي ✓","Activate my account"); }
+}
+function suspendedScreen(){
+  UNLOCKED=false;
+  root.innerHTML=chrome(null);
+  setView(`<div class="screen" style="text-align:center;padding-top:40px">
+    <div style="font-size:56px">⏸️</div>
+    <h2 style="font-weight:900;margin:10px 0">${A("حسابك موقوف حالياً","Your account is suspended")}</h2>
+    <p style="color:var(--muted)">${A("تواصل مع المدرب لتفعيله من جديد","Contact the instructor to reactivate it")}</p>
+    <div style="height:16px"></div>
+    <button class="btn g" style="background:#1f8a55;border-bottom-color:#136b40" onclick="waTeacher()">💬 ${A("تواصل مع المدرب","Contact the instructor")}</button>
+  </div>`);
+}
 /* ===== خطة ٣ أيام ===== */
 const PLAN=[
  {d:1,icon:"🚦",ar:"الإشارات — أساس كل شي",en:"Signs — the foundation",tasks:[
@@ -1193,24 +1305,14 @@ const ACTIONS={
   topics:()=>topics()
 };
 function gate(action){
-  if(UNLOCKED){ ACTIONS[action](); return; }
-  const m=document.createElement("div");
-  m.className="modal-bg"; m.id="pinModal";
-  m.innerHTML=`<div class="modal">
-    <div class="lock"><svg viewBox="0 0 24 24" fill="none"><rect x="4" y="10" width="16" height="11" rx="2.5" stroke="currentColor" stroke-width="2"/><path d="M8 10V7a4 4 0 018 0v3" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="15.5" r="1.6" fill="currentColor"/></svg></div>
-    <h3>${A("أدخل كلمة السر","Enter the password")}</h3>
-    <p>${A("هذا القسم متاح للطلاب المشتركين مع المدرب","This section is for the instructor's enrolled students")}</p>
-    <input class="pin" id="pinInput" type="tel" inputmode="numeric" maxlength="8" placeholder="••••" autocomplete="off">
-    <div class="err" id="pinErr"></div>
-    <button class="btn" onclick="checkPin('${action}')">${A('دخول','Enter')}</button>
-    <button class="btn ghost sm" style="margin-top:8px" onclick="closePin()">${A("إلغاء","Cancel")}</button>
-    <a class="m-wa" href="https://wa.me/${CFG.WHATSAPP}" target="_blank" rel="noopener">${A("ما عندك كلمة سر؟ <b>تواصل مع المدرب</b>","No password? <b>Contact the instructor</b>")}</a>
-  </div>`;
-  document.body.appendChild(m);
-  const inp=$("#pinInput"); inp.focus();
-  inp.addEventListener("keydown",e=>{ if(e.key==="Enter")checkPin(action); });
-  m.addEventListener("click",e=>{ if(e.target===m)closePin(); });
-  TP.log('pin_prompt',{action});
+  if(UNLOCKED || AUTH.ok()){ ACTIONS[action](); return; }
+  const EXAM_ACTS=["exam","daily","mistakes","flagged","planex"];
+  if(EXAM_ACTS.includes(action) && trialLeft()<=0){
+    regScreen(A("🎁 خلصت امتحاناتك المجانية — سجّل مجاناً بكود واتساب وكمّل دراستك",
+                "Your free exams are used up — register free with a WhatsApp code to continue"));
+    return;
+  }
+  ACTIONS[action]();
 }
 function checkPin(action){
   const v=$("#pinInput").value.trim();
@@ -1259,6 +1361,7 @@ function enterApp(){ TP.log('enter_app'); $("#fab").style.display="flex"; home()
 
 /* ================= الرئيسية ================= */
 function home(){
+  if(!AUTH.ok() && localStorage.getItem("tp_mode")!=="trial"){ authWelcome(); return; }
   if(!localStorage.getItem("tp_path")){ pathChoice(false); return; }
   root.innerHTML = chrome("home");
   setView(`<div class="screen">
@@ -1553,6 +1656,11 @@ function chooseExam(){
 /* ================= الامتحان ================= */
 let timerInt=null;
 function startExam(mode,examNum){
+  if(!AUTH.ok() && ["exam","random","daily"].includes(mode)){
+    if(trialLeft()<=0){ regScreen(A("🎁 خلصت امتحاناتك المجانية — سجّل مجاناً وكمّل",
+      "Your free exams are used up — register free to continue")); return; }
+    localStorage.setItem("tp_trial_used", String(trialUsed()+1));
+  }
   let qs;
   if(mode==='exam'){ qs = DATA.exams[examNum].map(q=>({...q,ex:String(examNum)})); }
   else if(mode==='mistakes'){
@@ -1664,6 +1772,10 @@ function finishExam(){
     STATE.streak=getProg().streak;
   }
   TP.log('finish_exam',{correct,total:qs.length,mode:STATE.mode});
+  try{ const a=AUTH.get(); if(a&&a.token){
+    fetch(CFG.AUTH_API+"/api/progress",{method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({phone:a.phone,token:a.token,correct,total:qs.length,mode:STATE.mode})}).catch(()=>{});
+  }}catch(e){}
   try{
     if(STATE.mode==='exam' && qs[0] && qs[0].ex) planMark('ex'+qs[0].ex);
     if(STATE.mode==='random') planMark('mock');
