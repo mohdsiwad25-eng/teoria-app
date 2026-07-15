@@ -512,7 +512,7 @@ html[data-theme="dark"] .cert,html[data-theme="dark"] .cert-in{color:#171B21}
    ================================================================== */
 
 const CFG = {
-  VERSION: "4.4.0",       // ⬅ غيّر هذا الرقم مع كل تحديث ترفعه (مثلاً 2.0.1)
+  VERSION: "4.4.1",       // ⬅ غيّر هذا الرقم مع كل تحديث ترفعه (مثلاً 2.0.1)
   REPO: "mohdsiwad25-eng/teoria-app",
   INSTRUCTOR: "المدرب محمد سواد",
   AREA: "بيت لحم",
@@ -1122,8 +1122,8 @@ function authWelcome(){
       <label style="font-weight:800;font-size:13.5px">${A("اسمك","Your name")}</label>
       <input class="search-box" id="rNm" style="margin:6px 0 14px" autocomplete="name">
       <label style="font-weight:800;font-size:13.5px">${A("رقم الواتساب","WhatsApp number")}</label>
-      <input class="search-box" id="rPh" style="margin:6px 0 4px;direction:ltr;text-align:left" type="tel" placeholder="0599999999" autocomplete="tel" oninput="this.value=this.value.replace(/[^\d]/g,'')">
-      <div style="font-size:12px;color:var(--muted)">${A("اكتب رقمك زي ما هو (059… أو 056…) — منعرف المقدمة لحالنا","Enter your number as usual — we detect the prefix automatically")}<br>${A("مسجّل من قبل؟ بتفوت فوراً · جديد؟ بيوصلك كود واتساب لمرة وحدة","Registered? Straight in · New? A one-time WhatsApp code")}</div>
+      <input class="search-box" id="rPh" style="margin:6px 0 4px;direction:ltr;text-align:left" type="tel" inputmode="numeric" placeholder="0599999999" autocomplete="tel">
+      <div style="font-size:12px;color:var(--muted)">${A("بيوصلك مسج واتساب للتحقق","A WhatsApp message will arrive to verify you")}</div>
       <div id="rErr" style="color:var(--danger);font-weight:800;font-size:13px;min-height:20px;margin-top:8px"></div>
       <button class="btn" style="width:100%" id="rGo" onclick="doEnter()">${A("دخول ←","Enter")}</button>
     </div>
@@ -1134,7 +1134,9 @@ function waTeacher(){ window.open("https://wa.me/"+CFG.WHATSAPP+"?text="+encodeU
 function enterScreen(msg){ authWelcome(); }
 async function doEnter(){
   const nm=$("#rNm").value.trim(), err=$("#rErr"), b=$("#rGo");
-  const ph=$("#rPh").value.replace(/\D/g,"");
+  const ph=$("#rPh").value.replace(/[\u0660-\u0669]/g,d=>String(d.charCodeAt(0)-0x0660))
+                          .replace(/[\u06F0-\u06F9]/g,d=>String(d.charCodeAt(0)-0x06F0))
+                          .replace(/\D/g,"");
   const digits=ph.replace(/^0/,"").replace(/^97[02]/,"");
   if(digits.length<8||digits.length>10){ err.textContent=A("الرقم مش مظبوط — تأكد منه","Number looks wrong"); return; }
   b.disabled=true; b.textContent=A("لحظة…","One sec…"); err.textContent="";
