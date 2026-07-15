@@ -512,7 +512,7 @@ html[data-theme="dark"] .cert,html[data-theme="dark"] .cert-in{color:#171B21}
    ================================================================== */
 
 const CFG = {
-  VERSION: "4.2.0",       // ⬅ غيّر هذا الرقم مع كل تحديث ترفعه (مثلاً 2.0.1)
+  VERSION: "4.3.0",       // ⬅ غيّر هذا الرقم مع كل تحديث ترفعه (مثلاً 2.0.1)
   REPO: "mohdsiwad25-eng/teoria-app",
   INSTRUCTOR: "المدرب محمد سواد",
   AREA: "بيت لحم",
@@ -520,7 +520,6 @@ const CFG = {
   SNAP: "bethlehem.2024",
   PASS_MARK: 26,          // عدد الإجابات الصحيحة للنجاح (قابل للتعديل)
   AUTH_API: "https://teoriaai.com",  // سيرفر التسجيل والتفعيل
-  TRIAL_EXAMS: 2,         // كم امتحان مجاني قبل ما يطلب تسجيل
   ACCESS_PASS: "1234",    // كلمة السر للدخول للأقسام (غيّرها وقت ما بدك)
   EXAM_LEN: 30,           // عدد أسئلة الامتحان
   EXAM_MINUTES: 40,       // مدة الامتحان بالدقائق
@@ -1093,44 +1092,26 @@ const AUTH={ get(){ try{return JSON.parse(localStorage.getItem("tp_auth")||"null
   set(o){ localStorage.setItem("tp_auth", JSON.stringify(o)); },
   clear(){ localStorage.removeItem("tp_auth"); },
   ok(){ const a=this.get(); return !!(a && a.token); } };
-const trialUsed=()=>parseInt(localStorage.getItem("tp_trial_used")||"0");
-const trialLeft=()=>Math.max(0, CFG.TRIAL_EXAMS - trialUsed());
 async function authPing(){
-  const a=AUTH.get(); if(!a) return;
+  const a=AUTH.get();
+  if(!a || !a.token || !a.phone) return;   // مش مسجّل (تجربة/زائر) = ما في فحص أصلاً
+  UNLOCKED=true;                            // مسجّل = مفتوح، لحد ما يثبت العكس
   try{
     const r=await fetch(CFG.AUTH_API+"/api/check",{method:"POST",headers:{"Content-Type":"application/json"},
       body:JSON.stringify({phone:a.phone, token:a.token})});
+    if(!r.ok) return;                       // السيرفر مشغول/خطأ = ما منلمس شي
     const d=await r.json();
-    if(d && d.ok===0){ suspendedScreen(); }
-    else UNLOCKED=true;
-  }catch(e){ UNLOCKED=AUTH.ok(); /* نت واقع؟ منسمحله يدرس */ }
+    if(d && d.ok===0 && AUTH.ok()){ suspendedScreen(); }  // رد قاطع فقط
+  }catch(e){ /* نت واقع؟ منسيبه يدرس */ }
 }
 function authWelcome(){
   TP.log('auth_welcome');
   root.innerHTML=chrome(null);
-  const left=trialLeft();
   setView(`<div class="screen"><div class="path-head" style="margin-top:26px">
     <div style="font-size:52px">🚗</div>
-    <h2>${A("أهلاً فيك بتطبيق TeoriaAI","Welcome to TeoriaAI")}</h2>
-    <p>${A("سجّل مرة وحدة بكود واتساب — وبعدها بتفوت دايماً مباشرة","Register once with a WhatsApp code — then you are always in")}</p></div>
-    <div class="path-wrap">
-      <button class="path-card p2" onclick="enterScreen()">
-        <span class="pc-ic">📱</span><span><h3>${A("فوت / سجّل","Sign in / Register")}</h3>
-        <p>${A("اسمك ورقمك بس — إذا مسجّل بتفوت فوراً، وإذا جديد كود واتساب لمرة وحدة","Just your name & number — registered? You are in. New? A one-time WhatsApp code")}</p></span></button>
-      ${left>0?`<button class="path-card p1" onclick="startTrial()">
-        <span class="pc-ic">🎁</span><span><h3>${A("جرّب مجاناً أول","Try it free first")}</h3>
-        <p>${A(`معك ${left} امتحان مجاني تجرب فيهم قبل التسجيل`, left+" free exams before registering")}</p></span></button>`:""}
-    </div>
-    <button class="path-skip" onclick="waTeacher()">${A("عندك سؤال؟ احكي مع المدرب 💬","Questions? Talk to the instructor 💬")}</button>
-  </div>`);
-}
-function waTeacher(){ window.open("https://wa.me/"+CFG.WHATSAPP+"?text="+encodeURIComponent(A("مرحبا، بدي أسأل عن تطبيق TeoriaAI","Hi, I have a question about TeoriaAI")),"_blank"); }
-function startTrial(){ localStorage.setItem("tp_mode","trial"); TP.log('trial_start'); home(); }
-function enterScreen(msg){
-  root.innerHTML=chrome(null);
-  setView(`<div class="screen"><div class="sec-title">📱 ${A("فوت / سجّل","Sign in / Register")}</div>
-    ${msg?`<div class="explain" style="margin-bottom:12px">${msg}</div>`:""}
-    <div class="card" style="display:block;padding:18px">
+    <h2>${A("أهلاً فيك بـ TeoriaAI","Welcome to TeoriaAI")}</h2>
+    <p>${A("حط رقمك واسمك وبتفوت — بدون تعقيد","Your number and name — that's it")}</p></div>
+    <div class="card" style="display:block;padding:18px;margin-top:14px">
       <label style="font-weight:800;font-size:13.5px">${A("اسمك","Your name")}</label>
       <input class="search-box" id="rNm" style="margin:6px 0 14px" autocomplete="name">
       <label style="font-weight:800;font-size:13.5px">${A("رقم الواتساب","WhatsApp number")}</label>
@@ -1141,13 +1122,15 @@ function enterScreen(msg){
         </select>
         <input class="search-box" id="rPh" style="flex:1;direction:ltr;text-align:left;margin:0" type="tel" placeholder="59XXXXXXX" autocomplete="tel" oninput="this.value=this.value.replace(/\D/g,'')">
       </div>
-      <div style="font-size:12px;color:var(--muted)">${A("مسجّل من قبل؟ بتفوت فوراً · جديد؟ بيوصلك كود واتساب لمرة وحدة","Registered? You go straight in · New? A one-time WhatsApp code")}</div>
+      <div style="font-size:12px;color:var(--muted)">${A("مسجّل من قبل؟ بتفوت فوراً · جديد؟ بيوصلك كود واتساب لمرة وحدة","Registered? Straight in · New? A one-time WhatsApp code")}</div>
       <div id="rErr" style="color:var(--danger);font-weight:800;font-size:13px;min-height:20px;margin-top:8px"></div>
-      <button class="btn" style="width:100%" id="rGo" onclick="doEnter()">${A("فوت ←","Enter")}</button>
+      <button class="btn" style="width:100%" id="rGo" onclick="doEnter()">${A("دخول ←","Enter")}</button>
     </div>
-    <button class="path-skip" onclick="authWelcome()">${A("‹ رجوع","‹ Back")}</button>
+    <button class="path-skip" onclick="waTeacher()">${A("عندك سؤال؟ احكي مع المدرب 💬","Questions? Talk to the instructor 💬")}</button>
   </div>`);
 }
+function waTeacher(){ window.open("https://wa.me/"+CFG.WHATSAPP+"?text="+encodeURIComponent(A("مرحبا، بدي أسأل عن تطبيق TeoriaAI","Hi, I have a question about TeoriaAI")),"_blank"); }
+function enterScreen(msg){ authWelcome(); }
 async function doEnter(){
   const nm=$("#rNm").value.trim(), err=$("#rErr"), b=$("#rGo");
   let raw=$("#rPh").value.replace(/\D/g,"");
@@ -1199,6 +1182,7 @@ async function doVerify(nm,ph){
   }catch(e){ err.textContent=A("مشكلة اتصال","Connection problem"); b.disabled=false; b.textContent=A("فعّل حسابي ✓","Activate my account"); }
 }
 function suspendedScreen(){
+  if(!AUTH.ok()){ authWelcome(); return; }  // مش مسجّل؟ ما في "إيقاف" — رجّعه للترحيب
   UNLOCKED=false;
   root.innerHTML=chrome(null);
   setView(`<div class="screen" style="text-align:center;padding-top:40px">
@@ -1318,13 +1302,8 @@ const ACTIONS={
   topics:()=>topics()
 };
 function gate(action){
-  if(UNLOCKED || AUTH.ok()){ ACTIONS[action](); return; }
-  const EXAM_ACTS=["exam","daily","mistakes","flagged","planex"];
-  if(EXAM_ACTS.includes(action) && trialLeft()<=0){
-    enterScreen(A("🎁 خلصت امتحاناتك المجانية — سجّل مجاناً وكمّل دراستك","Your free exams are used up — register free to continue"));
-    return;
-  }
-  ACTIONS[action]();
+  if(AUTH.ok()){ UNLOCKED=true; ACTIONS[action](); return; }
+  authWelcome();
 }
 function checkPin(action){
   const v=$("#pinInput").value.trim();
@@ -1373,7 +1352,7 @@ function enterApp(){ TP.log('enter_app'); $("#fab").style.display="flex"; home()
 
 /* ================= الرئيسية ================= */
 function home(){
-  if(!AUTH.ok() && localStorage.getItem("tp_mode")!=="trial"){ authWelcome(); return; }
+  if(!AUTH.ok()){ authWelcome(); return; }
   if(!localStorage.getItem("tp_path")){ pathChoice(false); return; }
   root.innerHTML = chrome("home");
   setView(`<div class="screen">
@@ -1668,10 +1647,6 @@ function chooseExam(){
 /* ================= الامتحان ================= */
 let timerInt=null;
 function startExam(mode,examNum){
-  if(!AUTH.ok() && ["exam","random","daily"].includes(mode)){
-    if(trialLeft()<=0){ enterScreen(A("🎁 خلصت امتحاناتك المجانية — سجّل مجاناً وكمّل","Your free exams are used up — register free to continue")); return; }
-    localStorage.setItem("tp_trial_used", String(trialUsed()+1));
-  }
   let qs;
   if(mode==='exam'){ qs = DATA.exams[examNum].map(q=>({...q,ex:String(examNum)})); }
   else if(mode==='mistakes'){
