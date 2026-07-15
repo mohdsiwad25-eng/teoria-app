@@ -3,7 +3,6 @@ set -e
 echo ">>> [1/4] نسخة احتياطية..."
 cp /opt/teoria/server.js /opt/teoria/server.js.bak 2>/dev/null || true
 cp /opt/teoria/data.db /opt/teoria/data.db.bak 2>/dev/null || true
-
 echo ">>> [2/4] تركيب النظام الجديد..."
 cat > /opt/teoria/server.js << 'TEOSRV_EOF'
 // ================= TeoriaAI — نظام التفعيل + لوحة القيادة /siwad =================
@@ -103,7 +102,7 @@ app.post("/api/register", async (req,res)=>{
     rate[key] = (rate[key]||[]).filter(t=>Date.now()-t < 3600e3);
     if(rate[key].length>=3) return res.json({ok:0, err:"جربت كثير — استنى ساعة"});
     const jid = await resolveJid(phone);
-    if(!jid) return res.json({ok:0, err:"الرقم مش مسجل على واتساب — تأكد منه"});
+    if(!jid) return res.json({ok:0, err:"ما لقينا هالرقم على واتساب — تأكد منه أو احكي مع المدرب"});
     const code = String(Math.floor(100000+Math.random()*900000));
     const now = Date.now(), nm = String(name).trim().slice(0,40);
     db.prepare(`INSERT INTO students(name,phone,jid,code,code_exp,attempts,created)
@@ -141,7 +140,7 @@ app.post("/api/enter", async (req,res)=>{
     rate[key] = (rate[key]||[]).filter(t=>Date.now()-t < 3600e3);
     if(rate[key].length>=3) return res.json({ok:0, err:"جربت كثير — استنى ساعة"});
     const jid = s ? s.jid : await resolveJid(phone);
-    if(!jid) return res.json({ok:0, err:"الرقم مش مسجل على واتساب — تأكد منه"});
+    if(!jid) return res.json({ok:0, err:"ما لقينا هالرقم على واتساب — تأكد منه أو احكي مع المدرب"});
     const code = String(Math.floor(100000+Math.random()*900000));
     const now = Date.now(), nm = s ? s.name : String(name).trim().slice(0,40);
     db.prepare(`INSERT INTO students(name,phone,jid,code,code_exp,attempts,created)
@@ -633,7 +632,6 @@ app.get("/siwad",(req,res)=>{
 
 app.listen(PORT, ()=>console.log("TeoriaAI system on :"+PORT));
 TEOSRV_EOF
-
 echo ">>> [3/4] ضبط الكاش والمسارات..."
 cat > /etc/nginx/conf.d/teoria-cache.conf << 'CACHEEOF'
 map $request_uri $tcache {
@@ -646,7 +644,6 @@ if ! grep -q 'Cache-Control $tcache' /etc/nginx/sites-available/teoria; then
 fi
 perl -0pi -e 's|location = /admin|location /siwad|' /etc/nginx/sites-available/teoria
 nginx -t && systemctl reload nginx
-
 echo ">>> [4/4] إعادة تشغيل الخدمة..."
 cd /opt/teoria && pm2 restart teoria --update-env
 sleep 4
@@ -657,6 +654,5 @@ echo "=================== فحص ==================="
 curl -s -X POST http://127.0.0.1:3000/api/enter -H "Content-Type: application/json" -d '{"phone":"970599999999","name":"t"}' | head -c 200
 echo ""
 echo "==========================================="
-echo "  ✅ جاهز: https://teoriaai.com"
-echo "  اللوحة: https://teoriaai.com/siwad"
+echo "  ✅ جاهز: https://teoriaai.com  |  اللوحة: /siwad"
 echo "==========================================="
