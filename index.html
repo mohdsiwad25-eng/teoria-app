@@ -426,19 +426,9 @@ body{background:var(--bg)}
 .chip{border:1px solid var(--line);box-shadow:none}
 .fab{filter:drop-shadow(0 6px 14px rgba(23,27,33,.18))}
 
-/* ===== الوضع الليلي 🌙 ===== */
-html[data-theme="dark"]{
-  --bg:#0F1216; --surface:#171B21; --surface-2:#1F242B;
-  --ink:#ECEFF3; --muted:#9AA3AF; --line:rgba(236,239,243,.13);
-  --primary:#4D8AE8; --primary-d:#2F6BD0; --primary-l:#16263F;
-  --ok:#2FB575; --ok-l:#12291C; --danger:#E85468; --danger-l:#301A1E;
-  --shadow:0 14px 40px rgba(0,0,0,.5); --shadow-s:0 2px 12px rgba(0,0,0,.35);
-}
-html[data-theme="dark"] .topbar{background:rgba(15,18,22,.9)}
-html[data-theme="dark"] .botnav{background:rgba(23,27,33,.95)}
-html[data-theme="dark"] .sig-chip{background:#fff;color:#171B21;border-color:#fff}
-html[data-theme="dark"] .opt .lbl{background:var(--surface-2)}
-html[data-theme="dark"] .cert,html[data-theme="dark"] .cert-in{color:#171B21}
+/* الشهادة تبقى فاتحة دايماً */
+.cert,.cert-in{color:#0E1420}
+
 
 /* ===== خطة ٣ أيام — خارطة طريق ===== */
 .plan-hero{background:linear-gradient(135deg,#154A97,#1D5FBF);color:#fff;border-radius:var(--r);padding:22px 20px;margin-bottom:6px}
@@ -484,6 +474,153 @@ html[data-theme="dark"] .cert,html[data-theme="dark"] .cert-in{color:#171B21}
   font-family:inherit;font-size:13.5px;font-weight:700;text-decoration:underline;cursor:pointer}
 .path-mini{width:100%;text-align:center;background:var(--primary-l);color:var(--primary);border:none;
   font-family:inherit;font-weight:800;font-size:13px;padding:10px;border-radius:12px;margin-bottom:12px;cursor:pointer}
+
+/* ============================================================
+   TEORIA AI — DESIGN v5 · غامق · حديث · متكتك
+   ============================================================ */
+:root{
+  --bg:#0B0E14; --surface:#141922; --surface-2:#1C2230;
+  --ink:#F2F5FA; --muted:#8B95A6; --line:rgba(255,255,255,.07);
+  --primary:#3B82F6; --primary-d:#2563EB; --primary-l:#16243B;
+  --accent:#F5B62F; --danger:#EF4444; --danger-l:#2A1517;
+  --ok:#22C55E; --ok-l:#12271A;
+  --glow:rgba(59,130,246,.25);
+  --shadow:0 16px 44px rgba(0,0,0,.5); --shadow-s:0 4px 16px rgba(0,0,0,.3);
+  --r:22px; --r-s:15px;
+}
+html[data-theme="light"]{
+  --bg:#F4F6FA; --surface:#FFFFFF; --surface-2:#F0F3F8;
+  --ink:#0E1420; --muted:#6B7688; --line:rgba(14,20,32,.09);
+  --primary-l:#EAF2FE; --danger-l:#FDECEC; --ok-l:#E9F9EF;
+  --glow:rgba(59,130,246,.18);
+  --shadow:0 16px 40px rgba(14,20,32,.1); --shadow-s:0 3px 14px rgba(14,20,32,.06);
+}
+body{background:var(--bg); color:var(--ink); font-family:'Alexandria',sans-serif}
+body::before{content:"";position:fixed;top:-30%;left:50%;transform:translateX(-50%);
+  width:140%;height:56vh;pointer-events:none;z-index:0;
+  background:radial-gradient(ellipse at center, var(--glow), transparent 65%)}
+#root{position:relative;z-index:1}
+
+/* ---- الترويسة ---- */
+.topbar{background:transparent!important;border:none!important;backdrop-filter:none!important;
+  padding:18px 16px 8px!important;box-shadow:none!important}
+.topbar h1{font-size:15.5px!important;font-weight:600!important;letter-spacing:-.2px}
+.topbar .sub{font-size:12px!important;color:var(--muted)!important;font-weight:300!important}
+.topbar .logo{width:42px!important;height:42px!important;border-radius:13px!important;
+  background:linear-gradient(140deg,var(--primary),#1E40AF)!important;box-shadow:0 8px 20px var(--glow)}
+.tts-tgl{width:36px;height:36px;border-radius:11px;border:1px solid var(--line)!important;
+  background:var(--surface)!important;color:var(--muted)!important;font-size:14px!important}
+
+/* ---- البطاقات ---- */
+.card,.box,.hero{background:var(--surface)!important;border:1px solid var(--line)!important;
+  border-radius:var(--r)!important;box-shadow:none!important;color:var(--ink)}
+.hero{background:linear-gradient(165deg,var(--surface),#10151E)!important;position:relative;overflow:hidden}
+html[data-theme="light"] .hero{background:linear-gradient(165deg,#fff,#F7F9FD)!important}
+
+/* ---- الأزرار ---- */
+.btn{background:linear-gradient(135deg,var(--primary),var(--primary-d))!important;color:#fff!important;
+  border:none!important;border-radius:16px!important;font-weight:600!important;
+  box-shadow:0 10px 26px var(--glow)!important;transition:transform .14s,box-shadow .14s}
+.btn:active{transform:scale(.98)!important;box-shadow:0 5px 14px var(--glow)!important}
+.btn.ghost{background:var(--surface)!important;color:var(--ink)!important;
+  border:1px solid var(--line)!important;box-shadow:none!important}
+.btn.g{background:linear-gradient(135deg,var(--ok),#16A34A)!important;box-shadow:0 10px 26px rgba(34,197,94,.22)!important}
+
+/* ---- الخيارات ---- */
+.opt{background:var(--surface)!important;border:1.5px solid var(--line)!important;
+  border-radius:var(--r-s)!important;color:var(--ink)!important;transition:transform .12s,border-color .15s}
+.opt:active{transform:scale(.99)}
+.opt .lbl{background:var(--surface-2)!important;border:1.5px solid var(--line)!important;
+  color:var(--muted)!important;border-radius:10px!important;font-weight:600!important}
+.opt.sel{border-color:var(--primary)!important;background:var(--primary-l)!important}
+.opt.sel .lbl{background:var(--primary)!important;border-color:var(--primary)!important;color:#fff!important}
+.opt.correct{border-color:var(--ok)!important;background:var(--ok-l)!important;animation:pop .35s}
+.opt.correct .lbl{background:var(--ok)!important;border-color:var(--ok)!important;color:#fff!important}
+.opt.wrong{border-color:var(--danger)!important;background:var(--danger-l)!important;animation:shake .4s}
+.opt.wrong .lbl{background:var(--danger)!important;border-color:var(--danger)!important;color:#fff!important}
+@keyframes pop{0%{transform:scale(1)}45%{transform:scale(1.025)}100%{transform:scale(1)}}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+
+/* ---- الشريط السفلي ---- */
+.botnav{background:rgba(20,25,34,.82)!important;backdrop-filter:blur(20px);
+  border:1px solid var(--line)!important;border-radius:22px!important;
+  box-shadow:0 12px 36px rgba(0,0,0,.5)!important;bottom:16px!important;padding:6px!important}
+html[data-theme="light"] .botnav{background:rgba(255,255,255,.9)!important;box-shadow:var(--shadow)!important}
+.botnav button{color:var(--muted)!important;border-radius:15px!important;padding:9px 14px!important}
+.botnav button.on{background:var(--primary)!important;color:#fff!important}
+.botnav button.on svg{stroke:#fff!important}
+
+/* ---- عناصر عامة ---- */
+.sec-title{font-size:11px!important;font-weight:500!important;color:var(--muted)!important;
+  letter-spacing:1.6px;text-transform:uppercase;border:none!important;padding:0!important;margin:26px 0 12px!important}
+.search-box{background:var(--surface)!important;border:1.5px solid var(--line)!important;
+  color:var(--ink)!important;border-radius:14px!important}
+.search-box:focus{border-color:var(--primary)!important;outline:none}
+.explain{background:var(--primary-l)!important;border:none!important;border-inline-start:3px solid var(--primary)!important;
+  border-radius:12px!important;color:var(--ink)}
+.sig-chip{background:#fff!important;color:#0E1420!important;border:2px solid #fff!important;border-radius:8px!important}
+.q-num,.exam-chip{background:var(--surface-2)!important;color:var(--accent)!important;border:1px solid var(--line)!important;border-radius:10px!important}
+.timer{background:var(--surface-2)!important;color:var(--accent)!important;border-radius:12px!important}
+.chip{background:var(--surface)!important;border:1px solid var(--line)!important;color:var(--ink)!important}
+select,textarea,input{color-scheme:dark}
+html[data-theme="light"] select,html[data-theme="light"] textarea,html[data-theme="light"] input{color-scheme:light}
+
+/* ---- شاشة الرئيسية v5 ---- */
+.h5{padding:0 4px}
+.h5-greet{display:flex;align-items:center;gap:12px;margin-bottom:18px}
+.h5-greet .av{width:44px;height:44px;border-radius:14px;flex:none;
+  background:linear-gradient(140deg,var(--primary),#1E40AF);display:grid;place-items:center;
+  font-weight:700;font-size:17px;color:#fff;box-shadow:0 8px 20px var(--glow)}
+.h5-greet .who b{display:block;font-size:15.5px;font-weight:600;letter-spacing:-.2px}
+.h5-greet .who span{font-size:12px;color:var(--muted);font-weight:300}
+.ring-row{display:flex;align-items:center;gap:18px;position:relative;z-index:1}
+.ring{width:104px;height:104px;flex:none;position:relative}
+.ring svg{transform:rotate(-90deg)}
+.ring .rval{position:absolute;inset:0;display:grid;place-items:center;text-align:center}
+.ring .rval b{font-size:26px;font-weight:700;letter-spacing:-1px;line-height:1;display:block}
+.ring .rval i{font-style:normal;font-size:10px;color:var(--muted);font-weight:300}
+.ring circle.p{transition:stroke-dashoffset 1.1s cubic-bezier(.2,.8,.2,1)}
+.h5-txt h2{font-size:18.5px;font-weight:600;letter-spacing:-.3px;margin-bottom:6px}
+.h5-txt p{font-size:12.5px;color:var(--muted);line-height:1.75;font-weight:300}
+.h5-txt p b{color:var(--accent);font-weight:600}
+.smart{width:100%;margin-top:20px;padding:16px 18px;border:none;border-radius:17px;cursor:pointer;
+  background:linear-gradient(135deg,var(--primary),var(--primary-d));color:#fff;font-family:inherit;
+  display:flex;align-items:center;gap:13px;text-align:start;
+  box-shadow:0 12px 30px var(--glow);transition:transform .15s,box-shadow .15s}
+.smart:active{transform:scale(.985);box-shadow:0 6px 18px var(--glow)}
+.smart .sq{width:40px;height:40px;border-radius:12px;flex:none;background:rgba(255,255,255,.16);
+  display:grid;place-items:center;font-size:19px}
+.smart .lb{flex:1}
+.smart .lb b{display:block;font-size:15px;font-weight:600;letter-spacing:-.2px}
+.smart .lb span{font-size:11.5px;opacity:.78;font-weight:300}
+.smart .ar{opacity:.6;font-size:17px}
+.mini{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:13px}
+.mini div{background:var(--surface-2);border:1px solid var(--line);border-radius:14px;padding:12px 8px;text-align:center}
+.mini b{display:block;font-size:16.5px;font-weight:600;letter-spacing:-.4px}
+.mini span{font-size:10px;color:var(--muted);font-weight:300}
+.mini .g b{color:var(--ok)}.mini .r b{color:var(--danger)}.mini .y b{color:var(--accent)}
+.tools{display:grid;gap:9px}
+.tool{display:flex;align-items:center;gap:13px;width:100%;text-align:start;cursor:pointer;
+  background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:13px;
+  font-family:inherit;color:var(--ink);transition:border-color .15s,transform .12s}
+.tool:active{transform:scale(.99)}
+.tool .ti{width:36px;height:36px;border-radius:11px;flex:none;display:grid;place-items:center;
+  background:var(--surface-2);font-size:16px}
+.tool .tt{flex:1}
+.tool .tt b{display:block;font-size:13.8px;font-weight:500;letter-spacing:-.2px}
+.tool .tt span{font-size:11.5px;color:var(--muted);font-weight:300}
+.tool .tg{font-size:10px;font-weight:500;padding:4px 8px;border-radius:7px;background:rgba(245,182,47,.13);color:var(--accent)}
+.tool .tc{font-size:11.5px;color:var(--muted);font-weight:300}
+
+/* ---- التشجيع (توست) ---- */
+#cheer{position:fixed;left:50%;top:74px;transform:translateX(-50%) translateY(-16px);z-index:200;
+  background:var(--surface);border:1px solid var(--line);box-shadow:var(--shadow);
+  border-radius:16px;padding:11px 18px;font-weight:600;font-size:14px;
+  opacity:0;pointer-events:none;transition:all .3s cubic-bezier(.2,.8,.2,1);max-width:90vw;text-align:center}
+#cheer.show{opacity:1;transform:translateX(-50%) translateY(0)}
+#cheer.good{border-color:rgba(34,197,94,.4);color:var(--ok)}
+#cheer.bad{border-color:rgba(239,68,68,.35);color:var(--danger)}
+#confetti{position:fixed;inset:0;pointer-events:none;z-index:300}
 </style>
 </head>
 <body>
@@ -512,7 +649,7 @@ html[data-theme="dark"] .cert,html[data-theme="dark"] .cert-in{color:#171B21}
    ================================================================== */
 
 const CFG = {
-  VERSION: "4.4.1",       // ⬅ غيّر هذا الرقم مع كل تحديث ترفعه (مثلاً 2.0.1)
+  VERSION: "5.0.0",       // ⬅ غيّر هذا الرقم مع كل تحديث ترفعه (مثلاً 2.0.1)
   REPO: "mohdsiwad25-eng/teoria-app",
   INSTRUCTOR: "المدرب محمد سواد",
   AREA: "بيت لحم",
@@ -622,7 +759,7 @@ function setLang(l){
   if(isEN()) loadEnOverlay().then(()=>landing()); else landing();
 }
 function langToggle(){ setLang(isEN()?"ar":"en"); }
-function isDark(){ return (localStorage.getItem("tp_theme")||"light")==="dark"; }
+function isDark(){ return (localStorage.getItem("tp_theme")||"dark")==="dark"; }
 function applyTheme(){ document.documentElement.dataset.theme = isDark()?"dark":"light"; }
 function logout(){
   if(!confirm(A("بدك تسجّل خروج؟ تقدمك محفوظ وبترجع تفوت برقمك بأي وقت.","Sign out? Your progress is saved — sign back in with your number anytime.")))return;
@@ -630,6 +767,8 @@ function logout(){
   localStorage.removeItem("tp_path");
   authWelcome();
 }
+function sfxToggle(e){ const on=FX.toggle(); try{e.target.textContent=on?"🔊":"🔈";}catch(x){}
+  cheer(on?A("الأصوات شغالة 🔊","Sounds on 🔊"):A("الأصوات مسكّرة 🔈","Sounds off 🔈")); }
 function themeToggle(){ localStorage.setItem("tp_theme", isDark()?"light":"dark"); applyTheme(); try{event.target.textContent=isDark()?"☀️":"🌙";}catch(e){} }
 applyTheme();
 // حروف الخيارات حسب اللغة
@@ -797,6 +936,7 @@ function chrome(active){
     <div class="logo" onclick="landing()"><svg viewBox="0 0 24 24" fill="none"><path d="M12 2L3 6v6c0 5 3.8 8.5 9 10 5.2-1.5 9-5 9-10V6l-9-4z" fill="#fff"/><path d="M12 7v5l3 2" stroke="#154A97" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
     <div><h1>${A("توريا فلسطين","Theory Palestine")}</h1><div class="sub">${A(CFG.INSTRUCTOR+" — "+CFG.AREA,"Instructor Mohammad Siwad — Bethlehem")}</div></div>
     ${AUTH.ok()?`<button class="tts-tgl" onclick="logout()" title="${A('تسجيل خروج','Sign out')}">🚪</button>`:""}
+    <button class="tts-tgl" onclick="sfxToggle(event)" title="${A('الأصوات','Sounds')}">${FX.isOn()?"🔊":"🔈"}</button>
     <button class="tts-tgl" onclick="themeToggle()" title="${A('الوضع الليلي','Dark mode')}">${isDark()?"☀️":"🌙"}</button>
     <button class="tts-tgl" onclick="langToggle()" title="العربية / English" style="font-size:12px;font-weight:900">${isEN()?"ع":"EN"}</button>
     <button class="tts-tgl" onclick="ttsToggle()" title="${A('تشغيل/إيقاف الصوت','Sound on/off')}">${TTS.on?"🔊":"🔇"}</button>
@@ -1093,6 +1233,67 @@ function paintStreak(){
 }
 
 /* ================= بوابة كلمة السر ================= */
+
+/* ================= FX: صوت + اهتزاز + تشجيع ================= */
+const FX=(()=>{
+  let ctx=null;
+  const on=()=>localStorage.getItem("tp_sfx")!=="0";
+  const ac=()=>{ if(!on()) return null; try{ ctx=ctx||new (window.AudioContext||window.webkitAudioContext)(); if(ctx.state==="suspended")ctx.resume(); return ctx; }catch(e){ return null; } };
+  function tone(f,dur,type,vol,delay){
+    const c=ac(); if(!c) return;
+    const t0=c.currentTime+(delay||0);
+    const o=c.createOscillator(), g=c.createGain();
+    o.type=type||"sine"; o.frequency.setValueAtTime(f,t0);
+    g.gain.setValueAtTime(0,t0);
+    g.gain.linearRampToValueAtTime(vol||.12,t0+.012);
+    g.gain.exponentialRampToValueAtTime(.0001,t0+dur);
+    o.connect(g); g.connect(c.destination); o.start(t0); o.stop(t0+dur+.02);
+  }
+  const vib=p=>{ try{ if(localStorage.getItem("tp_hap")!=="0" && navigator.vibrate) navigator.vibrate(p); }catch(e){} };
+  return {
+    tap(){ tone(520,.05,"sine",.05); vib(8); },
+    ok(){ tone(660,.1,"sine",.1); tone(880,.14,"sine",.09,.07); tone(1320,.2,"sine",.05,.14); vib([12,40,18]); },
+    no(){ tone(200,.16,"square",.06); tone(150,.22,"square",.05,.1); vib([26,60,26]); },
+    win(){ [523,659,784,1047].forEach((f,i)=>tone(f,.34,"triangle",.1,i*.11)); vib([18,50,18,50,40]); },
+    lose(){ [392,349,294].forEach((f,i)=>tone(f,.3,"sine",.07,i*.14)); vib(60); },
+    level(){ [784,988,1319].forEach((f,i)=>tone(f,.4,"triangle",.09,i*.09)); vib([12,30,12,30,12]); },
+    toggle(){ const v=on()?"0":"1"; localStorage.setItem("tp_sfx",v); if(v==="1")this.ok(); return v==="1"; },
+    isOn:on
+  };
+})();
+
+/* توست تشجيع */
+let CHEER_T=null;
+function cheer(txt,kind){
+  let el=document.getElementById("cheer");
+  if(!el){ el=document.createElement("div"); el.id="cheer"; document.body.appendChild(el); }
+  el.textContent=txt; el.className=(kind||"")+" show";
+  clearTimeout(CHEER_T); CHEER_T=setTimeout(()=>el.classList.remove("show"),1700);
+}
+const CHEERS_OK=["ممتاز! 🔥","إجابة صح ✅","هيك! 👏","برافو عليك 💪","ماشي الحال 🚀","زبطها! ⭐","تمام التمام ✨","إنت جاهز 😎"];
+const CHEERS_OK_EN=["Excellent! 🔥","Correct ✅","Nice one! 👏","Well done 💪","Keep going 🚀","Nailed it! ⭐","Perfect ✨","You're ready 😎"];
+const CHEERS_NO=["ولا يهمك — تعلّمنا 💡","قريبة! ركّز شوي","صار خير، شوف الشرح 👇","هاي بتنحفظ بأخطاءك"];
+const CHEERS_NO_EN=["No worries — that's learning 💡","So close! Focus","It happens — read why 👇","Saved to your mistakes"];
+const rnd=a=>a[Math.floor(Math.random()*a.length)];
+
+/* كونفيتي */
+function confetti(n){
+  const c=document.createElement("canvas"); c.id="confetti"; document.body.appendChild(c);
+  const x=c.getContext("2d"), W=c.width=innerWidth, H=c.height=innerHeight;
+  const cols=["#3B82F6","#F5B62F","#22C55E","#EF4444","#A855F7","#fff"];
+  const P=Array.from({length:n||90},()=>({x:Math.random()*W,y:-20-Math.random()*H*.4,
+    r:4+Math.random()*6,c:cols[Math.floor(Math.random()*cols.length)],
+    vy:2+Math.random()*3.4,vx:-1.4+Math.random()*2.8,rot:Math.random()*6,vr:-.16+Math.random()*.32}));
+  let f=0;
+  (function loop(){
+    x.clearRect(0,0,W,H); f++;
+    P.forEach(p=>{ p.x+=p.vx; p.y+=p.vy; p.rot+=p.vr; p.vy+=.045;
+      x.save(); x.translate(p.x,p.y); x.rotate(p.rot); x.fillStyle=p.c;
+      x.fillRect(-p.r/2,-p.r/2,p.r,p.r*.6); x.restore(); });
+    if(f<260) requestAnimationFrame(loop); else c.remove();
+  })();
+}
+
 let UNLOCKED=false;
 /* ===== نظام الحساب والتجربة ===== */
 const AUTH={ get(){ try{return JSON.parse(localStorage.getItem("tp_auth")||"null");}catch(e){return null;} },
@@ -1355,56 +1556,131 @@ function enterApp(){ TP.log('enter_app'); $("#fab").style.display="flex"; home()
 /* ================= الرئيسية ================= */
 function home(){
   if(!AUTH.ok()){ authWelcome(); return; }
-  if(!localStorage.getItem("tp_path")){ pathChoice(false); return; }
+  TP.log('home');
+  const p=getProg(), a=AUTH.get();
+  const nm=(a&&a.name)?a.name.trim():"";
+  const initial=nm?nm[0]:"👤";
+  // ---- حساب الجاهزية ----
+  const acc = p.answered>0 ? p.correct/p.answered : 0;
+  const cover = Math.min(1, p.answered/300);
+  const exams = Object.keys(p.exams||{}).length;
+  const examW = Math.min(1, exams/6);
+  const ready = Math.round((acc*0.55 + cover*0.25 + examW*0.20)*100);
+  // ---- الأقوى والأضعف ----
+  let weak=null, strong=null;
+  Object.entries(p.byTopic||{}).forEach(([k,v])=>{
+    if(!TOPICS[k] || v.seen<4) return;
+    const r=v.correct/v.seen;
+    if(!weak || r<weak.r) weak={k,r,seen:v.seen,miss:v.seen-v.correct};
+    if(!strong || r>strong.r) strong={k,r};
+  });
+  const tname=k=>isEN()?TOPICS[k].en:TOPICS[k].name;
+  // ---- الزر الذكي ----
+  let sm;
+  if(p.answered<5) sm={ic:"🚀",t:A("يلا نبلّش","Let's start"),s:A("امتحان قصير نشوف وين إنت","A quick exam to see where you are"),go:"gate('daily')"};
+  else if((p.mistakes||[]).length>=5) sm={ic:"🎯",t:A("راجع أخطاءك","Review your mistakes"),s:p.mistakes.length+" "+A("سؤال · حوالي "+Math.max(2,Math.round(p.mistakes.length*0.5))+" دقايق","questions · about "+Math.max(2,Math.round(p.mistakes.length*0.5))+" min"),go:"gate('mistakes')"};
+  else if(weak && weak.r<0.8) sm={ic:"🎯",t:A("راجع "+tname(weak.k),"Practice "+tname(weak.k)),s:A(weak.miss+" أخطاء متكررة هون","+"+weak.miss+" repeated mistakes here"),go:"pracTopic('"+weak.k+"')"};
+  else if(ready>=70) sm={ic:"🏛️",t:A("جرّب الامتحان الرسمي","Take the official mock"),s:A("٣٠ سؤال · ٤٠ دقيقة — إنت جاهز","30 questions · 40 min — you're ready"),go:"gate('exam')"};
+  else sm={ic:"📚",t:A("كمّل تمرين","Keep practicing"),s:A("امتحان جديد يقوّي جاهزيتك","A new exam to boost your readiness"),go:"gate('daily')"};
+  // ---- نص الحالة ----
+  let line;
+  if(p.answered<5) line=A("لسا ما بلّشنا — أول امتحان بيحدد نقطة البداية.","Let's find your starting point with a first exam.");
+  else line=(strong?A("أقوى إشي عندك: ","Strongest: ")+"<b>"+tname(strong.k)+"</b>. ":"")+
+       (weak&&weak.r<0.85?"<br>"+A("ضعفك: ","Weakest: ")+"<b>"+tname(weak.k)+"</b> — "+weak.miss+" "+A("أخطاء","mistakes"):"");
+  const title = ready>=85?A("إنت جاهز للتست 🎓","You're exam-ready 🎓")
+              : ready>=60?A("لسا شوي وبتوصل","Almost there")
+              : ready>=30?A("ماشي منيح","Making progress")
+              : A("يلا نبلّش","Let's begin");
+  const hh=new Date().getHours();
+  const greet = hh<12?A("صباح الخير","Good morning"):hh<18?A("مساء الخير","Good afternoon"):A("مسا الخير","Good evening");
+  const dash=283, off=Math.round(dash-(dash*ready/100));
+  const exDone=Object.keys(p.exams||{}).length;
+  const bestEx=Object.values(p.exams||{}).reduce((m,v)=>Math.max(m,(v&&v.best)||0),0);
+  const sigSeen=(p.byTopic&&p.byTopic.signs)?p.byTopic.signs.seen:0;
+
   root.innerHTML = chrome("home");
-  setView(`<div class="screen">
-    <div class="hero">
-      <h2>${A("ادرس التوريا بالذكاء الاصطناعي 🚦🤖","Study for your Theory Test with AI 🚦🤖")}</h2>
-      <p>${A("أسئلة رسمية من الوزارة، إشارات، ومساعد ذكي — كله بمكان واحد.","Official Ministry questions, road signs, and an AI assistant — all in one place.")}</p>
-      <div class="instructor">👨‍🏫 <span>${A(`مع <b>${CFG.INSTRUCTOR}</b>`,`with <b>Instructor Mohammad Siwad</b>`)}</span></div>
+  setView(`<div class="screen h5">
+    <div class="h5-greet">
+      <div class="av">${esc(initial)}</div>
+      <div class="who"><b>${greet}${nm?"، "+esc(nm):""}</b>
+        <span>${examCountdownText()}</span></div>
     </div>
-    <div class="stats">
-      <div class="stat"><div class="n">${DATA.meta.total_questions}</div><div class="l">${T("st_q")}</div></div>
-      <div class="stat"><div class="n">${DATA.meta.total_signals}</div><div class="l">${T("st_s")}</div></div>
-      <div class="stat"><div class="n">${DATA.meta.total_exams}</div><div class="l">${T("st_e")}</div></div>
+
+    <div class="hero" style="padding:22px 18px 18px">
+      <div class="ring-row">
+        <div class="ring">
+          <svg width="104" height="104" viewBox="0 0 104 104">
+            <circle cx="52" cy="52" r="45" stroke="var(--line)" stroke-width="9" fill="none"/>
+            <circle class="p" cx="52" cy="52" r="45" stroke="url(#rg)" stroke-width="9" fill="none"
+              stroke-linecap="round" stroke-dasharray="${dash}" stroke-dashoffset="${dash}"/>
+            <defs><linearGradient id="rg" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#3B82F6"/><stop offset="1" stop-color="#22C55E"/></linearGradient></defs>
+          </svg>
+          <div class="rval"><div><b>${ready}<span style="font-size:14px">%</span></b><i>${A("جاهزيتك","readiness")}</i></div></div>
+        </div>
+        <div class="h5-txt"><h2>${title}</h2><p>${line}</p></div>
+      </div>
+
+      <button class="smart" onclick="FX.tap();${sm.go}">
+        <span class="sq">${sm.ic}</span>
+        <span class="lb"><b>${sm.t}</b><span>${sm.s}</span></span>
+        <span class="ar">‹</span>
+      </button>
+
+      <div class="mini">
+        <div class="g"><b>${p.correct||0}</b><span>${A("إجابة صح","correct")}</span></div>
+        <div class="r"><b>${(p.mistakes||[]).length}</b><span>${A("غلط محفوظ","saved errors")}</span></div>
+        <div class="y"><b>${exDone}</b><span>${A("امتحان خلص","exams done")}</span></div>
+      </div>
     </div>
-    ${examChipHtml()}
-    <button class="path-mini" onclick="pathChoice(true)">🧭 ${A("مش عارف من وين تبلّش؟ عندك ٣ خيارات — اضغط هون","Not sure where to start? You have 3 options — tap here")}</button>
-    <div class="menu">
-      <button class="card big-sec" onclick="begHub()">
-        <div class="ic" style="background:linear-gradient(135deg,#e9f7f0,#cdeeda);color:#1f8a55;font-size:26px">🌱</div>
-        <div class="tx"><h3>${T("sec_beg")}</h3><p>${T("sec_beg_p")}</p></div><div class="arrow">‹</div>
+
+    <div class="sec-title">${A("الأدوات","Tools")}</div>
+    <div class="tools">
+      <button class="tool" onclick="FX.tap();gate('exam')">
+        <span class="ti">🏛️</span>
+        <span class="tt"><b>${A("الامتحان الرسمي","Official mock exam")}</b><span>${A("٣٠ سؤال · ٤٠ دقيقة","30 questions · 40 min")}</span></span>
+        ${bestEx?`<span class="tc">${bestEx}% ${A("أفضل","best")}</span>`:`<span class="tg">${A("جديد","new")}</span>`}
       </button>
-      <button class="card big-sec" onclick="planScreen()">
-        <div class="ic" style="background:linear-gradient(135deg,#E8F0FC,#cfe0f8);color:#1D5FBF;font-size:26px">🗺️</div>
-        <div class="tx"><h3>${A("خطة ٣ أيام","3-Day Plan")}</h3><p>${A("خارطة طريق خطوة بخطوة — من الصفر للجاهزية","A step-by-step roadmap from zero to exam-ready")}</p></div><div class="arrow">‹</div>
+      <button class="tool" onclick="FX.tap();gate('signals')">
+        <span class="ti">🚸</span>
+        <span class="tt"><b>${A("الإشارات","Road signs")}</b><span>${A("١٤١ إشارة بالصور","141 illustrated signs")}</span></span>
+        <span class="tc">${sigSeen?sigSeen+"/141":A("ابدأ","start")}</span>
       </button>
-      <button class="card big-sec" onclick="testHub()">
-        <div class="ic" style="background:linear-gradient(135deg,#eef4fd,#dceafb);color:#2f6cc4;font-size:26px">📝</div>
-        <div class="tx"><h3>${T("sec_test")}</h3><p>${T("sec_test_p")}</p></div><div class="arrow">‹</div>
+      <button class="tool" onclick="FX.tap();gate('mistakes')">
+        <span class="ti">🎯</span>
+        <span class="tt"><b>${A("أخطائي","My mistakes")}</b><span>${A("الأسئلة اللي غلطت فيها","Questions you got wrong")}</span></span>
+        ${(p.mistakes||[]).length?`<span class="tg">${p.mistakes.length}</span>`:`<span class="tc">✓</span>`}
       </button>
-      <button class="card big-sec" onclick="gate('exam')">
-        <div class="ic" style="background:linear-gradient(135deg,#fdf3e8,#fae3c8);color:#c98600;font-size:26px">🏛️</div>
-        <div class="tx"><h3>${T("sec_exam")}</h3><p>${CFG.EXAM_LEN} ${T("sec_exam_p",{m:CFG.EXAM_MINUTES})}</p></div><div class="arrow">‹</div>
+      <button class="tool" onclick="FX.tap();gate('choose')">
+        <span class="ti">📚</span>
+        <span class="tt"><b>${A("كل الامتحانات","All exams")}</b><span>${A("٢٣ امتحان رسمي","23 official exams")}</span></span>
+        <span class="tc">${exDone}/23</span>
       </button>
-      <button class="card big-sec" onclick="gate('chat')">
-        <div class="ic" style="background:linear-gradient(135deg,#f6eefc,#ecdcf8);color:#8e44ad;font-size:26px">🤖</div>
-        <div class="tx"><h3>${T("sec_chat")}</h3><p>${T("sec_chat_p")}</p></div><div class="arrow">‹</div>
+      <button class="tool" onclick="FX.tap();gate('topics')">
+        <span class="ti">🧩</span>
+        <span class="tt"><b>${A("تمرّن بالمواضيع","Practice by topic")}</b><span>${A("أولوية · تجاوز · سرعة · وقوف","Priority · Overtaking · Speed")}</span></span>
+        <span class="tc">›</span>
+      </button>
+      <button class="tool" onclick="FX.tap();qSearch()">
+        <span class="ti">🔎</span>
+        <span class="tt"><b>${A("ابحث بالأسئلة","Search questions")}</b><span>${A("لاقي أي سؤال بكلمة","Find any question by a word")}</span></span>
+        <span class="tc">›</span>
       </button>
     </div>
-    <button class="share-app" onclick="shareApp()">${T("share_app")}</button>
-    <div class="demo-note">
-      ${A(`⚠️ هذا <b>موقع تجريبي</b> للتعريف بالخدمة.<br>للحصول على <b>الموقع الكامل</b> ودروس السياقة، تواصل مع <b>${CFG.INSTRUCTOR}</b>:`,`⚠️ This is a <b>trial version</b> of the service.<br>For <b>full access</b> and driving lessons, contact <b>Instructor Mohammad Siwad</b>:`)}
-      <a href="https://wa.me/${CFG.WHATSAPP}" target="_blank" rel="noopener" onclick="TP.log('click_whatsapp_note')">${A("واتساب","WhatsApp")} ${CFG.WHATSAPP}</a>
-    </div>
-    <div class="brand-footer">
-      ${A(`🚗 لحجز دروس السياقة — <b>${CFG.INSTRUCTOR}</b> · ${CFG.AREA}<br>واتساب: ${CFG.WHATSAPP} · سناب: ${CFG.SNAP}`,`🚗 Book driving lessons — <b>Instructor Mohammad Siwad</b> · Bethlehem<br>WhatsApp: ${CFG.WHATSAPP} · Snapchat: ${CFG.SNAP}`)}
-    </div>
+    <div style="height:20px"></div>
   </div>`);
-  welcomeIfFirst();
+  // تحريك الحلقة
+  setTimeout(function(){ var c=document.querySelector(".ring circle.p"); if(c) c.style.strokeDashoffset=String(off); },60);
+}
+function examCountdownText(){
+  const d=STORE.get("tp_examdate",null);
+  if(!d) return A("حدّد تاريخ امتحانك من تقدّمي","Set your exam date in Progress");
+  const days=Math.ceil((new Date(d)-Date.now())/864e5);
+  if(days<0) return A("امتحانك عدّى — بالتوفيق!","Your exam date passed — good luck!");
+  if(days===0) return A("امتحانك اليوم! 🍀","Your exam is today! 🍀");
+  return A("باقي "+days+" يوم على امتحانك","+"+days+" days to your exam");
 }
 
-/* ================= الأقسام الرئيسية (Hubs) ================= */
 function begHub(){
   TP.log('open_beg_hub');
   root.innerHTML=chrome(null);
@@ -1732,7 +2008,7 @@ function renderQ(){
   </div>`);
   if(STATE.endAt) startTimer();
 }
-function pick(L){ STATE.ans[STATE.idx]=L;
+function pick(L){ FX.tap(); STATE.ans[STATE.idx]=L;
   LET.forEach(x=>$("#opt-"+x).classList.toggle('sel',x===L));
   $(".q-count").textContent=A(`سؤال ${STATE.idx+1} من ${STATE.qs.length} · تمّت الإجابة على ${STATE.ans.filter(a=>a!==null).length}`,`Question ${STATE.idx+1} of ${STATE.qs.length} · ${STATE.ans.filter(a=>a!==null).length} answered`);
 }
@@ -1760,6 +2036,11 @@ function finishExam(){
     STATE.streak=getProg().streak;
   }
   TP.log('finish_exam',{correct,total:qs.length,mode:STATE.mode});
+  try{
+    const pct=Math.round(correct/qs.length*100), pass=correct>=Math.round(CFG.PASS_MARK/CFG.EXAM_LEN*qs.length);
+    if(pass){ FX.win(); confetti(110); setTimeout(()=>cheer(A("نجحت! 🎉 "+pct+"%","Passed! 🎉 "+pct+"%"),"good"),250); }
+    else { FX.lose(); setTimeout(()=>cheer(A("قريب — راجع أخطاءك وارجع 💪","Close — review your mistakes 💪"),"bad"),250); }
+  }catch(e){}
   try{ const a=AUTH.get(); if(a&&a.token){
     fetch(CFG.AUTH_API+"/api/progress",{method:"POST",headers:{"Content-Type":"application/json"},
       body:JSON.stringify({phone:a.phone,token:a.token,correct,total:qs.length,mode:STATE.mode})}).catch(()=>{});
@@ -2309,6 +2590,8 @@ function begAnswer(i,j){
     checkBadges(p); saveProg(p);
   }
   TP.log('beg_answer',{ok});
+  if(ok){ FX.ok(); cheer(rnd(isEN()?CHEERS_OK_EN:CHEERS_OK),"good"); }
+  else { FX.no(); cheer(rnd(isEN()?CHEERS_NO_EN:CHEERS_NO),"bad"); }
   begReveal(i,j);
 }
 function begReveal(i,j){
@@ -2364,6 +2647,12 @@ function topics(){
     <button class="btn ghost" onclick="begHub()">${T("back_beg")}</button>
   </div>`);
 }
+function pracTopic(tk){
+  const pool=shuffle(ALLQ.filter(q=>topicOf(q)===tk));
+  if(!pool.length) return topics();
+  TP.log('prac_topic',{tk});
+  startCustom(pool.slice(0,20), isEN()?TOPICS[tk].en:TOPICS[tk].name);
+}
 function topicPick(id){
   const pool=shuffle(ALLQ.filter(q=>sectionOf(q)===id));
   if(!pool.length) return topics();
@@ -2417,6 +2706,8 @@ function pracAnswer(j){
     p.byTopic[tp]=p.byTopic[tp]||{seen:0,correct:0}; p.byTopic[tp].seen++; if(ok)p.byTopic[tp].correct++;
     if(!ok && !p.mistakes.some(m=>qKey(m)===k)) p.mistakes.push({id:q.id,ex:q.ex,question:q.question,a:q.a,b:q.b,c:q.c,d:q.d,answer:q.answer});
     checkBadges(p); saveProg(p);
+    if(ok){ FX.ok(); cheer(rnd(isEN()?CHEERS_OK_EN:CHEERS_OK),"good"); }
+    else { FX.no(); cheer(rnd(isEN()?CHEERS_NO_EN:CHEERS_NO),"bad"); }
   }
   pracReveal(j);
 }
