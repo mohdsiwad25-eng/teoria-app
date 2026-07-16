@@ -3,6 +3,12 @@
 <head>
 <script>if(/github\.io$/.test(location.hostname)){location.replace("https://teoriaai.com/");}</script>
 <meta charset="UTF-8">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#0B0E14">
+<link rel="apple-touch-icon" href="/icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="TeoriaAI">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <!-- منع تخزين نسخة قديمة من الصفحة -->
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
@@ -627,6 +633,18 @@ html[data-theme="light"] select,html[data-theme="light"] textarea,html[data-them
   color:var(--ink);font-family:inherit;font-weight:600;font-size:15px;cursor:pointer;transition:transform .12s}
 .chunk:active{transform:scale(.94)}
 .chunk.dn{background:var(--ok-l);border-color:var(--ok);color:var(--ok)}
+
+.box2{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:16px;margin-bottom:12px}
+.b2h{font-size:13.5px;font-weight:600;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.hint2{font-size:12px;color:var(--muted);font-weight:300;line-height:1.7}
+.trow{display:flex;align-items:center;gap:11px;padding:9px 0;border-bottom:1px dashed var(--line);cursor:pointer}
+.trow:last-child{border-bottom:none}
+.ticn{width:34px;height:34px;border-radius:10px;background:var(--surface-2);display:grid;place-items:center;font-size:15px;flex:none}
+.tmid{flex:1;min-width:0}
+.tmid b{font-size:13px;font-weight:500;display:block;margin-bottom:5px}
+.tbar2{height:7px;background:var(--surface-2);border-radius:5px;overflow:hidden}
+.tbar2 i{display:block;height:100%;border-radius:5px;transition:width .8s cubic-bezier(.2,.8,.2,1)}
+.tpc{font-size:13.5px;font-weight:700;min-width:40px;text-align:left}
 </style>
 </head>
 <body>
@@ -655,7 +673,7 @@ html[data-theme="light"] select,html[data-theme="light"] textarea,html[data-them
    ================================================================== */
 
 const CFG = {
-  VERSION: "5.3.0",       // ⬅ غيّر هذا الرقم مع كل تحديث ترفعه (مثلاً 2.0.1)
+  VERSION: "5.4.0",       // ⬅ غيّر هذا الرقم مع كل تحديث ترفعه (مثلاً 2.0.1)
   REPO: "mohdsiwad25-eng/teoria-app",
   INSTRUCTOR: "المدرب محمد سواد",
   AREA: "بيت لحم",
@@ -923,6 +941,9 @@ async function boot(){
     initTracking();
     ttsInit();
     authPing();
+    if("serviceWorker" in navigator && location.hostname==="teoriaai.com"){
+      navigator.serviceWorker.register("/sw.js").catch(()=>{});
+    }
     applyLangDir();
     if(isEN()) await loadEnOverlay();
     if(!CFG.FIREBASE) TP.log('visit');
@@ -1744,7 +1765,7 @@ function home(){
   setTimeout(function(){ var c=document.querySelector(".ring circle.p"); if(c) c.style.strokeDashoffset=String(off); },60);
 }
 function examCountdownText(){
-  const d=STORE.get("tp_examdate",null);
+  const d=getProg().examDate||null;
   if(!d) return A("حدّد تاريخ امتحانك من تقدّمي","Set your exam date in Progress");
   const days=Math.ceil((new Date(d)-Date.now())/864e5);
   if(days<0) return A("امتحانك عدّى — بالتوفيق!","Your exam date passed — good luck!");
@@ -2129,136 +2150,82 @@ function finishExam(){
 function renderResult(){
   const {qs,correct}=STATE, total=qs.length;
   const pct=Math.round(correct/total*100);
-  const pass = correct>=CFG.PASS_MARK || (STATE.mode!=='exam'&&pct>=Math.round(CFG.PASS_MARK/CFG.EXAM_LEN*100));
-  const need = STATE.mode==='exam'||total===CFG.EXAM_LEN;
-  const close = !pass && pct>=Math.round(CFG.PASS_MARK/CFG.EXAM_LEN*100)-12;
-  const R=64,C=2*Math.PI*R, off=C*(1-pct/100);
+  const passLine=Math.round(CFG.PASS_MARK/CFG.EXAM_LEN*100);
+  const pass = pct>=passLine;
+  const close = !pass && pct>=passLine-12;
   const p=getProg(), lvl=levelOf(p.points), nxt=nextLevel(p.points);
-  const msgArr = pass?MOTIVATE.pass:(close?MOTIVATE.close:MOTIVATE.fail);
-  const msgEN = pass?["Amazing work! You're ready 💪","Excellent! Keep this level up 🔥","That's how it's done! 🏆"]:(close?["So close! One more push 📈","Almost there — review your mistakes 💡"]:["Don't give up — every expert started here 🌱","Review your mistakes and try again 💪"]);
-  const msg = isEN()? msgEN[Math.floor(Math.random()*msgEN.length)] : msgArr[Math.floor(Math.random()*msgArr.length)];
-  const nb = STATE.newBadges||[];
-  // تحليل نقاط الضعف: توزيع الأخطاء على المواضيع
-  const weak={};
-  qs.forEach((q,i)=>{
-    if(STATE.ans[i]!==LET[+q.answer-1]){
-      const raw=(q.question||"")+(q.a||"")+(q.b||"")+(q.c||"")+(q.d||"");
-      const k=/\[\[/.test(raw)?A("🚸 الإشارات","🚸 Road Signs"):(SECTIONS[sectionOf(q)]?SECTIONS[sectionOf(q)].icon+" "+secName(sectionOf(q)):A("عام","General"));
-      weak[k]=(weak[k]||0)+1;
-    }
-  });
-  const weakArr=Object.entries(weak).sort((a,b)=>b[1]-a[1]);
-  const weakHtml = weakArr.length?`<div class="weak-box">
-      <div class="wk-t">${A("🎯 وين غلطت؟","🎯 Where did you go wrong?")}</div>
-      <div class="wk-rows">${weakArr.map(([k,n])=>`<div class="wk-row"><span>${k}</span><b>${n} ${A(n===1?"خطأ":"أخطاء",n===1?"mistake":"mistakes")}</b></div>`).join("")}</div>
-      <div class="wk-tip">${A(`💡 ركّز مراجعتك على ${weakArr[0][0]} — أكثر مكان بتغلط فيه.`,`💡 Focus your review on ${weakArr[0][0]} — your most frequent mistake area.`)}</div>
-    </div>`:"";
+  // مقارنة مع الامتحان السابق
+  const hist=(p.history||[]);
+  let cmp="";
+  if(hist.length>=2){
+    const prev=hist[hist.length-2], prevPc=Math.round(prev.correct/prev.total*100), d=pct-prevPc;
+    cmp = d>0? `<span style="color:var(--ok)">▲ ${A("تحسنت","Up")} +${d}% ${A("عن امتحانك السابق","vs your last exam")}</span>`
+        : d<0? `<span style="color:var(--danger)">▼ ${d}% ${A("عن السابق — طبيعي، كمّل","vs last — keep going")}</span>`
+        : `<span style="color:var(--muted)">${A("نفس علامة امتحانك السابق","Same as your last exam")}</span>`;
+  }
+  const best=hist.reduce((m,x)=>Math.max(m,Math.round(x.correct/x.total*100)),0);
+  const isBest = pct>=best && hist.length>1;
+  const wrongN = total-correct-STATE.ans.filter(a=>a===null).length;
+  const R=76, C=2*Math.PI*R, off=C*(1-pct/100);
+  const title = pass? (isBest? A("أفضل علامة إلك لهلأ! 🏆","Your best score yet! 🏆") : A("ناجح! 🎉","Passed! 🎉"))
+              : close? A("قريب جداً!","So close!")
+              : A("بداية الطريق","On your way");
+  const sub = pass? A("لو هاد الامتحان الرسمي كنت نجحت","If this were the real exam, you'd pass")
+            : A(`بدك ${Math.ceil((passLine-pct)/100*total)} إجابات صح زيادة للنجاح`,`${Math.ceil((passLine-pct)/100*total)} more correct answers to pass`);
+
   root.innerHTML=chrome(null);
-  setView(`<div class="screen">
-    ${pass?'<div class="confetti" id="confetti"></div>':''}
-    <div class="result-card">
-      <div class="result-badge ${pass?'pass':'fail'}">${pass?A('🎉 ناجح','🎉 Passed'):A('💪 حاول مرة ثانية','💪 Try again')}</div>
-      <div class="result-ring">
-        <svg width="150" height="150"><circle cx="75" cy="75" r="${R}" fill="none" stroke="var(--line)" stroke-width="12"/>
-        <circle cx="75" cy="75" r="${R}" fill="none" stroke="${pass?'var(--ok)':'var(--danger)'}" stroke-width="12" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${off}"/></svg>
-        <div class="pct"><b>${correct}<span style="font-size:20px">/${total}</span></b><span>${pct}%</span></div>
+  setView(`<div class="screen" style="text-align:center;padding-top:14px">
+    <div class="hero" style="padding:28px 20px 22px">
+      <div style="position:relative;width:186px;height:186px;margin:0 auto">
+        <svg width="186" height="186" viewBox="0 0 186 186" style="transform:rotate(-90deg)">
+          <circle cx="93" cy="93" r="${R}" stroke="var(--line)" stroke-width="12" fill="none"/>
+          <circle id="resRing" cx="93" cy="93" r="${R}" stroke="${pass?'url(#gOk)':'url(#gNo)'}" stroke-width="12" fill="none"
+            stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${C}" style="transition:stroke-dashoffset 1.4s cubic-bezier(.2,.8,.2,1)"/>
+          <defs>
+            <linearGradient id="gOk" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3B82F6"/><stop offset="1" stop-color="#22C55E"/></linearGradient>
+            <linearGradient id="gNo" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F5B62F"/><stop offset="1" stop-color="#EF4444"/></linearGradient>
+          </defs>
+        </svg>
+        <div style="position:absolute;inset:0;display:grid;place-items:center">
+          <div><b id="resCnt" style="font-size:46px;font-weight:800;letter-spacing:-2px">0</b><span style="font-size:20px;font-weight:600">%</span>
+          <div style="font-size:11.5px;color:var(--muted);margin-top:2px">${correct} / ${total} ${A("صح","correct")}</div></div>
+        </div>
       </div>
-      <div class="motivate">${msg}</div>
-      <div class="result-sub">${A(`أجبت صح على <b>${correct}</b> من <b>${total}</b>`,`You answered <b>${correct}</b> of <b>${total}</b> correctly`)}${need?A(` · النجاح يحتاج <b>${CFG.PASS_MARK}</b> فأكثر`,` · Pass mark: <b>${CFG.PASS_MARK}</b>+`):''}</div>
-      <div class="level-bar">
-        <div class="lv-top"><span>${lvl.icon} ${lvName(lvl)}</span>${nxt?`<span style="color:var(--muted)">${A('التالي:','Next:')} ${nxt.icon} ${lvName(nxt)}</span>`:`<span style="color:var(--ok)">${A('أعلى مستوى 🎓','Top level 🎓')}</span>`}</div>
-        <div class="lv-track"><div class="lv-fill" style="width:${nxt?Math.round((p.points-lvl.min)/(nxt.min-lvl.min)*100):100}%;background:${lvl.c}"></div></div>
-        <div class="lv-pts">${p.points} ${A('نقطة','pts')}${nxt?A(` · باقي ${nxt.min-p.points} للترقية`,` · ${nxt.min-p.points} to level up`):''}</div>
+      <h2 style="font-size:21px;font-weight:700;margin:14px 0 4px">${title}</h2>
+      <p style="font-size:13px;color:var(--muted)">${sub}</p>
+      ${cmp?`<p style="font-size:12.5px;margin-top:8px;font-weight:600">${cmp}</p>`:""}
+      ${wrongN>0?`
+      <button class="btn" style="width:100%;margin-top:18px;background:linear-gradient(135deg,#6366F1,#A855F7)!important" onclick="FX.tap();reviewWrong()">
+        🎯 ${A(`راجع أخطاءك (${wrongN}) — أهم خطوة`,`Review your ${wrongN} mistakes — the key step`)}</button>`:""}
+      <div class="row" style="display:flex;gap:9px;margin-top:10px">
+        <button class="btn ghost" style="flex:1" onclick="FX.tap();${STATE.mode==='exam'?'chooseExam()':'gate(\'smart\')'}">${STATE.mode==='exam'?A("امتحان ثاني","Another exam"):A("🤖 امتحان ذكي","Smart exam")}</button>
+        <button class="btn ghost" style="flex:1" onclick="FX.tap();home()">${A("الرئيسية","Home")}</button>
       </div>
-      ${nb.length?`<div class="new-badges"><div class="nb-t">${A("🎖️ أوسمة جديدة!","🎖️ New badges!")}</div><div class="nb-row">${nb.map(b=>`<div class="nb"><div class="nb-ic">${b.icon}</div><div class="nb-nm">${isEN()?(b.en||b.name):b.name}</div></div>`).join("")}</div></div>`:''}
-      ${weakHtml}
-      ${pass?`<button class="btn" style="background:linear-gradient(135deg,#c98a00,#e0a92e);color:#2a2000" onclick="shareResultCard()">${A("📸 شارك نتيجتك (صورة)","📸 Share your result (image)")}</button><div style="height:10px"></div>`:''}
-      ${pass?`<button class="btn sec" onclick="certificate()">${A("🏅 شهادة النجاح","🏅 Pass certificate")}</button><div style="height:10px"></div>`:''}
-      <button class="btn ${pass?'ghost':''}" onclick="reviewExam()">${A("📝 مراجعة الأخطاء والإجابات","📝 Review answers & mistakes")}</button>
-      <div style="height:10px"></div>
-      <button class="btn ${pass?'ghost':'sec'}" onclick="${STATE.mode==='exam'?`startExam('exam',${STATE.examNum})`:`startExam('random')`}">${A("🔄 إعادة","🔄 Retry")}</button>
-      ${p.mistakes.length?`<div style="height:10px"></div><button class="btn ghost" onclick="gate('mistakes')">${A(`🎯 تدرّب على أخطائك (${p.mistakes.length})`,`🎯 Practice your mistakes (${p.mistakes.length})`)}</button>`:''}
     </div>
-    <div class="brand-footer">${A(`💡 للحجز مع <b>${CFG.INSTRUCTOR}</b> · واتساب ${CFG.WHATSAPP}`,`💡 Book lessons with <b>Instructor Mohammad Siwad</b> · WhatsApp ${CFG.WHATSAPP}`)}</div>
+    <div class="mini">
+      <div class="y"><b>+${correct*2}</b><span>${A("نقطة","points")}</span></div>
+      <div><b>${lvl.icon}</b><span>${lvName(lvl)}</span></div>
+      <div class="g"><b>${p.streak||0}🔥</b><span>${A("سلسلتك","streak")}</span></div>
+    </div>
+    ${STATE.newBadges&&STATE.newBadges.length?`<div class="box2" style="margin-top:12px"><div class="b2h">🎖️ ${A("وسام جديد!","New badge!")}</div>
+      <div style="font-size:14px">${STATE.newBadges.map(b=>b.icon+" "+(isEN()?(b.en||b.name):b.name)).join(" · ")}</div></div>`:""}
+    <div style="height:14px"></div>
   </div>`);
-  if(pass) fireConfetti();
+  // عدّاد + حلقة
+  setTimeout(()=>{ const r=document.getElementById("resRing"); if(r) r.style.strokeDashoffset=String(off); },150);
+  const t0=performance.now(), el=document.getElementById("resCnt");
+  (function step(t){ const k=Math.min(1,(t-t0)/1300), e=1-Math.pow(1-k,3);
+    if(el) el.textContent=String(Math.round(pct*e));
+    if(k<1) requestAnimationFrame(step); })(t0);
+}
+function reviewWrong(){
+  const {qs,ans}=STATE;
+  const wrong=qs.filter((q,i)=>ans[i]!==null && ans[i]!==LET[+q.answer-1]);
+  if(!wrong.length) return home();
+  TP.log('review_wrong',{n:wrong.length});
+  startCustom(wrong, A("مراجعة أخطائي","My mistakes review"));
 }
 
-/* ============ بطاقة مشاركة النتيجة (كانفاس) ============ */
-const APP_URL="tinyurl.com/teoria26";
-async function shareResultCard(){
-  const p=getProg();
-  let nm=p.name;
-  if(!nm){ nm=(prompt(A("اكتب اسمك ليظهر على البطاقة:","Enter your name for the card:"))||"").trim(); if(nm){p.name=nm;saveProg(p);} }
-  nm=nm||A("طالب توريا","Theory student");
-  const {correct,qs}=STATE, total=qs.length, pct=Math.round(correct/total*100);
-  TP.log('share_result_card');
-  const W=1080,H=1350, cv=document.createElement("canvas"); cv.width=W; cv.height=H;
-  const x=cv.getContext("2d");
-  // خلفية متدرجة
-  const g=x.createLinearGradient(0,0,W,H); g.addColorStop(0,"#1D5FBF"); g.addColorStop(.6,"#6e1631"); g.addColorStop(1,"#400c1c");
-  x.fillStyle=g; x.fillRect(0,0,W,H);
-  // زخارف دوائر
-  x.globalAlpha=.08; x.fillStyle="#fff";
-  x.beginPath();x.arc(90,120,180,0,7);x.fill();
-  x.beginPath();x.arc(W-60,H-160,220,0,7);x.fill();
-  x.globalAlpha=1;
-  x.textAlign="center"; x.direction=isEN()?"ltr":"rtl";
-  // العنوان
-  x.fillStyle="#ffffff"; x.font="900 54px Tajawal, Arial";
-  x.fillText(A("توريا فلسطين 🚦","Theory Palestine 🚦"),W/2,130);
-  x.font="700 34px Tajawal, Arial"; x.globalAlpha=.85;
-  x.fillText(A("دراسة التوريا بالذكاء الاصطناعي","AI-powered Theory Test prep"),W/2,185); x.globalAlpha=1;
-  // بطاقة بيضاء
-  const cx=70,cy=250,cw=W-140,ch=760,r=48;
-  x.fillStyle="#fff";
-  x.beginPath();x.moveTo(cx+r,cy);x.arcTo(cx+cw,cy,cx+cw,cy+ch,r);x.arcTo(cx+cw,cy+ch,cx,cy+ch,r);x.arcTo(cx,cy+ch,cx,cy,r);x.arcTo(cx,cy,cx+cw,cy,r);x.fill();
-  // نجحت!
-  x.fillStyle="#1f8a55"; x.font="900 72px Tajawal, Arial";
-  x.fillText(A("🎉 نجحت بالامتحان الرسمي","🎉 Passed the official exam"),W/2,cy+120);
-  // الاسم
-  x.fillStyle="#1c1420"; x.font="900 64px Tajawal, Arial";
-  x.fillText(nm,W/2,cy+230);
-  // دائرة النتيجة
-  const ccx=W/2, ccy=cy+430, cr=130;
-  x.lineWidth=26; x.strokeStyle="#eee";
-  x.beginPath();x.arc(ccx,ccy,cr,0,7);x.stroke();
-  x.strokeStyle="#1f8a55"; x.lineCap="round";
-  x.beginPath();x.arc(ccx,ccy,cr,-Math.PI/2,-Math.PI/2+2*Math.PI*pct/100);x.stroke();
-  x.fillStyle="#1c1420"; x.font="900 84px Tajawal, Arial";
-  x.fillText(correct+"/"+total,ccx,ccy+18);
-  x.font="800 40px Tajawal, Arial"; x.fillStyle="#1f8a55";
-  x.fillText(pct+"%",ccx,ccy+75);
-  // سطر تحفيزي
-  x.fillStyle="#6d6d78"; x.font="700 36px Tajawal, Arial";
-  x.fillText(A("جاهز/ة لامتحان الوزاره 💪","Ready for the Ministry exam 💪"),W/2,cy+660);
-  // معلومات المدرب
-  x.fillStyle="#ffffff"; x.font="900 46px Tajawal, Arial";
-  x.fillText(A("👨‍🏫 "+CFG.INSTRUCTOR+" — "+CFG.AREA,"👨‍🏫 Instructor Mohammad Siwad — Bethlehem"),W/2,H-220);
-  x.font="800 40px Tajawal, Arial"; x.globalAlpha=.95;
-  x.fillText(A("واتساب: "+CFG.WHATSAPP+"  ·  سناب: "+CFG.SNAP,"WhatsApp: "+CFG.WHATSAPP+"  ·  Snap: "+CFG.SNAP),W/2,H-150);
-  x.font="800 42px Tajawal, Arial"; x.fillStyle="#ffd66e";
-  x.fillText(A(APP_URL,APP_URL),W/2,H-70);
-  // مشاركة أو تنزيل
-  cv.toBlob(async b=>{
-    const f=new File([b],"teoria-result.png",{type:"image/png"});
-    if(navigator.canShare && navigator.canShare({files:[f]})){
-      try{ await navigator.share({files:[f],title:A("نتيجتي بالتوريا 🎉","My Theory Test result 🎉")}); return; }catch(e){}
-    }
-    const a=document.createElement("a");
-    a.href=URL.createObjectURL(b); a.download="teoria-result.png"; a.click();
-  },"image/png");
-}
-
-/* ============ شارك التطبيق ============ */
-async function shareApp(){
-  TP.log('share_app');
-  const txt=A(`التوريا الفلسطينية بالذكاء الاصطناعي 🚦🤖 أسئلة رسمية + إشارات + مساعد ذكي — مع ${CFG.INSTRUCTOR}:\nhttps://${APP_URL}`,`Study for the Palestinian driving Theory Test with AI 🚦🤖 Official questions + signs + AI assistant — with Instructor Mohammad Siwad:\nhttps://${APP_URL}`);
-  if(navigator.share){ try{ await navigator.share({title:A("توريا فلسطين","Theory Palestine"),text:txt}); return; }catch(e){} }
-  window.open("https://wa.me/?text="+encodeURIComponent(txt),"_blank");
-}
-
-/* ============ عدّاد الامتحان ============ */
 function examChipHtml(){
   const p=getProg();
   if(!p.examDate) return `<button class="exam-chip-cta" onclick="setExamDate()">${A("📅 متى امتحانك؟ حدّد التاريخ وبنعدّلك الأيام","📅 When is your exam? Set the date for a countdown")}</button>`;
@@ -2283,12 +2250,12 @@ function setExamDate(){
 function saveExamDate(){
   const v=$("#exDate").value; if(!v)return;
   const p=getProg(); p.examDate=v; saveProg(p);
-  TP.log('set_exam_date');
-  document.querySelector(".ov").remove(); home();
+  TP.log('set_exam_date'); FX.ok();
+  document.querySelector(".ov").remove(); progress();
 }
 function clearExamDate(){
   const p=getProg(); delete p.examDate; saveProg(p);
-  document.querySelector(".ov").remove(); home();
+  document.querySelector(".ov").remove(); progress();
 }
 
 /* ============ ترحيب أول مرة ============ */
@@ -2409,69 +2376,107 @@ function reviewExam(){
 /* ================= لوحة التقدّم ================= */
 function progress(){
   TP.log('open_progress');
-  const p=getProg();
+  const p=getProg(), a=AUTH.get();
   root.innerHTML=chrome("progress");
-  const acc = p.answered? Math.round(p.correct/p.answered*100):0;
-  // جاهزية: مزيج من الدقة وعدد الأسئلة المحلولة (تغطية)
-  const coverage=Math.min(1, p.answered/300);
-  const ready=Math.round(acc*0.7 + coverage*100*0.3);
-  const rmsg = ready>=85?A("جاهز للامتحان! 🎉","Exam-ready! 🎉"):ready>=60?A("قربت — كمّل تدريب 💪","Getting close — keep practicing 💪"):ready>=30?A("على الطريق الصحيح 🚦","On the right track 🚦"):A("لسا بالبداية — تدرّب أكتر","Just starting — practice more");
-  const R=58,C=2*Math.PI*R, off=C*(1-ready/100);
-  const lvl=levelOf(p.points), nxt=nextLevel(p.points);
-
+  // ---- جاهزية (نفس معادلة الرئيسية) ----
+  const acc = p.answered>0 ? p.correct/p.answered : 0;
+  const cover = Math.min(1, p.answered/300);
+  const exN = Object.keys(p.exams||{}).length;
+  const ready = Math.round((acc*0.55 + cover*0.25 + Math.min(1,exN/6)*0.20)*100);
+  const dash=283, roff=Math.round(dash-(dash*ready/100));
+  // ---- تاريخ الامتحان ----
+  const exd=p.examDate||null;
+  let cd="";
+  if(exd){ const days=Math.ceil((new Date(exd)-Date.now())/864e5);
+    cd = days<0?A("امتحانك عدّى 🍀","Your exam passed 🍀")
+       : days===0?A("امتحانك اليوم! 🍀","Exam today! 🍀")
+       : A("باقي ","")+days+A(" يوم"," days left"); }
+  // ---- رسم تطور العلامات (آخر 12 امتحان) ----
+  const hist=(p.history||[]).slice(-12);
+  const passLine=Math.round(CFG.PASS_MARK/CFG.EXAM_LEN*100);
+  let chart="";
+  if(hist.length>=2){
+    const W=300,H=110,PAD=8;
+    const xs=hist.map((_,k)=>PAD+k*(W-2*PAD)/(hist.length-1));
+    const ys=hist.map(x=>{const pc=x.correct/x.total*100; return H-PAD-(H-2*PAD)*pc/100;});
+    const pts=xs.map((x,k)=>x+","+ys[k]).join(" ");
+    const yPass=H-PAD-(H-2*PAD)*passLine/100;
+    const dots=xs.map((x,k)=>{const pc=Math.round(hist[k].correct/hist[k].total*100);
+      return `<circle cx="${x}" cy="${ys[k]}" r="4" fill="${pc>=passLine?'var(--ok)':'var(--danger)'}"/>`;}).join("");
+    const lastPc=Math.round(hist[hist.length-1].correct/hist[hist.length-1].total*100);
+    const prevPc=Math.round(hist[hist.length-2].correct/hist[hist.length-2].total*100);
+    const diff=lastPc-prevPc;
+    chart=`<div class="box2">
+      <div class="b2h">${A("تطوّر علاماتك","Your score trend")}
+        <span style="color:${diff>=0?'var(--ok)':'var(--danger)'};font-size:12.5px">${diff>=0?"▲ +":"▼ "}${diff}% ${A("عن السابق","vs last")}</span></div>
+      <svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto">
+        <line x1="${PAD}" y1="${yPass}" x2="${W-PAD}" y2="${yPass}" stroke="var(--accent)" stroke-width="1" stroke-dasharray="4 4" opacity=".6"/>
+        <text x="${W-PAD}" y="${yPass-4}" font-size="8.5" fill="var(--accent)" text-anchor="end">${A("خط النجاح","pass")} ${passLine}%</text>
+        <polyline points="${pts}" fill="none" stroke="var(--primary)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+        ${dots}
+      </svg></div>`;
+  } else {
+    chart=`<div class="box2"><div class="b2h">${A("تطوّر علاماتك","Your score trend")}</div>
+      <div class="hint2">${A("حل امتحانين على الأقل وبيظهر الرسم 📈","Finish 2+ exams to see the trend 📈")}</div></div>`;
+  }
+  // ---- خريطة المواضيع ----
   const topics=Object.keys(TOPICS).map(k=>{
     const d=p.byTopic[k]; if(!d||!d.seen)return null;
-    const pc=Math.round(d.correct/d.seen*100);
-    return {k,pc,seen:d.seen};
+    return {k, pc:Math.round(d.correct/d.seen*100), seen:d.seen};
   }).filter(Boolean).sort((a,b)=>a.pc-b.pc);
-
   const topicHtml = topics.length? topics.map(t=>{
-    const T=TOPICS[t.k];
-    return `<div class="topic-row"><div class="th"><span>${T.icon}</span> ${isEN()?(T.en||T.name):T.name}
-      <span class="pc" style="color:${t.pc>=70?'var(--ok)':t.pc>=40?'var(--accent)':'var(--danger)'}">${t.pc}%</span></div>
-      <div class="tbar"><div class="tfill" style="width:${t.pc}%;background:${t.pc>=70?'var(--ok)':t.pc>=40?'var(--accent)':'var(--danger)'}"></div></div>
-      <div style="font-size:11px;color:var(--muted);margin-top:5px">${t.seen} ${A("سؤال","Qs")}</div></div>`;
-  }).join("") : `<div style="text-align:center;color:var(--muted);padding:20px;background:var(--surface);border-radius:14px;border:1px solid var(--line)">${A("حِل امتحانات عشان تظهر نقاط قوّتك وضعفك حسب الموضوع 📊","Take exams to reveal your strengths and weaknesses by topic 📊")}</div>`;
+    const T=TOPICS[t.k], c=t.pc>=75?'var(--ok)':t.pc>=50?'var(--accent)':'var(--danger)';
+    return `<div class="trow" onclick="pracTopic('${t.k}')">
+      <span class="ticn">${T.icon||"📘"}</span>
+      <div class="tmid"><b>${isEN()?(T.en||T.name):T.name}</b>
+        <div class="tbar2"><i style="width:${t.pc}%;background:${c}"></i></div></div>
+      <span class="tpc" style="color:${c}">${t.pc}%</span></div>`;
+  }).join("") : `<div class="hint2">${A("حل أسئلة وبتظهر خريطة مواضيعك هون","Answer questions to build your topic map")}</div>`;
+  // ---- إحصاءات ----
+  const best=(p.history||[]).reduce((m,x)=>Math.max(m,Math.round(x.correct/x.total*100)),0);
+  const lvl=levelOf(p.points);
 
-  setView(`<div class="screen">
-    <div class="sec-title">📊 ${T("nav_prog")}</div>
-    <div class="ready-card">
-      <div style="font-size:13px;opacity:.9;font-weight:700">${A("مقياس الجاهزية للامتحان","Exam readiness meter")}</div>
-      <div class="rr"><svg width="130" height="130" style="transform:rotate(-90deg)"><circle cx="65" cy="65" r="${R}" fill="none" stroke="rgba(255,255,255,.25)" stroke-width="11"/><circle cx="65" cy="65" r="${R}" fill="none" stroke="#fff" stroke-width="11" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${off}"/></svg>
-        <div class="pct"><b>${ready}%</b></div></div>
-      <div class="rmsg">${rmsg}</div>
+  setView(`<div class="screen h5">
+    <div class="hero" style="padding:22px 18px;text-align:center">
+      <div style="display:flex;align-items:center;justify-content:center;gap:22px;flex-wrap:wrap">
+        <div class="ring" style="width:110px;height:110px">
+          <svg width="110" height="110" viewBox="0 0 104 104">
+            <circle cx="52" cy="52" r="45" stroke="var(--line)" stroke-width="9" fill="none"/>
+            <circle class="p" cx="52" cy="52" r="45" stroke="url(#rg2)" stroke-width="9" fill="none"
+              stroke-linecap="round" stroke-dasharray="283" stroke-dashoffset="283"/>
+            <defs><linearGradient id="rg2" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#3B82F6"/><stop offset="1" stop-color="#22C55E"/></linearGradient></defs>
+          </svg>
+          <div class="rval"><div><b>${ready}<span style="font-size:14px">%</span></b><i>${A("جاهزيتك","readiness")}</i></div></div>
+        </div>
+        <div style="text-align:right;min-width:150px">
+          <div style="font-size:15px;font-weight:600">${lvl.icon} ${lvName(lvl)} · ${p.points} ${A("نقطة","pts")}</div>
+          <div style="font-size:12.5px;color:var(--muted);margin-top:6px">🔥 ${A("سلسلتك:","Streak:")} <b style="color:var(--accent)">${p.streak||0} ${A("يوم","days")}</b></div>
+          <div style="font-size:12.5px;color:var(--muted);margin-top:4px">🏆 ${A("أفضل علامة:","Best score:")} <b>${best}%</b></div>
+        </div>
+      </div>
     </div>
-    <div class="prog-stats">
-      <div class="pstat"><div class="n">${p.answered}</div><div class="l">${A("سؤال محلول","answered")}</div></div>
-      <div class="pstat"><div class="n">${acc}%</div><div class="l">${A("نسبة الصح","accuracy")}</div></div>
-      <div class="pstat"><div class="n">${p.points}</div><div class="l">${A("نقطة 🏆","points 🏆")}</div></div>
+
+    <div class="box2" onclick="setExamDate()" style="cursor:pointer">
+      <div class="b2h">📅 ${A("موعد امتحانك","Your exam date")}
+        <span style="color:var(--primary);font-size:12px">${exd?A("غيّره","change"):A("حدّده ←","set it")}</span></div>
+      ${exd?`<div style="font-size:16px;font-weight:700;color:var(--accent)">${cd}</div>
+        <div class="hint2">${new Date(exd).toLocaleDateString("ar",{weekday:"long",day:"numeric",month:"long"})}</div>`
+        :`<div class="hint2">${A("حدد موعده وبنظبطلك العد التنازلي والتذكير","Set it and we count down for you")}</div>`}
     </div>
-    <div class="level-bar" style="margin-bottom:16px">
-      <div class="lv-top"><span>${lvl.icon} ${A("مستواك:","Your level:")} ${lvName(lvl)}</span>${nxt?`<span style="color:var(--muted)">${nxt.icon} ${lvName(nxt)}</span>`:`<span style="color:var(--ok)">${A("أعلى مستوى 🎓","Top level 🎓")}</span>`}</div>
-      <div class="lv-track"><div class="lv-fill" style="width:${nxt?Math.round((p.points-lvl.min)/(nxt.min-lvl.min)*100):100}%;background:${lvl.c}"></div></div>
-      <div class="lv-pts">${p.points} ${A("نقطة","pts")}${nxt?A(` · باقي ${nxt.min-p.points} للمستوى الجاي`,` · ${nxt.min-p.points} to next level`):""}</div>
-    </div>
-    <div class="act-cards">
-      <button class="act-card" onclick="gate('mistakes')">
-        ${p.mistakes.length?`<span class="ac-badge">${p.mistakes.length}</span>`:''}
-        <div class="ac-ic">🎯</div><div class="ac-t">${T("mistakes")}</div><div class="ac-n">${p.mistakes.length} ${A("سؤال للمراجعة","to review")}</div>
-      </button>
-      <button class="act-card" onclick="gate('flagged')">
-        ${p.flagged.length?`<span class="ac-badge">${p.flagged.length}</span>`:''}
-        <div class="ac-ic">⭐</div><div class="ac-t">${A("المعلّمة","Flagged")}</div><div class="ac-n">${p.flagged.length} ${A("سؤال محفوظ","saved")}</div>
-      </button>
-    </div>
-    <div class="sec-title" style="font-size:16px">${A("🎖️ أوسمتك","🎖️ Your badges")} (${p.badges.length}/${BADGES.length})</div>
-    <div class="badges-grid">
-      ${BADGES.map(b=>{const un=p.badges.includes(b.id);return `<div class="bdg ${un?"":"locked"}"><div class="bic">${b.icon}</div><div class="bnm">${isEN()?(b.en||b.name):b.name}</div><div class="bds">${un?(isEN()?(b.den||b.desc):b.desc):A("مقفل","Locked")}</div></div>`;}).join("")}
+
+    ${chart}
+
+    <div class="box2"><div class="b2h">${A("خريطة مواضيعك","Topic map")} <span class="hint2" style="font-size:11px">${A("اكبس موضوع للتمرن عليه","tap to practice")}</span></div>${topicHtml}</div>
+
+    <div class="mini" style="margin-top:0">
+      <div><b>${p.answered||0}</b><span>${A("سؤال محلول","answered")}</span></div>
+      <div class="g"><b>${p.answered?Math.round(p.correct/p.answered*100):0}%</b><span>${A("دقتك","accuracy")}</span></div>
+      <div class="y"><b>${exN}</b><span>${A("امتحان","exams")}</span></div>
     </div>
     <div style="height:16px"></div>
-    <div class="sec-title" style="font-size:16px">${A("حسب الموضوع","By topic")}</div>
-    ${topicHtml}
-    <div style="height:14px"></div>
-    <button class="btn sec" onclick="gate('exam')">${A("ابدأ امتحان جديد","Start a new exam")}</button>
-    ${p.answered?`<div style="height:8px"></div><button class="btn ghost sm" onclick="resetProg()">${A("تصفير التقدّم","Reset progress")}</button>`:''}
   </div>`);
+  setTimeout(()=>{ const c=document.querySelector(".ring circle.p"); if(c) c.style.strokeDashoffset=String(roff); },80);
 }
 function resetProg(){ if(confirm(A("متأكد بدك تصفّر كل تقدّمك؟ ما بينرجع.","Reset ALL your progress? This cannot be undone."))){ saveProg({answered:0,correct:0,byTopic:{},exams:{},mistakes:[],flagged:[],points:0,streak:0,lastDaily:null,history:[],badges:[],name:"",passes:0}); progress(); } }
 
@@ -2894,24 +2899,44 @@ let chatHist=[];
 function chat(){
   TP.log('open_chat');
   root.innerHTML=chrome("chat");
+  const p=getProg(), a=AUTH.get();
+  const nm=(a&&a.name)?a.name.split(" ")[0]:"";
+  // chips ذكية حسب حالته
+  const chips=[];
+  // أضعف موضوع
+  let weak=null;
+  Object.entries(p.byTopic||{}).forEach(([k,v])=>{
+    if(!TOPICS[k]||v.seen<4)return;
+    const r=v.correct/v.seen;
+    if(!weak||r<weak.r) weak={k,r};
+  });
+  if(weak) chips.push([A("اشرحلي "+(TOPICS[weak.k].name),"Explain "+(TOPICS[weak.k].en||TOPICS[weak.k].name)), A("اشرحلي قواعد "+TOPICS[weak.k].name+" ببساطة مع أمثلة","Explain "+(TOPICS[weak.k].en||"")+" simply with examples")]);
+  if((p.mistakes||[]).length) chips.push([A("ليش بغلط كثير؟","Why do I keep failing?"), A("عندي "+p.mistakes.length+" أخطاء متكررة — كيف أدرسها صح؟","I have "+p.mistakes.length+" repeated mistakes — how to study them?")]);
+  chips.push([A("شو معنى إشارة قف؟","Stop sign meaning?"), A("شو معنى إشارة قف","What does the Stop sign mean")]);
+  chips.push([A("نصايح ليوم الامتحان","Exam-day tips"), A("أعطيني أهم نصايح ليوم امتحان التوريا","Top tips for theory exam day")]);
+  chips.push([A("الفرق بين أفضلية وأولوية","Priority vs right-of-way"), A("شو الفرق بين الأفضلية وحق الأولوية بالقانون؟","Difference between priority and right-of-way?")]);
+  const chipHtml=chips.slice(0,4).map(c=>`<button class="chip" onclick="quickChat('${c[1].replace(/'/g,"")}')">${c[0]}</button>`).join("");
+  const acc=p.answered?Math.round(p.correct/p.answered*100):0;
+  const hello = nm? A("أهلاً "+nm+"! 👋","Hi "+nm+"! 👋") : A("أهلاً! 👋","Hi! 👋");
+  const sub = p.answered>=10
+    ? A(`شايف تقدمك: دقتك ${acc}% و${(p.mistakes||[]).length} أخطاء محفوظة — اسألني عن أي شي بالتوريا وبساعدك عليها.`,
+        `I can see your progress: ${acc}% accuracy, ${(p.mistakes||[]).length} saved mistakes — ask me anything.`)
+    : A("أنا مساعدك بالتوريا — اسألني عن أي إشارة أو قانون أو سؤال مش فاهمه.","I'm your theory tutor — ask about any sign, rule, or question.");
+
   setView(`<div class="screen">
     <div class="chat-wrap">
-      <div class="chat-msgs" id="cmsgs"></div>
-      <div class="chips" id="cchips">
-        <button class="chip" onclick="quickChat('${A("شو معنى إشارة قف","What does the Stop sign mean?")}')">${A("شو معنى إشارة قف؟","Stop sign meaning?")}</button>
-        <button class="chip" onclick="quickChat('${A("شو أقسام إشارات المرور","What are the road sign categories?")}')">${A("أقسام الإشارات","Sign categories")}</button>
-        <button class="chip" onclick="quickChat('${A("ب-28","B-28")}')">${A("ب-28","B-28")}</button>
-        <button class="chip" onclick="quickChat('${A("أسئلة عن التجاوز","Questions about overtaking")}')">${A("أسئلة عن التجاوز","Overtaking questions")}</button>
+      <div class="chat-msgs" id="cmsgs">
+        <div class="cmsg bot"><div class="cbub">${hello}<br><span style="font-size:12.5px;color:var(--muted)">${sub}</span></div></div>
       </div>
+      <div class="chips" id="cchips">${chipHtml}</div>
       <div class="chat-input">
         <input id="cin" placeholder="${A("اكتب سؤالك…","Type your question…")}" onkeydown="if(event.key==='Enter')sendChat()">
         <button class="send" onclick="sendChat()"><svg viewBox="0 0 24 24" fill="none"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" stroke="#fff" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/></svg></button>
       </div>
     </div>
   </div>`);
-  chatHist=[];
-  botSay(A("أهلاً! 👋 أنا مساعد <b>توريا فلسطين</b>.<br>اسألني عن أي إشارة، أو موضوع بالتوريا، وبجاوبك من <b>كتاب التوريا</b> والأسئلة الرسمية.","Hi! 👋 I am the <b>Theory Palestine</b> assistant.<br>Ask me about any road sign or theory topic and I will answer from the <b>official book</b> and questions."));
 }
+
 function quickChat(t){ $("#cin").value=t; sendChat(); }
 function addMsg(html,who){
   const box=$("#cmsgs"); const d=document.createElement("div");
@@ -2948,6 +2973,17 @@ async function askAI(query){
   if(sig.length) ctx+="إشارات:\n"+sig.map(x=>`${DATA.signals[x.code].code_ar}: ${DATA.signals[x.code].text}`).join("\n")+"\n\n";
   if(book.length) ctx+="من كتاب التوريا:\n"+book.map(b=>fixBook(b.text)).join("\n---\n")+"\n\n";
   if(qs.length) ctx+="أسئلة رسمية (مع الإجابة الصحيحة):\n"+qs.map(x=>{const it=x.item,cor=LET[+it.answer-1];return `${stripCodes(it.question)} الإجابة: ${stripCodes(it[cor])}`;}).join("\n");
+  // سياق تقدم الطالب — يخلي المساعد يرد بشكل شخصي
+  try{
+    const pp=getProg();
+    if(pp.answered>=10){
+      const tp=Object.entries(pp.byTopic||{}).filter(([k,v])=>TOPICS[k]&&v.seen>=4)
+        .map(([k,v])=>TOPICS[k].name+" "+Math.round(v.correct/v.seen*100)+"%").join("، ");
+      ctx+="\n\nمعلومات عن الطالب (استعملها إذا سأل عن حاله أو نصيحة): حل "+pp.answered+" سؤال بدقة "+
+        Math.round(pp.correct/pp.answered*100)+"%، أخطاؤه المحفوظة "+(pp.mistakes||[]).length+
+        (tp?"، مستواه بالمواضيع: "+tp:"")+".";
+    }
+  }catch(e){}
 
   const box=$("#cmsgs");
   const typing=document.createElement("div");
