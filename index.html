@@ -621,6 +621,12 @@ html[data-theme="light"] select,html[data-theme="light"] textarea,html[data-them
 #cheer.good{border-color:rgba(34,197,94,.4);color:var(--ok)}
 #cheer.bad{border-color:rgba(239,68,68,.35);color:var(--danger)}
 #confetti{position:fixed;inset:0;pointer-events:none;z-index:300}
+
+.chunks{display:grid;grid-template-columns:repeat(auto-fill,minmax(52px,1fr));gap:8px}
+.chunk{aspect-ratio:1;border-radius:14px;border:1.5px solid var(--line);background:var(--surface);
+  color:var(--ink);font-family:inherit;font-weight:600;font-size:15px;cursor:pointer;transition:transform .12s}
+.chunk:active{transform:scale(.94)}
+.chunk.dn{background:var(--ok-l);border-color:var(--ok);color:var(--ok)}
 </style>
 </head>
 <body>
@@ -649,7 +655,7 @@ html[data-theme="light"] select,html[data-theme="light"] textarea,html[data-them
    ================================================================== */
 
 const CFG = {
-  VERSION: "5.1.0",       // ⬅ غيّر هذا الرقم مع كل تحديث ترفعه (مثلاً 2.0.1)
+  VERSION: "5.2.0",       // ⬅ غيّر هذا الرقم مع كل تحديث ترفعه (مثلاً 2.0.1)
   REPO: "mohdsiwad25-eng/teoria-app",
   INSTRUCTOR: "المدرب محمد سواد",
   AREA: "بيت لحم",
@@ -674,6 +680,12 @@ const CAT = {
   a:{name:"تحذير",  c:"#c98a00"}, b:{name:"إرشاد ومنع", c:"#2e6cc4"},
   c:{name:"استعلامات", c:"#0e7a4f"}, d:{name:"على الطريق", c:"#7a41c4"},
   e:{name:"آلات ضوئية", c:"#d63b3b"}, f:{name:"مساعدة", c:"#5e6f66"}
+};
+// ٣ مجموعات مبسّطة للعرض
+const CAT3 = {
+  a:{name:"تحذير 🔺", en:"Warning", letters:["a"]},
+  b:{name:"إرشاد ⭕", en:"Guidance", letters:["b"]},
+  x:{name:"الباقي 🚦", en:"The rest", letters:["c","d","e","f"]}
 };
 const LET = ['a','b','c','d'], LET_AR = ['أ','ب','ج','د'];
 
@@ -1311,43 +1323,66 @@ async function authPing(){
 function authWelcome(){
   TP.log('auth_welcome');
   root.innerHTML=chrome(null);
-  setView(`<div class="screen"><div class="path-head" style="margin-top:26px">
-    <div style="font-size:52px">🚗</div>
+  setView(`<div class="screen"><div class="path-head" style="margin-top:30px">
+    <div style="font-size:50px">🚗</div>
     <h2>${A("أهلاً فيك بـ TeoriaAI","Welcome to TeoriaAI")}</h2>
-    <p>${A("اسمك ورقمك — وبتفوت","Your name and number — that's it")}</p></div>
+    <p>${A("رقم الواتساب وبتفوت","Your WhatsApp number and you're in")}</p></div>
     <div class="card" style="display:block;padding:18px;margin-top:14px">
-      <label style="font-weight:800;font-size:13.5px">${A("اسمك","Your name")}</label>
-      <input class="search-box" id="rNm" style="margin:6px 0 14px" autocomplete="name">
-      <label style="font-weight:800;font-size:13.5px">${A("رقم الواتساب","WhatsApp number")}</label>
-      <input class="search-box" id="rPh" style="margin:6px 0 4px;direction:ltr;text-align:left" type="tel" inputmode="numeric" placeholder="0599999999" autocomplete="tel">
-      <div style="font-size:12px;color:var(--muted)">${A("بيوصلك مسج واتساب للتحقق","A WhatsApp message will arrive to verify you")}</div>
-      <div id="rErr" style="color:var(--danger);font-weight:800;font-size:13px;min-height:20px;margin-top:8px"></div>
+      <input class="search-box" id="rPh" style="direction:ltr;text-align:center;font-size:19px;letter-spacing:1px" type="tel" inputmode="numeric" placeholder="0599999999" autocomplete="tel">
+      <div id="rErr" style="color:var(--danger);font-weight:800;font-size:13px;min-height:20px;margin-top:8px;text-align:center"></div>
       <button class="btn" style="width:100%" id="rGo" onclick="doEnter()">${A("دخول ←","Enter")}</button>
     </div>
     <button class="path-skip" onclick="waTeacher()">${A("احكي مع المدرب 💬","Talk to the instructor 💬")}</button>
   </div>`);
 }
 function waTeacher(){ window.open("https://wa.me/"+CFG.WHATSAPP+"?text="+encodeURIComponent(A("مرحبا، بدي أسأل عن تطبيق TeoriaAI","Hi, I have a question about TeoriaAI")),"_blank"); }
-function enterScreen(msg){ authWelcome(); }
+function nameStep(ph){
+  root.innerHTML=chrome(null);
+  setView(`<div class="screen"><div class="path-head" style="margin-top:30px">
+    <div style="font-size:46px">👋</div>
+    <h2>${A("أول مرة هون!","First time here!")}</h2>
+    <p>${A("شو منناديك؟ (اختياري)","What should we call you? (optional)")}</p></div>
+    <div class="card" style="display:block;padding:18px;margin-top:14px">
+      <input class="search-box" id="rNm" placeholder="${A("اسمك","Your name")}" autocomplete="name">
+      <div id="rErr" style="color:var(--danger);font-weight:800;font-size:13px;min-height:20px;margin-top:8px;text-align:center"></div>
+      <button class="btn" style="width:100%" id="rGo" onclick="doEnter2('${ph}')">${A("ابعتلي كود التحقق ←","Send my verification code")}</button>
+    </div>
+  </div>`);
+  $("#rNm").focus();
+}
+function cleanPhone(v){
+  return v.replace(/[\u0660-\u0669]/g,d=>String(d.charCodeAt(0)-0x0660))
+          .replace(/[\u06F0-\u06F9]/g,d=>String(d.charCodeAt(0)-0x06F0))
+          .replace(/\D/g,"");
+}
 async function doEnter(){
-  const nm=$("#rNm").value.trim(), err=$("#rErr"), b=$("#rGo");
-  const ph=$("#rPh").value.replace(/[\u0660-\u0669]/g,d=>String(d.charCodeAt(0)-0x0660))
-                          .replace(/[\u06F0-\u06F9]/g,d=>String(d.charCodeAt(0)-0x06F0))
-                          .replace(/\D/g,"");
+  const err=$("#rErr"), b=$("#rGo");
+  const ph=cleanPhone($("#rPh").value);
   const digits=ph.replace(/^0/,"").replace(/^97[02]/,"");
-  if(digits.length<8||digits.length>10){ err.textContent=A("الرقم مش مظبوط — تأكد منه","Number looks wrong"); return; }
+  if(digits.length<8||digits.length>10){ err.textContent=A("الرقم مش مظبوط — تأكد منه","Check the number"); return; }
   b.disabled=true; b.textContent=A("لحظة…","One sec…"); err.textContent="";
   try{
-    const r=await fetch(CFG.AUTH_API+"/api/enter",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({name:nm,phone:ph})});
+    const r=await fetch(CFG.AUTH_API+"/api/enter",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({phone:ph})});
     const d=await r.json();
-    if(d.ok && d.token){ // مسجّل ومفعّل — فات فوراً
-      AUTH.set({name:d.name||nm,phone:ph,token:d.token}); UNLOCKED=true; TP.log('enter_direct');
-      home(); return;
-    }
-    if(d.ok && d.need_code){ TP.log('enter_code'); codeScreen(d.name||nm, ph); return; }
-    err.textContent=d.err||A("صار خطأ","Error"); b.disabled=false; b.textContent=A("فوت ←","Enter");
-  }catch(e){ err.textContent=A("مشكلة اتصال — جرب كمان مرة","Connection problem"); b.disabled=false; b.textContent=A("فوت ←","Enter"); }
+    if(d.ok && d.token){ AUTH.set({name:d.name||"",phone:ph,token:d.token}); UNLOCKED=true; TP.log('enter_direct'); FX.ok(); home(); return; }
+    if(d.ok && d.need_code){ TP.log('enter_code'); codeScreen(d.name||"", ph); return; }
+    if(d.err && d.err.indexOf("اسمك")>=0){ nameStep(ph); return; }   // جديد → خطوة الاسم
+    err.textContent=d.err||A("صار خطأ","Error"); b.disabled=false; b.textContent=A("دخول ←","Enter");
+  }catch(e){ err.textContent=A("مشكلة اتصال — جرب كمان مرة","Connection problem"); b.disabled=false; b.textContent=A("دخول ←","Enter"); }
 }
+async function doEnter2(ph){
+  const err=$("#rErr"), b=$("#rGo");
+  const nm=($("#rNm").value.trim()||A("طالب","Student"));
+  b.disabled=true; b.textContent=A("لحظة…","One sec…"); err.textContent="";
+  try{
+    const r=await fetch(CFG.AUTH_API+"/api/enter",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({phone:ph,name:nm})});
+    const d=await r.json();
+    if(d.ok && d.need_code){ TP.log('reg_code'); codeScreen(nm, ph); return; }
+    if(d.ok && d.token){ AUTH.set({name:nm,phone:ph,token:d.token}); UNLOCKED=true; home(); return; }
+    err.textContent=d.err||A("صار خطأ","Error"); b.disabled=false; b.textContent=A("ابعتلي كود التحقق ←","Send my verification code");
+  }catch(e){ err.textContent=A("مشكلة اتصال","Connection problem"); b.disabled=false; b.textContent=A("ابعتلي كود التحقق ←","Send my verification code"); }
+}
+function enterScreen(msg){ authWelcome(); }
 function codeScreen(nm,ph){
   root.innerHTML=chrome(null);
   setView(`<div class="screen"><div class="sec-title">💬 ${A("أدخل الكود","Enter the code")}</div>
@@ -1630,6 +1665,11 @@ function home(){
 
     <div class="sec-title">${A("الأدوات","Tools")}</div>
     <div class="tools">
+      <button class="tool" onclick="FX.tap();gate('beg')">
+        <span class="ti">🌱</span>
+        <span class="tt"><b>${A("المبتدئين","Beginners")}</b><span>${A("سؤال سؤال مع الشرح — ملفات من ٣٠","Step by step with explanations — sets of 30")}</span></span>
+        <span class="tc">›</span>
+      </button>
       <button class="tool" onclick="FX.tap();gate('exam')">
         <span class="ti">🏛️</span>
         <span class="tt"><b>${A("الامتحان الرسمي","Official mock exam")}</b><span>${A("٣٠ سؤال · ٤٠ دقيقة","30 questions · 40 min")}</span></span>
@@ -2002,7 +2042,10 @@ function renderQ(){
   </div>`);
   if(STATE.endAt) startTimer();
 }
+let AUTONEXT_T=null;
 function pick(L){ FX.tap(); STATE.ans[STATE.idx]=L;
+  clearTimeout(AUTONEXT_T);
+  AUTONEXT_T=setTimeout(()=>{ if(STATE.idx<STATE.qs.length-1) navQ(1); }, 400);
   LET.forEach(x=>$("#opt-"+x).classList.toggle('sel',x===L));
   $(".q-count").textContent=A(`سؤال ${STATE.idx+1} من ${STATE.qs.length} · تمّت الإجابة على ${STATE.ans.filter(a=>a!==null).length}`,`Question ${STATE.idx+1} of ${STATE.qs.length} · ${STATE.ans.filter(a=>a!==null).length} answered`);
 }
@@ -2478,28 +2521,39 @@ function buildBegType(letter){
 // شاشة اختيار النوع
 function begIntro(){
   TP.log('open_beg');
-  const counts={};
-  Object.keys(CAT).forEach(k=>{ counts[k]=Object.keys(DATA.signals).filter(c=>c[0]===k).length; });
+  const done=STORE.get("tp_chunks",{});
+  const sigQ = ALLQ.filter(q=>/\[\[/.test(q.question+q.a+q.b+q.c+q.d));
+  const restQ = ALLQ.filter(q=>!/\[\[/.test(q.question+q.a+q.b+q.c+q.d));
+  const mk=(pool,pref,label)=>{
+    const n=Math.ceil(pool.length/30);
+    let out="";
+    for(let k=0;k<n;k++){
+      const key=pref+k, dn=done[key];
+      out+=`<button class="chunk ${dn?'dn':''}" onclick="FX.tap();begChunk('${pref}',${k})">${dn?"✓":k+1}</button>`;
+    }
+    return `<div class="sec-title">${label} · ${pool.length} ${A("سؤال","questions")}</div><div class="chunks">${out}</div>`;
+  };
   root.innerHTML=chrome(null);
   setView(`<div class="screen">
-    <div class="hero" style="background:linear-gradient(140deg,#1f8a55,#136b40 60%,#0c4b2c)">
-      <h2>${T("beg_signs")} 🌱</h2>
-      <p>${A("اختَر نوع الإشارات، وتعلّمها إشارة إشارة مع أسئلتها الرسمية.","Choose a sign type and learn it sign by sign with its official questions.")}</p>
+    <div class="hero" style="padding:20px 18px">
+      <h2 style="font-size:18px;font-weight:600">🌱 ${A("قسم المبتدئين","Beginners")}</h2>
+      <p style="color:var(--muted);font-size:12.5px;margin-top:6px">${A("سؤال سؤال، مع الشرح بعد كل إجابة. كل ملف ٣٠ سؤال — خلّصهم بالترتيب.","One question at a time with instant explanations. 30 questions per set — go in order.")}</p>
     </div>
-    <div class="beg-intro-card" style="margin-top:14px">
-      ${A("<b>🚸 الإشارات مقسّمة حسب نوعها الرسمي</b><br>كل نوع له شكله ومعناه: التحذير مثلث 🔺، الإرشاد والمنع دائرة ⭕... تعلّم نوع نوع بهدوء.","<b>🚸 Signs are grouped by their official type</b><br>Each type has its shape and meaning: Warning = triangle 🔺, Guidance & Prohibition = circle ⭕... Learn one type at a time.")}
-    </div>
-    <div class="menu" style="margin-top:14px">
-      ${Object.entries(CAT).map(([k,c])=>`
-        <button class="card" onclick="begType('${k}')">
-          <div class="ic" style="background:${c.c}1a;color:${c.c};font-weight:900;font-size:20px">${LET_AR2(k)}</div>
-          <div class="tx"><h3>${A("إشارات "+c.name,catName(k)+" Signs")}</h3><p>${counts[k]} ${A("إشارة","signs")}</p></div><div class="arrow">‹</div>
-        </button>`).join("")}
-    </div>
-    <div style="height:12px"></div>
-    <button class="btn ghost" onclick="begHub()">${T("back_beg")}</button>
+    ${mk(sigQ,"s",A("الإشارات","Signs"))}
+    ${mk(restQ,"q",A("الأسئلة","Questions"))}
+    <div style="height:14px"></div>
+    <button class="btn ghost" onclick="home()">${A("‹ الرئيسية","‹ Home")}</button>
   </div>`);
 }
+function begChunk(pref,k){
+  const sig = pref==="s";
+  const pool = ALLQ.filter(q=>sig === /\[\[/.test(q.question+q.a+q.b+q.c+q.d));
+  const chunk = pool.slice(k*30,(k+1)*30);
+  PRAC_CHUNK = pref+k;
+  startCustom(chunk, (sig?A("الإشارات ","Signs "):A("الأسئلة ","Questions "))+(k+1));
+}
+let PRAC_CHUNK=null;
+
 function LET_AR2(k){ return ({a:"أ",b:"ب",c:"ج",d:"د",e:"هـ",f:"و"})[k]||k; }
 
 // بعد اختيار النوع: يبدأ التسلسل كامل مباشرة
@@ -2714,6 +2768,7 @@ function pracReveal(j){
   const nx=$("#pracNext"); if(nx) nx.innerHTML=`<button class="btn" onclick="pracRun(${PRAC.i+1})">${T("next")}</button>`;
 }
 function pracDone(){
+  if(PRAC_CHUNK){ const d=STORE.get("tp_chunks",{}); d[PRAC_CHUNK]=1; STORE.set("tp_chunks",d); PRAC_CHUNK=null; }
   const total=PRAC.qs.length, cor=PRAC.cor, pct=total?Math.round(cor/total*100):0;
   TP.log('practice_done',{cor,total});
   root.innerHTML=chrome(null);
@@ -2744,7 +2799,7 @@ function signals(){
   sigFilter='a'; sigSearch='';
   TP.log('open_signals');
   root.innerHTML=chrome(null);
-  const tabs = Object.keys(CAT).map(k=>`<button class="tab ${k==='a'?'active':''}" data-cat="${k}" onclick="filterSig('${k}')">${catName(k)}</button>`).join("");
+  const tabs = Object.keys(CAT3).map(k=>`<button class="tab ${k==='a'?'active':''}" data-cat="${k}" onclick="filterSig('${k}')">${isEN()?CAT3[k].en:CAT3[k].name}</button>`).join("");
   setView(`<div class="screen">
     <div class="sec-title">${A("🚸 مكتبة الإشارات","🚸 Signs Library")}</div>
     <div class="search-box">
@@ -2767,7 +2822,7 @@ function drawSignals(){
   if(q){
     list=list.filter(([code,s])=> normAr(tsig(code)).includes(q) || (tsig(code)||"").toLowerCase().includes(sigSearch.toLowerCase()) || normAr(s.code_ar).includes(q) || code.includes(q.replace(/\s/g,"").toLowerCase()));
   }else{
-    list=list.filter(([code])=>code[0]===sigFilter);
+    list=list.filter(([code])=>(CAT3[sigFilter]?CAT3[sigFilter].letters:[sigFilter]).includes(code[0]));
   }
   list.sort((a,b)=>(parseInt(a[0].replace(/\D/g,''))||0)-(parseInt(b[0].replace(/\D/g,''))||0));
   const grid=$("#siggrid");
