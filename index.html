@@ -655,7 +655,7 @@ html[data-theme="light"] select,html[data-theme="light"] textarea,html[data-them
    ================================================================== */
 
 const CFG = {
-  VERSION: "5.2.1",       // ⬅ غيّر هذا الرقم مع كل تحديث ترفعه (مثلاً 2.0.1)
+  VERSION: "5.3.0",       // ⬅ غيّر هذا الرقم مع كل تحديث ترفعه (مثلاً 2.0.1)
   REPO: "mohdsiwad25-eng/teoria-app",
   INSTRUCTOR: "المدرب محمد سواد",
   AREA: "بيت لحم",
@@ -913,6 +913,10 @@ async function boot(){
       const er2 = await fetch(`https://raw.githubusercontent.com/${CFG.REPO}/main/explanations_en.json?t=`+Date.now(),{cache:"no-store"});
       if(er2.ok){ DATA.explanations_en = await er2.json(); }
     }catch(e){ /* الشروحات الإنجليزية اختيارية */ }
+    try{
+      const er3 = await fetch(`https://raw.githubusercontent.com/${CFG.REPO}/main/wrong_expl.json?t=`+Date.now(),{cache:"no-store"});
+      if(er3.ok){ DATA.wrongExpl = await er3.json(); }
+    }catch(e){ /* شروحات الأخطاء المخصصة اختيارية */ }
     ALLQ = [];
     for(const ex in DATA.exams) DATA.exams[ex].forEach(q=>ALLQ.push({...q,ex}));
     $("#fab").style.display="flex";
@@ -1169,6 +1173,19 @@ function sectionOf(q){
 }
 function stripCodes(s){ return (s||"").replace(/\[\[(\w+)\]\]/g,(m,c)=>DATA.signals[c]?(isEN()?tcode(c):DATA.signals[c].code_ar):c).trim(); }
 
+function explainQ2(q, userIdx){
+  const corIdx=+q.answer-1;
+  if(userIdx==null || userIdx===corIdx) return explainQ(q);
+  const userL=LET[userIdx];
+  // شرح مخصص جاهز لهالغلطة بالذات؟
+  const w=DATA.wrongExpl && DATA.wrongExpl[qKey(q)] && DATA.wrongExpl[qKey(q)][userL];
+  const yourTxt=stripCodes(tq(q,userL)), corTxt=stripCodes(tq(q,LET[corIdx]));
+  const head=`<div class="explain" style="border-inline-start-color:var(--danger);background:var(--danger-l)">
+    <b>${A("❌ اخترت:","❌ You chose:")}</b> ${esc(yourTxt)}<br>
+    <b style="color:var(--ok)">${A("✓ الصح:","✓ Correct:")}</b> ${esc(corTxt)}</div>`;
+  if(w && !isEN()) return head+`<div class="explain"><b>${A("💡 ليش؟","💡 Why?")}</b> ${esc(w)}</div>`+ (isEN()?"":"");
+  return head+explainQ(q);
+}
 function explainQ(q){
   const cor=LET[+q.answer-1];
   // 1) شرح جاهز مكتوب مسبقاً (الأفضل)
@@ -1341,7 +1358,7 @@ function nameStep(ph){
   setView(`<div class="screen"><div class="path-head" style="margin-top:30px">
     <div style="font-size:46px">👋</div>
     <h2>${A("أول مرة هون!","First time here!")}</h2>
-    <p>${A("شو منناديك؟ (اختياري)","What should we call you? (optional)")}</p></div>
+    <p>${A("شو اسمك؟ (اختياري)","What is your name? (optional)")}</p></div>
     <div class="card" style="display:block;padding:18px;margin-top:14px">
       <input class="search-box" id="rNm" placeholder="${A("اسمك","Your name")}" autocomplete="name">
       <div id="rErr" style="color:var(--danger);font-weight:800;font-size:13px;min-height:20px;margin-top:8px;text-align:center"></div>
@@ -1521,7 +1538,27 @@ function planScreen(){
     <button class="btn ghost" onclick="home()">${A("‹ الرئيسية","‹ Home")}</button>
   </div>`);
 }
+function buildSmartExam(){
+  const p=getProg();
+  const byKey={}; ALLQ.forEach(q=>byKey[qKey(q)]=q);
+  const out=[], used=new Set();
+  const add=q=>{ const k=qKey(q); if(!q||used.has(k))return; used.add(k); out.push({...q}); };
+  // 1) من أخطائه المحفوظة (لغاية 10)
+  shuffle((p.mistakes||[]).slice()).slice(0,10).forEach(m=>add(byKey[qKey(m)]||m));
+  // 2) من أضعف موضوعين (حسب دقته)
+  const weak=Object.entries(p.byTopic||{})
+    .filter(([k,v])=>TOPICS[k]&&v.seen>=4)
+    .sort((a,b)=>(a[1].correct/a[1].seen)-(b[1].correct/b[1].seen))
+    .slice(0,2).map(([k])=>k);
+  weak.forEach((tk,wi)=>{
+    shuffle(ALLQ.filter(q=>topicOf(q)===tk)).slice(0, wi===0?10:6).forEach(add);
+  });
+  // 3) تكملة عشوائية للـ30
+  shuffle(ALLQ.slice()).forEach(q=>{ if(out.length<30) add(q); });
+  return shuffle(out).slice(0,30);
+}
 const ACTIONS={
+  smart:()=>startExam('smart'),
   planex:()=>startExam('exam',PLAN_EX),
   exam:()=>startExam('random'),
   path:()=>pathChoice(true),
@@ -1674,6 +1711,11 @@ function home(){
         <span class="ti">🏛️</span>
         <span class="tt"><b>${A("الامتحان الرسمي","Official mock exam")}</b><span>${A("٣٠ سؤال · ٤٠ دقيقة","30 questions · 40 min")}</span></span>
         ${bestEx?`<span class="tc">${bestEx}% ${A("أفضل","best")}</span>`:`<span class="tg">${A("جديد","new")}</span>`}
+      </button>
+      <button class="tool" onclick="FX.tap();gate('smart')">
+        <span class="ti">🤖</span>
+        <span class="tt"><b>${A("الامتحان الذكي","Smart exam")}</b><span>${A("٣٠ سؤال على مقاسك — من نقاط ضعفك وأخطائك","30 questions built from your weak spots")}</span></span>
+        <span class="tg">AI</span>
       </button>
       <button class="tool" onclick="FX.tap();gate('signals')">
         <span class="ti">🚸</span>
@@ -1956,6 +1998,7 @@ let timerInt=null;
 function startExam(mode,examNum){
   let qs;
   if(mode==='exam'){ qs = DATA.exams[examNum].map(q=>({...q,ex:String(examNum)})); }
+  else if(mode==='smart'){ qs = buildSmartExam(); }
   else if(mode==='mistakes'){
     qs = getProg().mistakes.slice();
     if(!qs.length) return emptyState(A("ما عندك أخطاء محفوظة 🎉","No saved mistakes 🎉"),A("حِل امتحانات أول، والأسئلة اللي بتغلط فيها بتنحفظ هون للمراجعة.","Take some exams first — questions you get wrong are saved here for review."));
@@ -2655,7 +2698,7 @@ function begReveal(i,j){
   LET.forEach((L,x)=>{ const el=$("#bo"+x); if(!el)return; el.disabled=true;
     if(x===corIdx)el.classList.add("correct"); else if(x===j)el.classList.add("wrong"); });
   const fx=$("#begFx");
-  if(fx) fx.innerHTML=(j===corIdx?`<div class="motivate" style="margin-top:12px">${T("correct_fb")}</div>`:`<div class="motivate" style="margin-top:12px;color:var(--danger)">${T("wrong_fb")}</div>`)+explainQ(q)+askTeacherBtn(q);
+  if(fx) fx.innerHTML=(j===corIdx?`<div class="motivate" style="margin-top:12px">${T("correct_fb")}</div>`:`<div class="motivate" style="margin-top:12px;color:var(--danger)">${T("wrong_fb")}</div>`)+explainQ2(q,j)+askTeacherBtn(q);
   const nx=$("#begNext"); if(nx) nx.innerHTML=`<button class="btn" onclick="begRun(${i+1})">${T("next")}</button>`;
 }
 
@@ -2772,7 +2815,7 @@ function pracReveal(j){
   LET.forEach((L,x)=>{ const el=$("#po"+x); if(!el)return; el.disabled=true;
     if(x===corIdx)el.classList.add("correct"); else if(x===j)el.classList.add("wrong"); });
   const fx=$("#pracFx");
-  if(fx) fx.innerHTML=(j===corIdx?`<div class="motivate" style="margin-top:12px">${T("correct_fb")}</div>`:`<div class="motivate" style="margin-top:12px;color:var(--danger)">${T("wrong_fb")}</div>`)+explainQ(q)+askTeacherBtn(q);
+  if(fx) fx.innerHTML=(j===corIdx?`<div class="motivate" style="margin-top:12px">${T("correct_fb")}</div>`:`<div class="motivate" style="margin-top:12px;color:var(--danger)">${T("wrong_fb")}</div>`)+explainQ2(q,j)+askTeacherBtn(q);
   const nx=$("#pracNext"); if(nx) nx.innerHTML=`<button class="btn" onclick="pracRun(${PRAC.i+1})">${T("next")}</button>`;
 }
 function pracDone(){
