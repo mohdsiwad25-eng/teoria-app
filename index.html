@@ -655,7 +655,7 @@ html[data-theme="light"] select,html[data-theme="light"] textarea,html[data-them
    ================================================================== */
 
 const CFG = {
-  VERSION: "5.2.0",       // ⬅ غيّر هذا الرقم مع كل تحديث ترفعه (مثلاً 2.0.1)
+  VERSION: "5.2.1",       // ⬅ غيّر هذا الرقم مع كل تحديث ترفعه (مثلاً 2.0.1)
   REPO: "mohdsiwad25-eng/teoria-app",
   INSTRUCTOR: "المدرب محمد سواد",
   AREA: "بيت لحم",
@@ -1667,7 +1667,7 @@ function home(){
     <div class="tools">
       <button class="tool" onclick="FX.tap();gate('beg')">
         <span class="ti">🌱</span>
-        <span class="tt"><b>${A("المبتدئين","Beginners")}</b><span>${A("سؤال سؤال مع الشرح — ملفات من ٣٠","Step by step with explanations — sets of 30")}</span></span>
+        <span class="tt"><b>${A("المبتدئين","Beginners")}</b><span>${A("تعلّم الإشارات والمواضيع من الصفر","Learn signs and topics from zero")}</span></span>
         <span class="tc">›</span>
       </button>
       <button class="tool" onclick="FX.tap();gate('exam')">
@@ -1689,11 +1689,6 @@ function home(){
         <span class="ti">📚</span>
         <span class="tt"><b>${A("كل الامتحانات","All exams")}</b><span>${A("٢٣ امتحان رسمي","23 official exams")}</span></span>
         <span class="tc">${exDone}/23</span>
-      </button>
-      <button class="tool" onclick="FX.tap();gate('topics')">
-        <span class="ti">🧩</span>
-        <span class="tt"><b>${A("تمرّن بالمواضيع","Practice by topic")}</b><span>${A("أولوية · تجاوز · سرعة · وقوف","Priority · Overtaking · Speed")}</span></span>
-        <span class="tc">›</span>
       </button>
       <button class="tool" onclick="FX.tap();qSearch()">
         <span class="ti">🔎</span>
@@ -2521,38 +2516,51 @@ function buildBegType(letter){
 // شاشة اختيار النوع
 function begIntro(){
   TP.log('open_beg');
-  const done=STORE.get("tp_chunks",{});
-  const sigQ = ALLQ.filter(q=>/\[\[/.test(q.question+q.a+q.b+q.c+q.d));
-  const restQ = ALLQ.filter(q=>!/\[\[/.test(q.question+q.a+q.b+q.c+q.d));
-  const mk=(pool,pref,label)=>{
-    const n=Math.ceil(pool.length/30);
-    let out="";
-    for(let k=0;k<n;k++){
-      const key=pref+k, dn=done[key];
-      out+=`<button class="chunk ${dn?'dn':''}" onclick="FX.tap();begChunk('${pref}',${k})">${dn?"✓":k+1}</button>`;
-    }
-    return `<div class="sec-title">${label} · ${pool.length} ${A("سؤال","questions")}</div><div class="chunks">${out}</div>`;
-  };
   root.innerHTML=chrome(null);
   setView(`<div class="screen">
     <div class="hero" style="padding:20px 18px">
       <h2 style="font-size:18px;font-weight:600">🌱 ${A("قسم المبتدئين","Beginners")}</h2>
-      <p style="color:var(--muted);font-size:12.5px;margin-top:6px">${A("سؤال سؤال، مع الشرح بعد كل إجابة. كل ملف ٣٠ سؤال — خلّصهم بالترتيب.","One question at a time with instant explanations. 30 questions per set — go in order.")}</p>
+      <p style="color:var(--muted);font-size:12.5px;margin-top:6px">${A("بنعلّمك الإشارة ومعناها، وبعدها بتحل أسئلتها الرسمية — خطوة خطوة.","We teach you each sign and its meaning, then you answer its official questions — step by step.")}</p>
     </div>
-    ${mk(sigQ,"s",A("الإشارات","Signs"))}
-    ${mk(restQ,"q",A("الأسئلة","Questions"))}
+
+    <div class="sec-title">${A("الإشارات","Signs")}</div>
+    <div class="tools">
+      <button class="tool" onclick="FX.tap();begType3('a')">
+        <span class="ti">🔺</span>
+        <span class="tt"><b>${A("إشارات التحذير","Warning signs")}</b><span>${A("الإشارة وشرحها ← وبعدين أسئلتها","The sign, its meaning, then its questions")}</span></span>
+        <span class="tc">›</span>
+      </button>
+      <button class="tool" onclick="FX.tap();begType3('b')">
+        <span class="ti">⭕</span>
+        <span class="tt"><b>${A("إشارات الإرشاد والمنع","Guidance signs")}</b><span>${A("الإشارة وشرحها ← وبعدين أسئلتها","The sign, its meaning, then its questions")}</span></span>
+        <span class="tc">›</span>
+      </button>
+      <button class="tool" onclick="FX.tap();begType3('x')">
+        <span class="ti">🚦</span>
+        <span class="tt"><b>${A("باقي الإشارات","The rest of the signs")}</b><span>${A("استعلامات · طريق · آلات ضوئية · مساعدة","Info · road · lights · auxiliary")}</span></span>
+        <span class="tc">›</span>
+      </button>
+    </div>
+
+    <div class="sec-title">${A("باقي الأسئلة — حسب الموضوع","The rest — by topic")}</div>
+    <div class="tools">
+      <button class="tool" onclick="FX.tap();topics()">
+        <span class="ti">🧩</span>
+        <span class="tt"><b>${A("تدرّب حسب الموضوع","Practice by topic")}</b><span>${A("أولوية · تجاوز · سرعة · وقوف · قوانين…","Priority · overtaking · speed · parking…")}</span></span>
+        <span class="tc">›</span>
+      </button>
+    </div>
     <div style="height:14px"></div>
     <button class="btn ghost" onclick="home()">${A("‹ الرئيسية","‹ Home")}</button>
   </div>`);
 }
-function begChunk(pref,k){
-  const sig = pref==="s";
-  const pool = ALLQ.filter(q=>sig === /\[\[/.test(q.question+q.a+q.b+q.c+q.d));
-  const chunk = pool.slice(k*30,(k+1)*30);
-  PRAC_CHUNK = pref+k;
-  startCustom(chunk, (sig?A("الإشارات ","Signs "):A("الأسئلة ","Questions "))+(k+1));
+function begType3(key){
+  const g=CAT3[key];
+  let seq=[];
+  g.letters.forEach(l=>{ seq=seq.concat(buildBegType(l)); });
+  if(!seq.length) return begIntro();
+  begStart(seq, isEN()?g.en+" Signs":("إشارات "+g.name.replace(/[^\u0600-\u06FF ]/g,"").trim()));
 }
-let PRAC_CHUNK=null;
 
 function LET_AR2(k){ return ({a:"أ",b:"ب",c:"ج",d:"د",e:"هـ",f:"و"})[k]||k; }
 
