@@ -673,7 +673,7 @@ html[data-theme="light"] select,html[data-theme="light"] textarea,html[data-them
    ================================================================== */
 
 const CFG = {
-  VERSION: "5.5.0",       // ⬅ غيّر هذا الرقم مع كل تحديث ترفعه (مثلاً 2.0.1)
+  VERSION: "5.5.1",       // ⬅ غيّر هذا الرقم مع كل تحديث ترفعه (مثلاً 2.0.1)
   REPO: "mohdsiwad25-eng/teoria-app",
   INSTRUCTOR: "المدرب محمد سواد",
   AREA: "بيت لحم",
@@ -1878,6 +1878,11 @@ function home(){
       <button class="tool" onclick="FX.tap();examTips()">
         <span class="ti">🎓</span>
         <span class="tt"><b>${A("نصايح يوم الامتحان","Exam-day tips")}</b><span>${A("شو تعمل وشو تتجنب بيوم التست","What to do on test day")}</span></span>
+        <span class="tc">›</span>
+      </button>
+      <button class="tool" onclick="FX.tap();window.open('/guide.html','_blank')">
+        <span class="ti">📖</span>
+        <span class="tt"><b>${A("دليل التوريا","Theory guide")}</b><span>${A("كتاب المدرب — افهم مش بس احفظ","The instructor's book — understand, don't memorize")}</span></span>
         <span class="tc">›</span>
       </button>
       <button class="tool" onclick="FX.tap();gate('choose')">

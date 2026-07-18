@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-th="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>دليل TeoriaAI — كتاب التوريا الفلسطينية | المدرب محمد سواد</title>
+<meta name="description" content="كتاب دراسة التوريا الفلسطينية كامل: قواعد الأولوية، التجاوز، السرعات والمسافات، الوقوف، الأضواء، السائق والمركبة، الطوارئ، جداول الأرقام وفخاخ الامتحان — من TeoriaAI.">
+<link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0B0E14;--surface:#141922;--surface2:#1C2230;--ink:#F2F5FA;--muted:#8B95A6;
+  --line:rgba(255,255,255,.08);--blue:#3B82F6;--blue-d:#2563EB;--gold:#F5B62F;
+  --red:#EF4444;--green:#22C55E;--glow:rgba(59,130,246,.22);
+}
+html[data-th="light"]{
+  --bg:#F1F4F9;--surface:#fff;--surface2:#EEF2F8;--ink:#0E1420;--muted:#5E6A7E;
+  --line:rgba(14,20,32,.09);--glow:rgba(59,130,246,.14);
+}
+html{scroll-behavior:smooth}
+body{font-family:'Alexandria',sans-serif;background:var(--bg);color:var(--ink);line-height:1.95;transition:background .3s}
+body::before{content:"";position:fixed;top:-30%;left:50%;transform:translateX(-50%);width:150%;height:55vh;
+  background:radial-gradient(ellipse,var(--glow),transparent 65%);pointer-events:none;z-index:0}
+.wrap{position:relative;z-index:1;max-width:780px;margin:0 auto;padding:0 22px 90px}
+.cover{text-align:center;padding:60px 0 36px}
+.cover .logo{width:76px;height:76px;margin:0 auto 18px;border-radius:22px;
+  background:linear-gradient(140deg,var(--blue),#1E40AF);display:grid;place-items:center;box-shadow:0 16px 40px var(--glow)}
+.cover .logo svg{width:42px;height:42px}
+.cover .kicker{font-size:12px;letter-spacing:3px;color:var(--gold);font-weight:600;margin-bottom:10px}
+.cover h1{font-size:clamp(30px,7vw,44px);font-weight:800;letter-spacing:-1px;line-height:1.3}
+.cover h1 span{background:linear-gradient(90deg,var(--blue),var(--green));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.cover .sub{color:var(--muted);font-size:14.5px;font-weight:300;margin-top:12px;line-height:2}
+.cover .author{display:inline-flex;align-items:center;gap:9px;margin-top:22px;padding:9px 18px;border-radius:30px;
+  background:var(--surface);border:1px solid var(--line);font-size:13.5px;font-weight:600}
+.thbtn{position:fixed;top:14px;inset-inline-start:14px;z-index:50;width:40px;height:40px;border-radius:12px;
+  border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer;font-size:16px}
+.road{height:14px;margin:46px 0 34px;border-radius:7px;background:#22262D;position:relative;overflow:hidden}
+.road::after{content:"";position:absolute;inset:0;
+  background-image:repeating-linear-gradient(90deg,transparent 0 16px,rgba(255,255,255,.55) 16px 30px,transparent 30px 46px);
+  background-size:46px 3px;background-repeat:repeat-x;background-position:center}
+html[data-th="light"] .road{background:#2A2E36}
+.ch{margin-bottom:8px}
+.ch-head{display:flex;align-items:center;gap:14px;margin-bottom:16px}
+.ch-num{width:46px;height:46px;flex:none;border-radius:14px;background:var(--surface2);border:1px solid var(--line);
+  display:grid;place-items:center;font-weight:800;font-size:17px;color:var(--gold)}
+.ch-head h2{font-size:22px;font-weight:700;letter-spacing:-.4px}
+.ch-head .en{display:block;font-size:11px;color:var(--muted);font-weight:300;letter-spacing:1.5px}
+h3.sub-h{font-size:16px;font-weight:700;margin:20px 0 8px;color:var(--blue)}
+.ch p,.ch li{font-size:14.5px;font-weight:300;margin-bottom:11px}
+.ch ul{padding-inline-start:20px;margin-bottom:10px}
+.ch li{margin-bottom:7px}
+.ch p b,.ch li b{font-weight:600;color:var(--gold)}
+.ch .b2{font-weight:600;color:var(--blue)}
+.sign-row{display:flex;gap:13px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);
+  border-radius:16px;padding:15px;margin-bottom:11px}
+.sh{flex:none;width:46px;height:46px;display:grid;place-items:center}
+.sh-tri{width:0;height:0;border-left:23px solid transparent;border-right:23px solid transparent;border-bottom:40px solid var(--gold);position:relative}
+.sh-tri::after{content:"";position:absolute;top:7px;left:-14px;width:0;height:0;border-left:14px solid transparent;border-right:14px solid transparent;border-bottom:25px solid var(--surface)}
+.sh-circ-r{width:42px;height:42px;border-radius:50%;border:6px solid var(--red);background:var(--surface)}
+.sh-circ-b{width:42px;height:42px;border-radius:50%;background:var(--blue)}
+.sh-sq{width:40px;height:40px;border-radius:9px;background:var(--blue)}
+.sh-sq.g{background:var(--green)}
+.sh-oct{width:42px;height:42px;background:var(--red);clip-path:polygon(30% 0,70% 0,100% 30%,100% 70%,70% 100%,30% 100%,0 70%,0 30%);display:grid;place-items:center;color:#fff;font-weight:800;font-size:11px}
+.sh-inv{width:0;height:0;border-left:23px solid transparent;border-right:23px solid transparent;border-top:40px solid var(--red)}
+.sign-row .tx{flex:1;font-size:13.5px;font-weight:300}
+.sign-row .tx b{display:block;font-weight:600;font-size:14.5px;margin-bottom:3px}
+.gold-rule{background:linear-gradient(135deg,rgba(245,182,47,.12),rgba(245,182,47,.04));
+  border:1px solid rgba(245,182,47,.3);border-radius:16px;padding:15px 17px;margin:14px 0;font-size:14px}
+.gold-rule b{color:var(--gold);font-weight:700}
+.trap{background:linear-gradient(135deg,rgba(239,68,68,.1),transparent);border:1px solid rgba(239,68,68,.28);
+  border-radius:16px;padding:15px 17px;margin:14px 0;font-size:13.5px;font-weight:300}
+.trap b{color:var(--red);font-weight:700}
+.tip{background:linear-gradient(135deg,rgba(34,197,94,.1),transparent);border:1px solid rgba(34,197,94,.28);
+  border-radius:16px;padding:15px 17px;margin:14px 0;font-size:13.5px;font-weight:300}
+.tip b{color:var(--green);font-weight:700}
+.numtbl{width:100%;border-collapse:collapse;margin:8px 0;font-size:13.5px}
+.numtbl td{padding:11px 12px;border-bottom:1px dashed var(--line);font-weight:300}
+.numtbl td:first-child{width:100px;font-weight:800;color:var(--gold);font-size:15px;white-space:nowrap}
+.numtbl tr:last-child td{border-bottom:none}
+.numtbl-wrap{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:6px 8px;margin-bottom:14px}
+.numtbl-wrap .cap{font-size:11.5px;color:var(--muted);letter-spacing:1px;padding:10px 12px 0;font-weight:500}
+.toc{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:20px;margin-top:8px}
+.toc a{display:flex;justify-content:space-between;gap:10px;padding:10px 4px;color:var(--ink);text-decoration:none;
+  border-bottom:1px dashed var(--line);font-size:14px;font-weight:400}
+.toc a:last-child{border-bottom:none}
+.toc a span{color:var(--muted);font-weight:300;font-size:12.5px}
+.toc a:hover{color:var(--blue)}
+.cta{margin-top:44px;text-align:center;background:linear-gradient(150deg,var(--surface),var(--surface2));
+  border:1px solid var(--line);border-radius:24px;padding:30px 22px}
+.cta h3{font-size:19px;font-weight:700;margin-bottom:8px}
+.cta p{color:var(--muted);font-size:13.5px;font-weight:300;margin-bottom:18px}
+.cta a{display:inline-block;background:linear-gradient(135deg,var(--blue),var(--blue-d));color:#fff;
+  text-decoration:none;font-weight:600;padding:14px 34px;border-radius:15px;box-shadow:0 12px 30px var(--glow)}
+footer{text-align:center;color:var(--muted);font-size:12px;font-weight:300;margin-top:34px;line-height:2}
+.up{position:fixed;bottom:18px;inset-inline-end:16px;width:42px;height:42px;border-radius:13px;border:1px solid var(--line);
+  background:var(--surface);color:var(--ink);cursor:pointer;font-size:16px;z-index:40}
+@media print{.thbtn,.cta,.up{display:none}body{background:#fff;color:#000}}
+</style>
+</head>
+<body>
+<button class="thbtn" onclick="const e=document.documentElement;e.dataset.th=e.dataset.th==='dark'?'light':'dark';this.textContent=e.dataset.th==='dark'?'☀️':'🌙'">☀️</button>
+<button class="up" onclick="scrollTo({top:0,behavior:'smooth'})">↑</button>
+<div class="wrap">
+
+<div class="cover">
+  <div class="logo"><svg viewBox="0 0 24 24" fill="none"><path d="M12 2L3 6v6c0 5 3.8 8.5 9 10 5.2-1.5 9-5 9-10V6l-9-4z" fill="#fff"/><path d="M12 7v5l3 2" stroke="#1E40AF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+  <div class="kicker">TEORIA AI · THE BOOK</div>
+  <h1>كتاب <span>التوريا</span> الفلسطينية</h1>
+  <p class="sub">قواعد السير كاملة بلغة بتوصل — افهم المنطق، والأسئلة بتحل حالها.<br>الإشارات كلها بالصور جوّا التطبيق قسم «الإشارات» — هون بنعلمك <b style="color:var(--gold)">تقرأها وتفهم قواعدها</b>.</p>
+  <div class="author">👨‍🏫 تأليف المدرب محمد سواد — بيت لحم · teoriaai.com</div>
+</div>
+
+<div class="toc">
+  <a href="#c1">١ · كيف تدرس التوريا صح <span>المنهجية</span></a>
+  <a href="#c2">٢ · لغة الشاخصات وقواعدها <span>العائلات والنهايات</span></a>
+  <a href="#c3">٣ · حق الأولوية والمفترقات <span>الفصل الأهم</span></a>
+  <a href="#c4">٤ · الانعطاف والاستدارة <span>مسارك الصحيح</span></a>
+  <a href="#c5">٥ · التجاوز <span>شروطه وممنوعاته</span></a>
+  <a href="#c6">٦ · السرعة ومسافة الأمان <span>والتوقف الكامل</span></a>
+  <a href="#c7">٧ · الوقوف والتوقف <span>الممنوعات بالأمتار</span></a>
+  <a href="#c8">٨ · الأضواء والرؤية <span>الليل والشتا</span></a>
+  <a href="#c9">٩ · أنظمة الطرق <span>بلدية · خارجية · سريعة</span></a>
+  <a href="#c10">١٠ · السائق والمركبة <span>الجاهزية والسلامة</span></a>
+  <a href="#c11">١١ · الطوارئ والحالات الخاصة <span>تعطل · حادث · سكة</span></a>
+  <a href="#c12">١٢ · جداول الأرقام الشاملة <span>صفحة السكرين شوت</span></a>
+  <a href="#c13">١٣ · فخاخ الامتحان وخطة الأسبوع الأخير <span>الختام</span></a>
+</div>
+
+<div class="road"></div>
+
+<section class="ch" id="c1">
+  <div class="ch-head"><div class="ch-num">١</div><h2>كيف تدرس التوريا صح<span class="en">METHOD</span></h2></div>
+  <p>أكثر غلطة بيعملها الطلاب: يحفظوا "الجواب ج" بدون ما يفهموا ليش. بالامتحان بيغيروا الصيغة شوي — وبتضيع. <b>التوريا مش حفظ، التوريا منطق طريق:</b> كل قاعدة إلها سبب سلامة، وإذا فهمت السبب بتستنتج الجواب حتى بسؤال ما شفته بعمرك.</p>
+  <p>طريقة الدراسة الصحيحة ثلاث طبقات: <span class="b2">افهم القاعدة</span> (من هالكتاب) ← <span class="b2">ثبّتها بالأسئلة</span> (بالتطبيق، موضوع موضوع) ← <span class="b2">راجع أخطاءك</span> (أهم طبقة — الغلطة اللي بتفهم ليش صارت بتساوي ١٠ أسئلة جديدة).</p>
+  <div class="gold-rule"><b>خطة الأسبوع:</b> يومين إشارات (بالتطبيق — قسم المبتدئين) ← يومين فصول ٣-٥ من هالكتاب مع أسئلتها ← يوم فصول ٦-٨ والأرقام ← يومين امتحانات كاملة + مراجعة كل غلطة. النجاح من <b>٢٦/٣٠</b> — معك ٤ أغلاط بس، فكل غلطة بتراجعها اليوم بتوفرلك وحدة بكرة.</div>
+</section>
+
+<div class="road"></div>
+
+<section class="ch" id="c2">
+  <div class="ch-head"><div class="ch-num">٢</div><h2>لغة الشاخصات وقواعدها<span class="en">SIGNS SYSTEM</span></h2></div>
+  <p>الـ١٤١ إشارة موجودين بالصور والشرح جوّا التطبيق — هون بنعطيك <b>المفتاح اللي بيغنيك عن حفظهم صمّاً</b>: الشكل واللون بيحكوا نص المعنى قبل ما تدقق بالرسمة.</p>
+
+  <div class="sign-row"><div class="sh"><div class="sh-tri"></div></div>
+    <div class="tx"><b>مثلث أحمر = تحذير (خبر مش أمر)</b>"في إشي جاي": منعطف، مشاة، سكة، مفترق. تصرفك: خفف وجهّز حالك. بينتصب قبل الخطر بـ<b>١٥٠م</b> — بس احفظ الاستثناءات: <b>الانحدار</b> و<b>بداية السير باتجاهين</b> شاخصتهم على بداية المقطع نفسه (الخطر بيبدأ فوراً)، وسلسلة سكة الحديد إلها عدّادها الخاص (فصل ١٢).</div></div>
+
+  <div class="sign-row"><div class="sh"><div class="sh-circ-r"></div></div>
+    <div class="tx"><b>دائرة بإطار أحمر = منع</b>ممنوع دخول، تجاوز، وقوف، استدارة... <b>اقرأ مين الممنوع بالظبط:</b> "جميع المركبات" (حتى عربة اليد) غير "الميكانيكية" (أصحاب المحركات بس) غير "التجارية فوق وزن معين". الامتحان بيعيش على هالفروقات.</div></div>
+
+  <div class="sign-row"><div class="sh"><div class="sh-circ-b"></div></div>
+    <div class="tx"><b>دائرة زرقا = أمر إيجابي</b>سر يميناً، اعبر من اليسار، سبيل إلزامي لفئة. الأزرق بيوجه: "هاد اللي لازم تعمله" — وفرّق بين <b>أمر اتجاه سير</b> (سر إلى...) و<b>أمر عبور عائق</b> (اعبر الجزيرة من...).</div></div>
+
+  <div class="sign-row"><div class="sh"><div class="sh-sq"></div></div>
+    <div class="tx"><b>مربع/مستطيل أزرق = استعلام</b>معلومة بتخدمك: موقف، طريق بلا مخرج، لك حق الأولوية، مكان عبور مشاة. ملاحظة امتحانية: مثلث "تحذير ممر مشاة" بيسبق الممر بمسافة — أما مربع "مكان العبور" فبينحط <b>عند الممر نفسه</b>.</div></div>
+
+  <div class="sign-row"><div class="sh"><div class="sh-sq g"></div></div>
+    <div class="tx"><b>الوسم على الطريق = شاخصات مدهونة</b>الخطوط والأسهم عالإسفلت بقوة الشاخصة المرفوعة: <b>متقطع</b> بتقدر تعبره (لتجاوز أو تنفيذ أمر) · <b>متواصل</b> جدار ما بينعبر · <b>أصفر متقطع مزدوج</b> مسلك المواصلات العمومية · وأحجار الحافة: <b>أحمر-أبيض</b> ممنوع تصف، <b>أزرق بالتناوب</b> وقوف بترتيبات (بطاقات)، <b>أسود-أبيض</b> مجرد إبراز للحافة.</div></div>
+
+  <h3 class="sub-h">قواعد النهايات — من ذهب الامتحان</h3>
+  <ul>
+    <li><b>الشطب = نهاية.</b> أي شاخصة عليها خط مائل هي إعلان انتهاء توأمها — مش منع جديد.</li>
+    <li><b>كل نهاية لتوأمها بس:</b> نهاية منع التجاوز ما بتنهي منع الوقوف. لا تنقل نهاية من عيلة لعيلة.</li>
+    <li><b>المفترق بينهي معظم القيود</b> (منع تجاوز، أوامر اتجاه...) — <b>إلا ثلاثة بيضلوا ساريين بعده:</b> السرعة الخاصة، نظام الطريق البلدية، وقيود الوقوف. هدول بدهم نهاية صريحة بشاخصة.</li>
+    <li><b>شاخصة أخف من نفس العيلة بتستبدل الأثقل:</b> "منع وقوف" بعد "منع وقوف وتوقف" = التخفيف ساري.</li>
+    <li><b>شاخصة قف لحظية:</b> نفذتها (وقفت وأعطيت الأولوية)؟ انتهى مفعولها بنفس اللحظة — ما بتستنى مفترق.</li>
+  </ul>
+</section>
+
+<div class="road"></div>
+
+<section class="ch" id="c3">
+  <div class="ch-head"><div class="ch-num">٣</div><h2>حق الأولوية والمفترقات<span class="en">RIGHT OF WAY</span></h2></div>
+  <p>الفصل اللي بيقرر نجاحك بالامتحان وسلامتك بالشارع. أول شي، مين بيحكم المفترق؟ <b>ترتيب القوة</b> (الأعلى بيلغي اللي تحته):</p>
+  <p style="text-align:center;font-weight:600;font-size:15px">👮 إشارات الشرطي ← 🚦 الآلة الضوئية ← 🛑 الشاخصات ← 🤝 قاعدة اليمين</p>
+  <div class="gold-rule"><b>قاعدة اليمين:</b> مفترق متكافئ بلا أي شاخصات؟ الأولوية للجاي <b>من يمينك</b>. بسيطة، بس نص أسئلة رسومات المفترقات مبنية عليها — ارسم دايماً: مين على يمين مين؟</div>
+
+  <div class="sign-row"><div class="sh"><div class="sh-oct">STOP</div></div>
+    <div class="tx"><b>شاخصة قف (الثمانية)</b>وقوف <b>كامل</b> — عجلات واقفة تماماً، حتى نص الليل والشارع فاضي. <b>وين؟</b> عند خط التوقف إذا موجود ← إذا لأ وفي ممر مشاة فقبله ← إذا ولا واحد: بمكان <b>بتشوف منه</b> حركة المفترق (وقبل ملتقى سكة بلا خط: على <b>٤م</b> من أقرب قضيب). بعد الوقوف: أعطِ الأولوية لكل مرور، وبعدها كمّل.</div></div>
+
+  <div class="sign-row"><div class="sh"><div class="sh-inv"></div></div>
+    <div class="tx"><b>المثلث المقلوب (أعطِ الأولوية)</b>مش لازم توقف إذا الطريق فاضية — بس لازم تجي <b>بسرعة بتقدر توقف منها</b> فوراً. مقلوب عن كل المثلثات عمداً: عشان تميّزه حتى من ظهره، وعشان اللي بالمفترق يعرف إنك ملزوم تتنازل.</div></div>
+
+  <h3 class="sub-h">حالات الأولوية اللي بتيجي بالامتحان</h3>
+  <ul>
+    <li><b>الدوار:</b> اللي جوّاه إله الأولوية — إنت الداخل بتستنى، من أي جهة إجا.</li>
+    <li><b>الطريق الضيقة (جبلية/جسر):</b> الشاخصات بتوزع الأدوار — السهم الأحمر (الأصغر) هو إنت: بتتنازل. السهم الكبير إلك: المقابل بيستنى. وبالمنحدرات بلا شاخصات، العرف: النازل بيسهّل للطالع.</li>
+    <li><b>مركبات الأمن والإسعاف والإطفاء</b> (بصفارة وأضواء): افسحلها فوراً — انحرف يميناً وتوقف إذا لزم. وممنوع تلحقها لاصق فيها: خليك على <b>~١٠٠م</b> وراها.</li>
+    <li><b>المشاة على ممر العبور:</b> أولوية كاملة — والاقتراب من ممر فيه ناس معناه تخفيف حقيقي مش تطنيش.</li>
+    <li><b>الخارج من ساحة/محطة/طريق ترابية للشارع:</b> ما إله أي أولوية — بيستنى الكل.</li>
+    <li><b>القطار:</b> دايماً وأبداً إله الأولوية — ما بيتفاوض (فصل ١١).</li>
+  </ul>
+  <div class="trap"><b>فخ الامتحان:</b> "إلك حق الأولوية بس السائق الثاني مش منتبه" — القانون واضح: حقك ما بيسوى حادث. <b>الأولوية بتنعطى ما بتنتزع</b> — إذا الثاني غلط، إنت ملزوم تتفادى الحادث.</div>
+</section>
+
+<div class="road"></div>
+
+<section class="ch" id="c4">
+  <div class="ch-head"><div class="ch-num">٤</div><h2>الانعطاف والاستدارة<span class="en">TURNS</span></h2></div>
+  <p>قاعدة المسار الذهبية: <b>من أقصى الجهة إلى أقصى الجهة.</b></p>
+  <ul>
+    <li><b>انعطاف يمين:</b> من المسلك الأقصى يميناً ← إلى المسلك الأقصى يميناً بالشارع الجديد. لفة قصيرة لاصقة.</li>
+    <li><b>انعطاف يسار:</b> اقترب من وسط الطريق (أو أقصى يسار مسالك اتجاهك) ← ادخل الشارع الجديد <b>يمين وسطه</b>. وبشارع باتجاه واحد؟ من أقصى اليسار الفعلي.</li>
+    <li><b>قبل أي انعطاف:</b> مرآة ← غمّاز (بوقت كافي) ← نظرة كتف للنقطة العميا ← وبعدها اللفة. الغمّاز إعلان نية، مش صك تنفيذ.</li>
+  </ul>
+  <h3 class="sub-h">الاستدارة للاتجاه المعاكس (U)</h3>
+  <p>مسموحة بس وين ما في منع، والرؤية كافية بالاتجاهين، وبدون ما تعرقل حدا. <b>وفرّق بين توأمين:</b> شاخصة منع الانعطاف لليسار ما بتمنع الرجوع المعاكس — والعكس: شاخصة منع المعاكس (سهم U مشطوب) ما بتمنع اليسار العادي. <span class="b2">كل شاخصة بتمنع لفتها هي بس</span> — سؤال مضمون بالامتحان.</p>
+  <div class="trap"><b>فخ:</b> "شاخصة منع انعطاف لليسار — بتقدر تفوت على محطة وقود عاليسار؟" لأ — المنع بيشمل أي التفاتة يسار بالمقطع: مفترقات ومداخل ومحطات.</div>
+</section>
+
+<div class="road"></div>
+
+<section class="ch" id="c5">
+  <div class="ch-head"><div class="ch-num">٥</div><h2>التجاوز<span class="en">OVERTAKING</span></h2></div>
+  <p>القاعدة الأولى: <b>التجاوز من اليسار.</b> اليمين للسير — والتجاوز منه بيفاجئ وبيقتل.</p>
+  <h3 class="sub-h">فحص ما قبل التجاوز — ثلاث بوابات بالترتيب</h3>
+  <ul>
+    <li><span class="b2">١) القانون:</span> لا شاخصة منع سارية، والخط اللي <b>بجهتك إنت</b> متقطع (متواصل من جهتك = ممنوع حتى لو المقابل متقطع).</li>
+    <li><span class="b2">٢) الرؤية والمسافة:</span> بتشوف الطريق فاضية لمسافة التجاوز <b>كاملة + الرجعة</b> — مش "بتوقع إنها فاضية".</li>
+    <li><span class="b2">٣) الجدوى والأمان:</span> فرق سرعة حقيقي، وما رح تجبر حدا (مقابل أو متجاوَز) يفرمل بسببك.</li>
+  </ul>
+  <h3 class="sub-h">وين التجاوز ممنوع دايماً (حتى بلا شاخصة)</h3>
+  <ul>
+    <li>قبل ملتقى سكة الحديد وعليه — <b>منع مطلق بلا استثناءات.</b></li>
+    <li>بالمنعطفات وقمم المرتفعات وكل مكان الرؤية فيه محجوبة.</li>
+    <li>قبل ممرات المشاة وعليها، وداخل المفترقات.</li>
+    <li>وين ما في خط متواصل من جهتك.</li>
+  </ul>
+  <p><b>وإذا إنت المتجاوَز؟</b> حافظ على سرعتك أو خفف — <b>ممنوع تسرّع</b> وقت ما حدا عم يتجاوزك، وسهّلله يخلص بأمان. وإذا في طابور وراك بطريق ضيقة ومركبتك بطيئة: هدّي عاليمين وخليهم يمرقوا.</p>
+  <div class="trap"><b>فخ الامتحان:</b> شاخصة منع التجاوز الشائعة بتمنع تجاوز <b>الميكانيكية على أكثر من عجلتين</b> — يعني تجاوز الدراجة النارية (عجلتين) وغير الميكانيكية <b>مسموح</b>. اقرأ مين الممنوع، لا تعمم.</div>
+</section>
+
+<div class="road"></div>
+
+<section class="ch" id="c6">
+  <div class="ch-head"><div class="ch-num">٦</div><h2>السرعة ومسافة الأمان<span class="en">SPEED & STOPPING</span></h2></div>
+  <p>السرعة القانونية سقف مش هدف — <b>السرعة الصح هي الملائمة للظروف:</b> مطر، ضباب، زحمة، مدرسة... كلها بتنزل السقف تحت الرقم المكتوب.</p>
+  <div class="numtbl-wrap"><div class="cap">السرعات القصوى للمركبة الخصوصية (إذا ما في شاخصة بتقول غير هيك)</div><table class="numtbl">
+    <tr><td>٥٠ كم/س</td><td>الطريق البلدية (داخل المدن والقرى)</td></tr>
+    <tr><td>٨٠ كم/س</td><td>الطريق غير البلدية (الخارجية)</td></tr>
+    <tr><td>١٠٠ كم/س</td><td>الطريق السريعة</td></tr>
+  </table></div>
+  <h3 class="sub-h">مسافة التوقف — ليش السرعة بتقتل</h3>
+  <p>من لحظة ما تشوف الخطر لحد ما توقف، مركبتك بتقطع: <span class="b2">مسافة رد الفعل</span> (~ثانية كاملة وإنت "بتستوعب" — بسرعة ١٠٠ يعني ~٢٨ متر قبل ما تلمس الفرامل!) + <span class="b2">مسافة الكبح</span> (وهاي بتتضاعف <b>أربع مرات</b> لما تتضاعف سرعتك مرتين — علاقة تربيعية مش خطية). عالطريق المبلولة، ضاعف كل شي.</p>
+  <div class="gold-rule"><b>مسافة الأمان — قاعدة الثانيتين:</b> علّم على جسم ثابت (عمود) — لما يمرقه اللي قدامك، عد "واحد وعشرين، اثنين وعشرين". وصلت العمود قبل ما تخلص؟ إنت لاصق زيادة. بالمطر والليل: ٣-٤ ثواني.</div>
+  <div class="trap"><b>فخ:</b> "السواقة ببطء شديد آمنة دايماً؟" لأ — البطء المفرط بشارع سريع بيخلق فرق سرعات خطير وبيجبر الناس تتجاوز. الأمان بالانسجام مع تيار السير، ضمن السقف القانوني.</div>
+</section>
+
+<div class="road"></div>
+
+<section class="ch" id="c7">
+  <div class="ch-head"><div class="ch-num">٧</div><h2>الوقوف والتوقف<span class="en">PARKING</span></h2></div>
+  <p><b>الفرق أول شي:</b> <span class="b2">التوقف</span> = وقفة قصيرة لضرورة (إنزال/تحميل راكب) والسائق بمكانه وجاهز يتحرك. <span class="b2">الوقوف</span> = ترك المركبة. شاخصة <b>الخط الواحد</b> بتمنع الوقوف بس (التوقف الخاطف مسموح) — و<b>الإكسين</b> بيمنعوا الاثنين إلا لتنفيذ أمر قانوني.</p>
+  <div class="numtbl-wrap"><div class="cap">ممنوع الوقوف على بُعد أقل من...</div><table class="numtbl">
+    <tr><td>١٢م</td><td>من المفترق، ومن خط التوقف، وقبل ممر المشاة</td></tr>
+    <tr><td>٢٠م</td><td>من ملتقى سكة الحديد، ومن محطة الباص الموسومة</td></tr>
+    <tr><td>٢م</td><td>من حنفية إطفاء الحريق</td></tr>
+    <tr><td>٤٠سم</td><td>أقصى بُعد بين عجلاتك والرصيف لما توقف بمحاذاته</td></tr>
+  </table></div>
+  <ul>
+    <li><b>ممنوع الوقوف كمان:</b> عالأرصفة (إلا بوسم يسمح)، بممرات المشاة وسبلهم، جنب مركبة واقفة (صف ثاني)، بالمنعطفات ومناطق حجب الرؤية، وقدام مداخل المركبات.</li>
+    <li><b>وقوف عالمنحدر:</b> فرامل يد + غيار (أول بالطلعة، خلفي بالنزلة) + <b>لف العجلات</b> بحيث لو انزلقت المركبة تعلق بالرصيف مش تنزل عالشارع.</li>
+    <li><b>ليلاً خارج المدن:</b> مركبة واقفة عالطريق لازم تكون منوّرة بأضواء الوقوف أو منعكساتها ظاهرة.</li>
+  </ul>
+  <div class="trap"><b>فخ:</b> "منطقة منع وقوف وفيها شاخصة قف — شو بتعمل؟" بتوقف وبتنفذ القف وما خالفت: منع الوقوف مستثني منه <b>تنفيذ الأوامر القانونية</b> — وشاخصة قف أمر قانوني بعينه.</div>
+</section>
+
+<div class="road"></div>
+
+<section class="ch" id="c8">
+  <div class="ch-head"><div class="ch-num">٨</div><h2>الأضواء والرؤية<span class="en">LIGHTS & VISIBILITY</span></h2></div>
+  <p><b>الليل قانونياً:</b> من ربع ساعة بعد الغروب حتى ربع ساعة قبل الشروق — مش عالمزاج. وبالنهار كمان: ضباب، مطر غزير، غبار = ضوّي.</p>
+  <div class="numtbl-wrap"><div class="cap">مدى الإنارة القانوني</div><table class="numtbl">
+    <tr><td>١٠٠م</td><td>نور الطريق (العالي) — ينير قدامك على الأقل</td></tr>
+    <tr><td>٣٠م</td><td>نور الالتقاء (الواطي) — على الأقل</td></tr>
+    <tr><td>١٠م</td><td>ضوء الرجوع للخلف — على الأكثر</td></tr>
+  </table></div>
+  <ul>
+    <li><b>متى تنزل من العالي للواطي؟</b> مركبة مقابلة جاية (لا تعميها) · ماشي ورا حدا (مراياه بتعكس عليه) · داخل منطقة مضاءة. مش أدب — قانون.</li>
+    <li><b>انبهرت من مقابل ما نزّل؟</b> خفف، خليك عاليمين بعينك على خط الحافة — و<b>لا ترد عليه بالعالي</b>: أعميين أخطر من واحد.</li>
+    <li><b>أضواء الضباب:</b> للضباب والأمطار الشديدة — واستعمالها بجو صافي بيبهر الناس وممنوع.</li>
+    <li><b>خلّيك منشاف:</b> الرؤية طريقين — أضويتك مش بس عشان تشوف، عشان <b>ينشافوا</b>. مركبة رمادية بالشفق بلا أضواء = شبح.</li>
+  </ul>
+  <h3 class="sub-h">ألوان آلة المفترق — بالترتيب وبالمعنى الدقيق</h3>
+  <ul>
+    <li><b>أخضر:</b> تقدم — إذا المفترق سالك. الأخضر مش صك بريء: لسا مسؤول عن أمان العبور.</li>
+    <li><b>أخضر متقطع:</b> إنذار — الأخضر عمره ثواني، جهز قرارك.</li>
+    <li><b>أصفر:</b> قف — إلا إذا الوقوف نفسه صار أخطر (إنت فوق الخط أو حدا لاصق وراك).</li>
+    <li><b>أحمر:</b> قف قبل خط التوقف ← إذا مش موجود فقبل ممر المشاة ← إذا ولا واحد فجنب الآلة.</li>
+    <li><b>أحمر + أصفر:</b> جهز حالك — بس <b>لسا ممنوع تمشي.</b> العبور فيها مخالفة صريحة.</li>
+    <li><b>أصفر متقطع (آلة خاصة):</b> تقدم بحذر ووعي — مش أمر وقوف.</li>
+  </ul>
+</section>
+
+<div class="road"></div>
+
+<section class="ch" id="c9">
+  <div class="ch-head"><div class="ch-num">٩</div><h2>أنظمة الطرق<span class="en">ROAD SYSTEMS</span></h2></div>
+  <ul>
+    <li><b>الطريق البلدية:</b> بتبلش بشاخصة النظام البلدي وبتخلص بنهايتها الصريحة — <b>والمفترق ما بينهيها.</b> سقفها الافتراضي ٥٠.</li>
+    <li><b>الطريق السريعة:</b> نادي للمركبات الميكانيكية القادرة — <b>ممنوع فيها:</b> المشاة، الدراجات الهوائية، الحيوانات وعرباتها، التراكتورات والمركبات البطيئة، والتوقف والوقوف والرجوع للخلف والاستدارة المعاكسة. الدخول من مسلك التسارع: جيب سرعتك <b>قبل</b> الاندماج وادمج بسلاسة — والأولوية للي جوّا الطريق. الخروج: غمّاز بدري ومسلك التباطؤ هو مكان التخفيف مش الطريق نفسها.</li>
+    <li><b>مسلك المواصلات العمومية</b> (الأصفر المتقطع المزدوج): للعمومية وزبائن شاخصاتها — سيارتك الخصوصية بره.</li>
+    <li><b>شارع الاتجاه الواحد:</b> كل عرضه باتجاهك — بس <b>ممنوع ترجع عكسه</b> حتى بالرفرس. والعمومية أحياناً بتنعطى امتياز معاكس بشاخصة خاصة — لا تفكرها غلطانة.</li>
+  </ul>
+  <div class="trap"><b>فخ:</b> "أمر سير (سر يميناً) لوين ساري؟" أوامر الاتجاه قصيرة العمر بطبيعتها: <b>بتخلص عند أول مفترق</b> — بعده وضع جديد وقرار جديد. عكس السرعة الخاصة والبلدية اللي بيضلوا ساريين.</div>
+</section>
+
+<div class="road"></div>
+
+<section class="ch" id="c10">
+  <div class="ch-head"><div class="ch-num">١٠</div><h2>السائق والمركبة<span class="en">DRIVER & VEHICLE</span></h2></div>
+  <h3 class="sub-h">جاهزيتك إنت</h3>
+  <ul>
+    <li><b>الكحول والمخدرات:</b> خط أحمر مطلق — بيبطئوا رد فعلك وبيضيقوا مجال رؤيتك وبيعموا حكمك، والقانون بيلاحقهم بأشد العقوبات. وبعض الأدوية (منوّمات، مهدئات) نفس التصنيف — اقرأ النشرة.</li>
+    <li><b>التعب:</b> السواقة نعسان بخطورة السواقة سكران — التثاؤب المتكرر ورمش العين الثقيل إنذارات: وقّف، استرح، بدّل سائق. فتح الشباك والقهوة مسكّنات مش علاج.</li>
+    <li><b>الهاتف:</b> ممنوع بالإيد أثناء السواقة — وحتى بالسماعة، المكالمة الحامية بتسرق تركيزك. رسالة؟ بتستنى.</li>
+    <li><b>حزام الأمان:</b> للجميع، قدام وورا، بلدية وخارجية — والوسادة الهوائية <b>مكمّلة للحزام مش بديلة عنه</b>. والأطفال الصغار بمقعد أمان مخصص لعمرهم ووزنهم، ومكانهم مش المقعد الأمامي.</li>
+  </ul>
+  <h3 class="sub-h">جاهزية المركبة</h3>
+  <ul>
+    <li><b>الإطارات:</b> نقشة سليمة (عمق قانوني) وضغط هوا صحيح — إطار مهترئ عالمطر = تزلج مائي. لا تنسى السبير.</li>
+    <li><b>فحص دوري سريع:</b> فرامل، أضوية وغمّازات، مساحات وماء الرش، مرايا مظبوطة، زامور. عطل بالفرامل أو الدركسون = المركبة ما بتتحرك لورشة إلا مقطورة.</li>
+    <li><b>الوثائق معك دايماً:</b> رخصة سواقة سارية، رخصة مركبة، تأمين — والشرطي إله يوقفك ويطلبهم بأي وقت، وأوامره فوق كل شاخصة.</li>
+    <li><b>الحمولة:</b> مربوطة، ما بتحجب رؤيتك ولا أضويتك ولا لوحتك، وما بتبرز بشكل خطر.</li>
+  </ul>
+</section>
+
+<div class="road"></div>
+
+<section class="ch" id="c11">
+  <div class="ch-head"><div class="ch-num">١١</div><h2>الطوارئ والحالات الخاصة<span class="en">EMERGENCIES</span></h2></div>
+  <ul>
+    <li><b>مركبتك تعطلت عالطريق:</b> أبعدها عن مجرى السير قدر الإمكان ← أضوية الطوارئ (الرباعية) ← والبس الحذر وانصب <b>مثلث التحذير</b> وراها بحيث ينشاف من <b>١٠٠م</b> — بمنعطف؟ انصبه قبل المنعطف عشان يحذر قبل ما ينكشفوا عليك.</li>
+    <li><b>فرملة مفاجئة قدامك؟</b> الفرامل بقوة مع مسك الدركسون ثابت — وسيارات الـABS: دوس ولا ترفع رجلك، الطقطقة طبيعية.</li>
+    <li><b>انفجر إطار:</b> امسك الدركسون بقوة، ارفع رجلك عن البنزين تدريجياً، <b>لا تفرمل بعنف</b> — وخفف لحد ما تسيطر واطلع عالجنب.</li>
+    <li><b>حادث فيه إصابات:</b> وقّف وأمّن المكان (رباعية + مثلث) ← اتصل بالإسعاف والشرطة ← لا تحرك مصاب إلا إذا بخطر أكيد (حريق) ← وممنوع تغادر مكان حادث إنت طرف فيه.</li>
+    <li><b>ملتقى سكة الحديد:</b> قبل العبور تأكد إنه <b>في مطرح فاضي كامل لمركبتك بعد الملتقى</b> — لا توقف عمره على القضبان بسبب زحمة. علقت مركبتك عليه وقطار جاي؟ <b>اترك المركبة فوراً</b> وابعد عن السكة باتجاه القطار الجاي (مائل) — المركبة بتتعوض، إنت لأ.</li>
+    <li><b>باص أطفال واقف بأضوية تحذير:</b> هدّي لأقصى درجة — أطفال ممكن يقطعوا من قدامه فجأة.</li>
+  </ul>
+</section>
+
+<div class="road"></div>
+
+<section class="ch" id="c12">
+  <div class="ch-head"><div class="ch-num">١٢</div><h2>جداول الأرقام الشاملة<span class="en">ALL NUMBERS</span></h2></div>
+  <p>صفحة السكرين شوت 📸 — كل رقم بالامتحان، مرتب بعائلته (احفظهم كعائلات وما حدا بيلخبطك):</p>
+  <div class="numtbl-wrap"><div class="cap">عائلة السرعات (الخصوصية، بلا شاخصة)</div><table class="numtbl">
+    <tr><td>٥٠</td><td>بلدية</td></tr><tr><td>٨٠</td><td>خارجية</td></tr><tr><td>١٠٠</td><td>سريعة</td></tr>
+  </table></div>
+  <div class="numtbl-wrap"><div class="cap">عائلة التحذير</div><table class="numtbl">
+    <tr><td>١٥٠م</td><td>شاخصة التحذير قبل الخطر — <b>استثناء:</b> الانحدار وبداية الاتجاهين: على بداية المقطع نفسه</td></tr>
+  </table></div>
+  <div class="numtbl-wrap"><div class="cap">عائلة سكة الحديد</div><table class="numtbl">
+    <tr><td>٢٥٠م</td><td>أول شاخصة اقتراب</td></tr>
+    <tr><td>١٧٠م</td><td>الثانية</td></tr>
+    <tr><td>١٠٠م</td><td>الثالثة</td></tr>
+    <tr><td>١٠م</td><td>الشاخصة المخططة عند الملتقى — آخر إنذار</td></tr>
+    <tr><td>٤م</td><td>وقوف مركبتك عن أقرب قضيب (بلا خط أو حاجز)</td></tr>
+  </table></div>
+  <div class="numtbl-wrap"><div class="cap">عائلة الوقوف — ممنوع أقل من...</div><table class="numtbl">
+    <tr><td>١٢م</td><td>مفترق · خط توقف · قبل ممر مشاة</td></tr>
+    <tr><td>٢٠م</td><td>ملتقى سكة · محطة باص</td></tr>
+    <tr><td>٢م</td><td>حنفية إطفاء</td></tr>
+    <tr><td>٤٠سم</td><td>أقصى بعد عن الرصيف</td></tr>
+  </table></div>
+  <div class="numtbl-wrap"><div class="cap">عائلة الأضواء والرؤية</div><table class="numtbl">
+    <tr><td>١٠٠م</td><td>مدى النور العالي · رؤية مثلث التحذير · مسافتك خلف مركبة أمن</td></tr>
+    <tr><td>٣٠م</td><td>مدى النور الواطي (على الأقل)</td></tr>
+    <tr><td>١٠م</td><td>ضوء الرجوع (على الأكثر)</td></tr>
+    <tr><td>ربع ساعة</td><td>بعد الغروب وقبل الشروق = حدود الليل القانوني</td></tr>
+  </table></div>
+  <div class="numtbl-wrap"><div class="cap">عائلة الامتحان</div><table class="numtbl">
+    <tr><td>٢٦/٣٠</td><td>علامة النجاح — معك ٤ أغلاط بس</td></tr>
+    <tr><td>٤٠ دقيقة</td><td>مدة الامتحان — أكثر من دقيقة للسؤال</td></tr>
+  </table></div>
+</section>
+
+<div class="road"></div>
+
+<section class="ch" id="c13">
+  <div class="ch-head"><div class="ch-num">١٣</div><h2>فخاخ الامتحان وخطة الأسبوع الأخير<span class="en">FINAL WEEK</span></h2></div>
+  <h3 class="sub-h">الكلمات اللي بتقلب المعنى</h3>
+  <div class="sign-row"><div class="sh"><div class="sh-tri"></div></div><div class="tx"><b>«إلا» و«ما عدا» و«فقط» و«لا يجوز»</b>كلمة وحدة بتقلب الجملة من صح لغلط — لما تشوفها ارجع اقرأ مرتين. نص فخاخ الامتحان هون.</div></div>
+  <div class="sign-row"><div class="sh"><div class="sh-tri"></div></div><div class="tx"><b>«ميكانيكية» ≠ «تجارية» ≠ «جميع المركبات»</b>ثلاث دوائر مختلفة الحجم — والامتحان بيبدلهم ويستنى تنطبش. حدد مين المقصود قبل ما تجاوب.</div></div>
+  <div class="sign-row"><div class="sh"><div class="sh-tri"></div></div><div class="tx"><b>«جميع الإجابات صحيحة»</b>لقيت جواب صح؟ لا توقف — اقرأ الباقي: إذا في جوابين صح فالجواب الجامع. وإذا بتفكر تختار "جميعها" — تأكد ما في واحد غلط مدسوس بيناتهم.</div></div>
+  <div class="sign-row"><div class="sh"><div class="sh-tri"></div></div><div class="tx"><b>الأرقام المتشابهة والاتجاهات</b>أرقام السكة بتتسلل لأسئلة التحذير، وأرقام الوقوف لأسئلة الشاخصات — وارجع دقق: يمين ولا يسار؟ أمام ولا خلف؟ ثانية وحدة بتحسم.</div></div>
+  <h3 class="sub-h">يوم الامتحان</h3>
+  <ul>
+    <li>وصول بكير بنص ساعة + هوية أصلية وأوراقك — بلا هوية ما في امتحان.</li>
+    <li>سؤال صعب؟ <b>علّمه وكمّل</b> — بترجعله بالآخر وراسك أهدى.</li>
+    <li><b>أول إحساسك غالباً صح</b> — لا تغير جواب إلا إذا متأكد ١٠٠٪ إنك قريت غلط.</li>
+    <li>ليلة الامتحان: مراجعة <b>أخطائك بس</b> (من قسم أخطائي بالتطبيق) + نوم منيح — الدماغ المرتاح بيتذكر أحسن من السهران.</li>
+  </ul>
+  <div class="tip"><b>آخر كلمة من المدرب:</b> اللي وصل لهون قرأ كتاب كامل — إنت جاهز أكثر ما بتتخيل. ثق بتحضيرك، اقرأ بروية، وخلي منطق الطريق يشتغل. بالتوفيق يا بطل 🚗</div>
+</section>
+
+<div class="cta">
+  <h3>القراءة فهّمتك — التمرين بيثبّت 🎯</h3>
+  <p>٦٧٨ سؤال رسمي · كل الإشارات بالصور · شرح شخصي لكل غلطة · امتحان ذكي على مقاسك</p>
+  <a href="https://teoriaai.com">تدرّب هلأ على TeoriaAI ←</a>
+</div>
+
+<footer>© كتاب TeoriaAI — تأليف وإعداد المدرب محمد سواد، بيت لحم<br>صياغة تعليمية أصلية مبنية على قواعد السير الرسمية · جميع الحقوق محفوظة<br>الأرقام والقواعد وفق منهاج التوريا الرسمي — وعند أي تعارض، العبرة للقانون الساري</footer>
+</div>
+</body>
+</html>
