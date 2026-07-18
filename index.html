@@ -645,6 +645,10 @@ html[data-theme="light"] select,html[data-theme="light"] textarea,html[data-them
 .tbar2{height:7px;background:var(--surface-2);border-radius:5px;overflow:hidden}
 .tbar2 i{display:block;height:100%;border-radius:5px;transition:width .8s cubic-bezier(.2,.8,.2,1)}
 .tpc{font-size:13.5px;font-weight:700;min-width:40px;text-align:left}
+
+.an-tgl{flex:none;border:1.5px solid var(--line);background:var(--surface);color:var(--muted);
+  border-radius:11px;padding:7px 10px;font-family:inherit;font-size:11.5px;font-weight:600;cursor:pointer}
+.an-tgl.on{border-color:var(--primary);color:var(--primary);background:var(--primary-l)}
 </style>
 </head>
 <body>
@@ -673,7 +677,7 @@ html[data-theme="light"] select,html[data-theme="light"] textarea,html[data-them
    ================================================================== */
 
 const CFG = {
-  VERSION: "5.5.1",       // ⬅ غيّر هذا الرقم مع كل تحديث ترفعه (مثلاً 2.0.1)
+  VERSION: "5.5.3",       // ⬅ غيّر هذا الرقم مع كل تحديث ترفعه (مثلاً 2.0.1)
   REPO: "mohdsiwad25-eng/teoria-app",
   INSTRUCTOR: "المدرب محمد سواد",
   AREA: "بيت لحم",
@@ -2213,6 +2217,7 @@ function renderQ(){
         <div class="progress-bar"><div class="progress-fill" style="width:${(idx+1)/total*100}%"></div></div>
         <div class="q-count">${A(`سؤال ${idx+1} من ${total} · تمّت الإجابة على ${answered}`,`Question ${idx+1} of ${total} · ${answered} answered`)}</div>
       </div>
+      <button class="an-tgl ${autoNextOn()?'on':''}" id="anBtn" onclick="toggleAutoNext()">${autoNextOn()?"⏭️ تلقائي":"⏸️ يدوي"}</button>
       ${STATE.endAt?`<div class="timer" id="timer">⏱ --:--</div>`:''}
     </div>
     <div class="q-card">
@@ -2239,9 +2244,15 @@ function renderQ(){
   if(STATE.endAt) startTimer();
 }
 let AUTONEXT_T=null;
+function autoNextOn(){ return STORE.get("tp_autonext", true); }
+function toggleAutoNext(){
+  const v=!autoNextOn(); STORE.set("tp_autonext", v); FX.tap();
+  const b=document.getElementById("anBtn"); if(b){ b.textContent=v?"⏭️ تلقائي":"⏸️ يدوي"; b.classList.toggle("on",v); }
+  cheer(v?A("انتقال تلقائي بعد الإجابة ⏭️","Auto-advance on ⏭️"):A("انتقال يدوي — إنت بتتحكم ⏸️","Manual — you control ⏸️"));
+}
 function pick(L){ FX.tap(); STATE.ans[STATE.idx]=L;
   clearTimeout(AUTONEXT_T);
-  AUTONEXT_T=setTimeout(()=>{ if(STATE.idx<STATE.qs.length-1) navQ(1); }, 400);
+  if(autoNextOn()) AUTONEXT_T=setTimeout(()=>{ if(STATE.idx<STATE.qs.length-1) navQ(1); }, 400);
   LET.forEach(x=>$("#opt-"+x).classList.toggle('sel',x===L));
   $(".q-count").textContent=A(`سؤال ${STATE.idx+1} من ${STATE.qs.length} · تمّت الإجابة على ${STATE.ans.filter(a=>a!==null).length}`,`Question ${STATE.idx+1} of ${STATE.qs.length} · ${STATE.ans.filter(a=>a!==null).length} answered`);
 }
@@ -2789,7 +2800,6 @@ function begRun(i){
         <div class="bp-img">${s.no_image?"🚸":`<img src="${IMG_BASE}${u.c}.jpg" onerror="this.outerHTML='🚸'">`}</div>
         <div class="bp-tx"><b>${esc(tcode(u.c))}</b> — ${esc(tsig(u.c))}<div class="bp-n">${A(`سؤال ${u.i} من ${u.n}`,`Question ${u.i} of ${u.n}`)}</div></div>
       </div>`;})() : `<div class="beg-pin" style="background:#fff7e8"><div class="bp-img">${u.tag.startsWith("🚦")?"🚦":"🔺"}</div><div class="bp-tx"><b>${esc(u.tag)}</b><div class="bp-n">${A("بدون صورة","Text question")}</div></div></div>`;
-    const prev=getBeg().answered[qKey(q)];
     setView(`<div class="screen">${head}
       ${pin}
       <div class="q-card" style="margin-top:12px">
@@ -2802,9 +2812,8 @@ function begRun(i){
         <div id="begFx"></div>
       </div>
       <div style="height:12px"></div>
-      <div id="begNext">${prev!=null?`<button class="btn" onclick="begRun(${i+1})">${T("next")}</button>`:""}</div>
+      <div id="begNext"></div>
     </div>`);
-    if(prev!=null) begReveal(i,prev);
   }
   else if(u.t==="mem"){
     setView(`<div class="screen">${head}
@@ -2823,6 +2832,7 @@ function begAnswer(i,j){
   const q=BEGST.seq[i].q, corIdx=+q.answer-1, ok=j===corIdx;
   const b=getBeg(), k=qKey(q); const first=b.answered[k]==null;
   b.answered[k]=j; saveBeg(b);
+  if(!first && ok){ const p=getProg(); p.points+=2; checkBadges(p); saveProg(p); } // الإعادة بتشجع بالنقاط
   if(first){
     const p=getProg(), tp=topicOf(q);
     p.answered++; if(ok){p.correct++; p.points+=2;}
