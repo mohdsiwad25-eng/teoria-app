@@ -14,7 +14,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>توريا فلسطين — المدرب محمد سواد</title>
+<title>توريا فلسطين — دراسة التوريا بالذكاء الاصطناعي 🚗</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@400;500;700;800;900&display=swap" rel="stylesheet">
@@ -703,13 +703,13 @@ html[data-theme="light"] select,html[data-theme="light"] textarea,html[data-them
 
 <script>
 /* ==================================================================
-   توريا فلسطين  —  تطبيق دراسة التوريا  |  المدرب محمد سواد — بيت لحم
+   توريا فلسطين  —  دراسة التوريا بالذكاء الاصطناعي  |  teoriaai.com
    ================================================================== */
 
 const CFG = {
-  VERSION: "6.0.0",       // ⬅ غيّر هذا الرقم مع كل تحديث ترفعه (مثلاً 2.0.1)
+  VERSION: "6.0.1",       // ⬅ غيّر هذا الرقم مع كل تحديث ترفعه (مثلاً 2.0.1)
   REPO: "mohdsiwad25-eng/teoria-app",
-  INSTRUCTOR: "المدرب محمد سواد",
+  INSTRUCTOR: "توريا فلسطين",
   AREA: "بيت لحم",
   WHATSAPP: "970569999478",
   SNAP: "bethlehem.2024",
@@ -995,7 +995,7 @@ function renderClosed(msg){
   root.innerHTML=`<div class="center-screen">
     <div style="font-size:52px">🔒</div>
     <div style="font-weight:900;font-size:22px">${A("التطبيق مغلق حالياً","The app is currently closed")}</div>
-    <div style="color:var(--muted);font-size:16px">${esc(msg||A("رجاءً حاول لاحقاً. للتواصل والحجز مع المدرب محمد سواد:","Please try again later. To contact Instructor Mohammad Siwad:"))}</div>
+    <div style="color:var(--muted);font-size:16px">${esc(msg||A("رجاءً حاول لاحقاً — أو تواصل معنا واتساب:","Please try again later — or reach us on WhatsApp:"))}</div>
     <a class="btn" style="max-width:240px;margin:8px auto;text-decoration:none" href="https://wa.me/${CFG.WHATSAPP}">${A("تواصل عبر واتساب","Contact on WhatsApp")}</a>
   </div>`;
 }
@@ -1004,7 +1004,7 @@ function renderClosed(msg){
 function chrome(active){
   return `<div class="topbar">
     <div class="logo" onclick="home()"><svg viewBox="0 0 24 24" fill="none"><path d="M12 2L3 6v6c0 5 3.8 8.5 9 10 5.2-1.5 9-5 9-10V6l-9-4z" fill="#fff"/><path d="M12 7v5l3 2" stroke="#154A97" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-    <div><h1>${A("توريا فلسطين","Theory Palestine")}</h1><div class="sub">${A(CFG.INSTRUCTOR+" — "+CFG.AREA,"Instructor Mohammad Siwad — Bethlehem")}</div></div>
+    <div><h1>${A("توريا فلسطين","Theory Palestine")}</h1><div class="sub">${A("دراسة التوريا بالذكاء الاصطناعي","AI-powered Theory study")}</div></div>
     ${AUTH.ok()?`<button class="tts-tgl" onclick="logout()" title="${A('تسجيل خروج','Sign out')}">🚪</button>`:""}
     <button class="tts-tgl" onclick="themeToggle()" title="${A('الوضع الليلي','Dark mode')}">${isDark()?"☀️":"🌙"}</button>
     <button class="tts-tgl" onclick="langToggle()" title="العربية / English" style="font-size:12px;font-weight:900">${isEN()?"ع":"EN"}</button>
@@ -1651,7 +1651,7 @@ function landing(){
       <div class="feat">2️⃣ ${A("حِل الامتحانات","Do the exams")}</div>
       <div class="feat">3️⃣ ${A("انجح وشارك شهادتك","Pass & share it")}</div>
     </div>
-    <div class="l-foot">👨‍🏫 <b>${A(CFG.INSTRUCTOR,"Instructor Mohammad Siwad")}</b> — ${A(CFG.AREA,"Bethlehem")}</div>
+    <div class="l-foot">🚗 <b>${A("توريا فلسطين","Teoria Palestine")}</b> — teoriaai.com</div>
   </div></div>`;
   TP.log('view_landing');
 }
@@ -2068,7 +2068,7 @@ function renderQ(){
       ${STATE.endAt?`<div class="timer" id="timer">⏱ --:--</div>`:''}
     </div>
     <div class="q-card">
-      <div class="wm">${A(CFG.INSTRUCTOR,"Instructor Mohammad Siwad")} · ${CFG.SNAP}</div>
+      <div class="wm">TeoriaAI · teoriaai.com</div>
       <button class="flag-btn ${isFlagged(qKey(q))?'on':''}" id="flagBtn" onclick="toggleFlag('${qKey(q)}')" title="${A('علّم للمراجعة','Flag for review')}">
         <svg viewBox="0 0 24 24" fill="none"><path d="M5 21V4h11l-1.5 4L16 12H5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
         <span id="flagTxt">${isFlagged(qKey(q))?T('flagged_q'):T('flag_q')}</span>
@@ -2260,7 +2260,7 @@ function welcomeIfFirst(){
   ov.innerHTML=`<div class="ov-card" style="text-align:center">
     <div style="font-size:52px">👋</div>
     <h3>${A("أهلاً فيك بتطبيق التوريا!","Welcome to the Theory Test app!")}</h3>
-    <p style="line-height:1.9">${A(`أنا تطبيق <b>${CFG.INSTRUCTOR}</b> لدراسة التوريا بالذكاء الاصطناعي.<br>🌱 <b>أول مرة بالتوريا؟</b> ابدأ من قسم المبتدئين.<br>📝 <b>عندك خلفية؟</b> روح اختبر حالك مباشرة.`,`This is the AI-powered Theory Test app by <b>Instructor Mohammad Siwad</b>.<br>🌱 <b>New to the Theory Test?</b> Start with the Beginners Section.<br>📝 <b>Already know the basics?</b> Go straight to Test Yourself.`)}</p>
+    <p style="line-height:1.9">${A(`أنا مساعد <b>توريا فلسطين</b> — بدرسك التوريا بالذكاء الاصطناعي.<br>🌱 <b>أول مرة بالتوريا؟</b> ابدأ من قسم المبتدئين.<br>📝 <b>عندك خلفية؟</b> روح اختبر حالك مباشرة.`,`I'm the <b>Teoria Palestine</b> AI tutor — here to get you through the Theory Test.<br>🌱 <b>New to the Theory Test?</b> Start with the Beginners Section.<br>📝 <b>Already know the basics?</b> Go straight to Test Yourself.`)}</p>
     <button class="btn" style="background:linear-gradient(135deg,#1f8a55,#136b40)" onclick="STORE.set('tp_welcomed',true);this.closest('.ov').remove();begHub()">${A("🌱 ابدأ من قسم المبتدئين","🌱 Start with the Beginners Section")}</button>
     <button class="btn ghost" onclick="STORE.set('tp_welcomed',true);this.closest('.ov').remove()">${A("بعرف التطبيق — يلا","I know the app — go")}</button>
   </div>`;
@@ -2303,7 +2303,7 @@ function certificate(){
         <div class="cert-score">${correct}/${total} · ${pct}%</div>
         <div class="cert-foot">
           <div>📅 ${date}</div>
-          <div>👨‍🏫 ${A(CFG.INSTRUCTOR,"Instructor Mohammad Siwad")}</div>
+          <div>🚗 ${A("توريا فلسطين","Teoria Palestine")} · teoriaai.com</div>
         </div>
         <div class="cert-wa">${A(`📲 للحجز: واتساب ${CFG.WHATSAPP} · سناب ${CFG.SNAP}`,`📲 Bookings: WhatsApp ${CFG.WHATSAPP} · Snap ${CFG.SNAP}`)}</div>
       </div>
