@@ -649,6 +649,36 @@ html[data-theme="light"] select,html[data-theme="light"] textarea,html[data-them
 .an-tgl{flex:none;border:1.5px solid var(--line);background:var(--surface);color:var(--muted);
   border-radius:11px;padding:7px 10px;font-family:inherit;font-size:11.5px;font-weight:600;cursor:pointer}
 .an-tgl.on{border-color:var(--primary);color:var(--primary);background:var(--primary-l)}
+
+.h6{padding:2px 2px 0}
+.h6-hero{text-align:center;padding:26px 0 20px}
+.h6-logo{width:66px;height:66px;margin:0 auto 14px;border-radius:20px;background:linear-gradient(140deg,var(--primary),#1E40AF);display:grid;place-items:center;box-shadow:0 14px 34px var(--glow)}
+.h6-logo svg{width:36px;height:36px}
+.h6-hero h2{font-size:23px;font-weight:700;letter-spacing:-.5px;line-height:1.5}
+.h6-hero h2 span{background:linear-gradient(90deg,var(--primary),#22C55E);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.h6-hero p{color:var(--muted);font-size:12.5px;font-weight:300;margin-top:8px}
+.h6-enter{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:18px;margin-bottom:18px}
+.h6-hint{text-align:center;font-size:11.5px;color:var(--muted);font-weight:300;margin-top:10px}
+.h6-greet{font-size:15px;font-weight:300;margin:8px 2px 14px;color:var(--muted)}
+.h6-greet b{color:var(--ink);font-weight:600}
+.h6-smart{width:100%;display:flex;align-items:center;gap:12px;text-align:start;cursor:pointer;
+  background:linear-gradient(135deg,var(--primary),var(--primary-d));border:none;border-radius:16px;
+  padding:13px 16px;color:#fff;font-family:inherit;margin-bottom:16px;box-shadow:0 10px 26px var(--glow);transition:transform .13s}
+.h6-smart:active{transform:scale(.985)}
+.h6-smart .pct{flex:none;font-weight:800;font-size:16px;background:rgba(255,255,255,.16);border-radius:10px;padding:6px 10px}
+.h6-smart .tt{flex:1;font-size:14px;font-weight:600;letter-spacing:-.2px}
+.h6-smart .ar{opacity:.6}
+.h6-secs{display:grid;gap:10px;margin-bottom:6px}
+.h6-secs.dim{opacity:.85}
+.h6-card{display:flex;align-items:center;gap:14px;width:100%;text-align:start;cursor:pointer;
+  background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:17px 15px;
+  font-family:inherit;color:var(--ink);transition:transform .12s,border-color .15s}
+.h6-card:active{transform:scale(.985)}
+.h6-card .ic{width:46px;height:46px;flex:none;border-radius:14px;background:var(--surface-2);display:grid;place-items:center;font-size:21px}
+.h6-card .tx{flex:1;min-width:0}
+.h6-card .tx b{display:block;font-size:15.5px;font-weight:600;letter-spacing:-.2px;margin-bottom:2px}
+.h6-card .tx span{font-size:12px;color:var(--muted);font-weight:300}
+.h6-card .ar{color:var(--muted);font-size:17px}
 </style>
 </head>
 <body>
@@ -677,7 +707,7 @@ html[data-theme="light"] select,html[data-theme="light"] textarea,html[data-them
    ================================================================== */
 
 const CFG = {
-  VERSION: "5.5.3",       // ⬅ غيّر هذا الرقم مع كل تحديث ترفعه (مثلاً 2.0.1)
+  VERSION: "6.0.0",       // ⬅ غيّر هذا الرقم مع كل تحديث ترفعه (مثلاً 2.0.1)
   REPO: "mohdsiwad25-eng/teoria-app",
   INSTRUCTOR: "المدرب محمد سواد",
   AREA: "بيت لحم",
@@ -714,7 +744,7 @@ const LET = ['a','b','c','d'], LET_AR = ['أ','ب','ج','د'];
 let DATA=null, ALLQ=[], STATE={};
 
 /* ============ نظام اللغتين (i18n) ============ */
-let LANG = localStorage.getItem("tp_lang") || null; // 'ar' | 'en' | null=لسا ما اختار
+let LANG = localStorage.getItem("tp_lang") || "ar"; // 'ar' | 'en' | null=لسا ما اختار
 let TR = {questions:{},signals:{}}; // ترجمات الأسئلة والإشارات (تُحمّل من ملف)
 const I18N = {
   // التنقل
@@ -790,7 +820,7 @@ function applyLangDir(){
 function setLang(l){
   LANG=l; localStorage.setItem("tp_lang",l); applyLangDir();
   const ov=document.querySelector(".lang-ov"); if(ov)ov.remove();
-  if(isEN()) loadEnOverlay().then(()=>landing()); else landing();
+  if(isEN()) loadEnOverlay().then(()=>home()); else home();
 }
 function langToggle(){ setLang(isEN()?"ar":"en"); }
 function isDark(){ return (localStorage.getItem("tp_theme")||"dark")==="dark"; }
@@ -951,8 +981,7 @@ async function boot(){
     applyLangDir();
     if(isEN()) await loadEnOverlay();
     if(!CFG.FIREBASE) TP.log('visit');
-    if(!LANG){ landing(); langPicker(); }
-    else landing();
+    home();
   }catch(e){
     root.innerHTML=`<div class="center-screen"><div style="font-size:42px">⚠️</div>
     <div style="font-weight:800;font-size:18px">${A("تعذّر تحميل الأسئلة","Could not load the questions")}</div>
@@ -974,13 +1003,11 @@ function renderClosed(msg){
 /* ================= الهيكل العام ================= */
 function chrome(active){
   return `<div class="topbar">
-    <div class="logo" onclick="landing()"><svg viewBox="0 0 24 24" fill="none"><path d="M12 2L3 6v6c0 5 3.8 8.5 9 10 5.2-1.5 9-5 9-10V6l-9-4z" fill="#fff"/><path d="M12 7v5l3 2" stroke="#154A97" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+    <div class="logo" onclick="home()"><svg viewBox="0 0 24 24" fill="none"><path d="M12 2L3 6v6c0 5 3.8 8.5 9 10 5.2-1.5 9-5 9-10V6l-9-4z" fill="#fff"/><path d="M12 7v5l3 2" stroke="#154A97" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
     <div><h1>${A("توريا فلسطين","Theory Palestine")}</h1><div class="sub">${A(CFG.INSTRUCTOR+" — "+CFG.AREA,"Instructor Mohammad Siwad — Bethlehem")}</div></div>
     ${AUTH.ok()?`<button class="tts-tgl" onclick="logout()" title="${A('تسجيل خروج','Sign out')}">🚪</button>`:""}
-    <button class="tts-tgl" onclick="sfxToggle(event)" title="${A('الأصوات','Sounds')}">${FX.isOn()?"🔊":"🔈"}</button>
     <button class="tts-tgl" onclick="themeToggle()" title="${A('الوضع الليلي','Dark mode')}">${isDark()?"☀️":"🌙"}</button>
     <button class="tts-tgl" onclick="langToggle()" title="العربية / English" style="font-size:12px;font-weight:900">${isEN()?"ع":"EN"}</button>
-    <button class="tts-tgl" onclick="ttsToggle()" title="${A('تشغيل/إيقاف الصوت','Sound on/off')}">${TTS.on?"🔊":"🔇"}</button>
     <div id="streakChip" class="streak-chip"></div>
   </div>
   
@@ -1362,142 +1389,7 @@ async function authPing(){
     if(d && d.ok===0 && AUTH.ok()){ suspendedScreen(); }  // رد قاطع فقط
   }catch(e){ /* نت واقع؟ منسيبه يدرس */ }
 }
-function authWelcome(){
-  TP.log('auth_welcome');
-  root.innerHTML=chrome(null);
-  setView(`<div class="screen"><div class="path-head" style="margin-top:30px">
-    <div style="font-size:50px">🚗</div>
-    <h2>${A("أهلاً فيك بـ TeoriaAI","Welcome to TeoriaAI")}</h2>
-    <p>${A("رقم الواتساب وبتفوت","Your WhatsApp number and you're in")}</p></div>
-    <div class="card" style="display:block;padding:18px;margin-top:14px">
-      <input class="search-box" id="rPh" style="direction:ltr;text-align:center;font-size:19px;letter-spacing:1px" type="tel" inputmode="numeric" placeholder="0599999999" autocomplete="tel">
-      <div id="rErr" style="color:var(--danger);font-weight:800;font-size:13px;min-height:20px;margin-top:8px;text-align:center"></div>
-      <button class="btn" style="width:100%" id="rGo" onclick="doEnter()">${A("دخول ←","Enter")}</button>
-    </div>
-    <button class="path-skip" onclick="waTeacher()">${A("احكي مع المدرب 💬","Talk to the instructor 💬")}</button>
-  </div>`);
-}
-let FC={qs:[],i:0,know:0};
-function flashcards(){
-  const p=getProg();
-  let pool=(p.mistakes||[]).slice();
-  if(pool.length<3) pool=pool.concat(shuffle(ALLQ.slice()).slice(0, 10-pool.length));
-  FC={qs:shuffle(pool).slice(0,10), i:0, know:0};
-  if(!FC.qs.length) return home();
-  TP.log('flashcards');
-  fcDraw(false);
-}
-function fcDraw(flipped){
-  const q=FC.qs[FC.i], corTxt=stripCodes(tq(q,LET[+q.answer-1]));
-  root.innerHTML=chrome(null);
-  setView(`<div class="screen" style="text-align:center">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin:4px 2px 12px">
-      <span style="font-size:12.5px;color:var(--muted)">⚡ ${A("مراجعة سريعة","Quick review")}</span>
-      <span style="font-size:12.5px;color:var(--muted)">${FC.i+1} / ${FC.qs.length}</span>
-    </div>
-    <div class="hero" id="fcCard" style="padding:26px 18px;min-height:230px;display:grid;place-items:center;cursor:pointer">
-      ${!flipped?`
-        <div><div style="font-size:11px;color:var(--muted);letter-spacing:1.5px;margin-bottom:10px">${A("السؤال","QUESTION")}</div>
-        <div style="font-size:16.5px;font-weight:600;line-height:1.9">${esc(stripCodes(tq(q,"question")))}</div>
-        <div style="font-size:12px;color:var(--primary);margin-top:16px">${A("اكبس عالبطاقة تشوف الجواب 👆","Tap to reveal the answer 👆")}</div></div>`
-      :`
-        <div><div style="font-size:11px;color:var(--ok);letter-spacing:1.5px;margin-bottom:10px">✓ ${A("الجواب","ANSWER")}</div>
-        <div style="font-size:16.5px;font-weight:700;line-height:1.9;color:var(--ok)">${esc(corTxt)}</div></div>`}
-    </div>
-    ${flipped?`
-    <div class="row" style="display:flex;gap:9px;margin-top:14px">
-      <button class="btn g" style="flex:1" onclick="FX.ok();fcNext(1)">😎 ${A("عرفتها","Knew it")}</button>
-      <button class="btn r" style="flex:1;background:linear-gradient(135deg,#EF4444,#B91C1C)!important" onclick="FX.tap();fcNext(0)">🤔 ${A("ما عرفتها","Didn't")}</button>
-    </div>`:""}
-    <button class="path-skip" style="margin-top:12px" onclick="home()">${A("خلصت — رجعني","Done — take me back")}</button>
-  </div>`);
-  const card=document.getElementById("fcCard");
-  if(!flipped) card.onclick=()=>{ FX.tap(); fcDraw(true); };
-}
-function fcNext(knew){
-  if(knew)FC.know++;
-  const q=FC.qs[FC.i];
-  if(!knew){ // ما عرفها؟ ضمنها بأخطائه إذا مش موجودة
-    const p=getProg(), k=qKey(q);
-    if(!p.mistakes.some(m=>qKey(m)===k)){ p.mistakes.push({id:q.id,ex:q.ex,question:q.question,a:q.a,b:q.b,c:q.c,d:q.d,answer:q.answer}); saveProg(p); }
-  }
-  FC.i++;
-  if(FC.i>=FC.qs.length){
-    const pc=Math.round(FC.know/FC.qs.length*100);
-    if(pc>=70){ FX.win(); confetti(60); } else FX.ok();
-    root.innerHTML=chrome(null);
-    setView(`<div class="screen" style="text-align:center;padding-top:40px">
-      <div style="font-size:56px">${pc>=70?"🔥":"💪"}</div>
-      <h2 style="font-weight:700;margin:10px 0">${A("عرفت "+FC.know+" من "+FC.qs.length,"You knew "+FC.know+" of "+FC.qs.length)}</h2>
-      <p style="color:var(--muted);font-size:13px">${pc>=70?A("مستواك ممتاز — كمّل هيك","Excellent — keep it up"):A("اللي ما عرفتهم انحفظوا بأخطائك للمراجعة","The ones you missed were saved to your mistakes")}</p>
-      <div style="height:16px"></div>
-      <button class="btn" onclick="flashcards()">⚡ ${A("جولة ثانية","Another round")}</button>
-      <button class="btn ghost" style="margin-top:8px" onclick="home()">${A("الرئيسية","Home")}</button>
-    </div>`);
-    return;
-  }
-  fcDraw(false);
-}
-function tourIfFirst(){
-  if(STORE.get("tp_tour",false)) return;
-  const slides=[
-    ["🎯", A("جاهزيتك بتتحسب لحالها","Your readiness is auto-tracked"),
-      A("الحلقة بالرئيسية بتقيس دقتك وتغطيتك — كل سؤال بتحله بترفعها.","The ring on home measures your accuracy and coverage — every answer moves it.")],
-    ["🤖", A("الزر الأزرق بيفكر عنك","The blue button thinks for you"),
-      A("بيقرأ أخطاءك ونقاط ضعفك وبيقترح بالظبط شو تدرس هلأ — بس اتبعه.","It reads your mistakes and suggests exactly what to study next.")],
-    ["🎯", A("أخطاؤك = كنزك","Your mistakes are gold"),
-      A("كل غلطة بتنحفظ بقسم «أخطائي» مع شرح ليش غلطت — راجعها قبل التست وبتضمن.","Every mistake is saved with an explanation — review them before the test.")]
-  ];
-  let i=0;
-  const ov=document.createElement("div"); ov.className="ov";
-  function draw(){
-    const s=slides[i];
-    ov.innerHTML=`<div class="ov-card" style="text-align:center">
-      <div style="font-size:52px;margin-bottom:8px">${s[0]}</div>
-      <h3 style="font-weight:700">${s[1]}</h3>
-      <p style="color:var(--muted);font-size:13.5px;line-height:1.8;margin:8px 0 16px">${s[2]}</p>
-      <div style="display:flex;gap:6px;justify-content:center;margin-bottom:14px">
-        ${slides.map((_,k)=>`<span style="width:8px;height:8px;border-radius:50%;background:${k===i?'var(--primary)':'var(--line)'}"></span>`).join("")}
-      </div>
-      <button class="btn" style="width:100%" id="tourNext">${i<slides.length-1?A("التالي ←","Next"):A("يلا نبلّش 🚀","Let's go 🚀")}</button>
-      ${i<slides.length-1?`<button class="path-skip" id="tourSkip" style="margin-top:8px">${A("تخطّي","Skip")}</button>`:""}
-    </div>`;
-    ov.querySelector("#tourNext").onclick=()=>{ FX.tap(); if(i<slides.length-1){i++;draw();} else done(); };
-    const sk=ov.querySelector("#tourSkip"); if(sk) sk.onclick=done;
-  }
-  function done(){ STORE.set("tp_tour",true); ov.remove(); TP.log('tour_done'); }
-  draw(); document.body.appendChild(ov);
-}
-function examTips(){
-  TP.log('exam_tips');
-  root.innerHTML=chrome(null);
-  const tips=[
-    ["🕐", A("روح بكير","Arrive early"), A("كون بالمكتب قبل موعدك بنص ساعة — التوتر من العجلة بيخسرك أسئلة.","Be there 30 min early — rushing costs you questions.")],
-    ["🪪", A("شو تاخد معك","What to bring"), A("الهوية الأصلية + ورقة المدرسة. بدون هوية ما في امتحان.","Original ID + school paper. No ID, no exam.")],
-    ["❌", A("كم غلطة مسموح؟","How many mistakes allowed?"), A("النجاح من ٢٦/٣٠ — يعني معك ٤ أغلاط بس. عشان هيك كل سؤال بحسابه.","Pass is 26/30 — only 4 mistakes allowed.")],
-    ["🧠", A("اقرأ السؤال مرتين","Read twice"), A("نص الأخطاء من القراءة السريعة: كلمات زي «لا يجوز» و«إلا» و«ما عدا» بتقلب المعنى.","Half of mistakes come from fast reading: words like *except* flip the meaning.")],
-    ["⏱️", A("لا تعلق على سؤال","Don't get stuck"), A("صعب عليك؟ علّمه وكمّل — بترجعله بالآخر وراسك أهدى.","Hard one? Flag it, move on, come back calmer.")],
-    ["🎯", A("أول إحساس غالباً صح","First instinct"), A("لا تغيّر إجابتك إلا إذا متأكد ١٠٠٪ إنك فهمت غلط — التغيير العشوائي بيخسّر أكثر ما بيربّح.","Only change an answer if you're 100% sure you misread.")],
-    ["😮‍💨", A("ليلة الامتحان","Night before"), A("مراجعة أخطائك بس (مش كل شي) + نوم منيح. الدماغ المرتاح بيتذكر أحسن من السهران.","Review only your mistakes + sleep well.")],
-  ];
-  setView(`<div class="screen">
-    <div class="hero" style="padding:20px 18px;text-align:center">
-      <div style="font-size:40px">🎓</div>
-      <h2 style="font-size:18px;font-weight:600;margin-top:6px">${A("نصايح يوم الامتحان","Exam-day tips")}</h2>
-      <p style="color:var(--muted);font-size:12.5px;margin-top:4px">${A("من تجربة مئات الطلاب مع المدرب","From hundreds of students' experience")}</p>
-    </div>
-    <div class="tools">
-    ${tips.map(t=>`<div class="tool" style="cursor:default">
-      <span class="ti">${t[0]}</span>
-      <span class="tt"><b>${t[1]}</b><span style="white-space:normal;line-height:1.7">${t[2]}</span></span>
-    </div>`).join("")}
-    </div>
-    <div style="height:10px"></div>
-    <button class="btn" style="width:100%" onclick="FX.tap();gate('smart')">🤖 ${A("جهّز حالي بامتحان ذكي","Prep me with a smart exam")}</button>
-    <button class="btn ghost" style="width:100%;margin-top:8px" onclick="home()">${A("‹ الرئيسية","‹ Home")}</button>
-    <div style="height:14px"></div>
-  </div>`);
-}
+function authWelcome(){ home(); }
 function waTeacher(){ window.open("https://wa.me/"+CFG.WHATSAPP+"?text="+encodeURIComponent(A("مرحبا، بدي أسأل عن تطبيق TeoriaAI","Hi, I have a question about TeoriaAI")),"_blank"); }
 function nameStep(ph){
   root.innerHTML=chrome(null);
@@ -1767,144 +1659,99 @@ function enterApp(){ TP.log('enter_app'); $("#fab").style.display="flex"; home()
 
 /* ================= الرئيسية ================= */
 function home(){
-  if(!AUTH.ok()){ authWelcome(); return; }
   TP.log('home');
-  const p=getProg(), a=AUTH.get();
-  const nm=(a&&a.name)?a.name.trim():"";
-  const initial=nm?nm[0]:"👤";
-  // ---- حساب الجاهزية ----
-  const acc = p.answered>0 ? p.correct/p.answered : 0;
-  const cover = Math.min(1, p.answered/300);
-  const exams = Object.keys(p.exams||{}).length;
-  const examW = Math.min(1, exams/6);
-  const ready = Math.round((acc*0.55 + cover*0.25 + examW*0.20)*100);
-  // ---- الأقوى والأضعف ----
-  let weak=null, strong=null;
-  Object.entries(p.byTopic||{}).forEach(([k,v])=>{
-    if(!TOPICS[k] || v.seen<4) return;
-    const r=v.correct/v.seen;
-    if(!weak || r<weak.r) weak={k,r,seen:v.seen,miss:v.seen-v.correct};
-    if(!strong || r>strong.r) strong={k,r};
-  });
-  const tname=k=>isEN()?TOPICS[k].en:TOPICS[k].name;
-  // ---- الزر الذكي ----
-  let sm;
-  if(p.answered<5) sm={ic:"🚀",t:A("يلا نبلّش","Let's start"),s:A("امتحان قصير نشوف وين إنت","A quick exam to see where you are"),go:"gate('daily')"};
-  else if((p.mistakes||[]).length>=5) sm={ic:"🎯",t:A("راجع أخطاءك","Review your mistakes"),s:p.mistakes.length+" "+A("سؤال · حوالي "+Math.max(2,Math.round(p.mistakes.length*0.5))+" دقايق","questions · about "+Math.max(2,Math.round(p.mistakes.length*0.5))+" min"),go:"gate('mistakes')"};
-  else if(weak && weak.r<0.8) sm={ic:"🎯",t:A("راجع "+tname(weak.k),"Practice "+tname(weak.k)),s:A(weak.miss+" أخطاء متكررة هون","+"+weak.miss+" repeated mistakes here"),go:"pracTopic('"+weak.k+"')"};
-  else if(ready>=70) sm={ic:"🏛️",t:A("الامتحان الرسمي","The official exam"),s:A("٣٠ سؤال · ٤٠ دقيقة — إنت جاهز","30 questions · 40 min — you're ready"),go:"gate('exam')"};
-  else sm={ic:"📚",t:A("كمّل تمرين","Keep practicing"),s:A("امتحان جديد يقوّي جاهزيتك","A new exam to boost your readiness"),go:"gate('daily')"};
-  // ---- نص الحالة ----
-  let line;
-  if(p.answered<5) line=A("لسا ما بلّشنا — أول امتحان بيحدد نقطة البداية.","Let's find your starting point with a first exam.");
-  else line=(strong?A("أقوى إشي عندك: ","Strongest: ")+"<b>"+tname(strong.k)+"</b>. ":"")+
-       (weak&&weak.r<0.85?"<br>"+A("ضعفك: ","Weakest: ")+"<b>"+tname(weak.k)+"</b> — "+weak.miss+" "+A("أخطاء","mistakes"):"");
-  const title = ready>=85?A("إنت جاهز للتست 🎓","You're exam-ready 🎓")
-              : ready>=60?A("لسا شوي وبتوصل","Almost there")
-              : ready>=30?A("ماشي منيح","Making progress")
-              : A("يلا نبلّش","Let's begin");
-  const hh=new Date().getHours();
-  const greet = hh<12?A("صباح الخير","Good morning"):hh<18?A("مساء الخير","Good afternoon"):A("مسا الخير","Good evening");
-  const dash=283, off=Math.round(dash-(dash*ready/100));
-  const exDone=Object.keys(p.exams||{}).length;
-  const bestEx=Object.values(p.exams||{}).reduce((m,v)=>Math.max(m,(v&&v.best)||0),0);
-  const sigSeen=(p.byTopic&&p.byTopic.signs)?p.byTopic.signs.seen:0;
-
   root.innerHTML = chrome("home");
-  setTimeout(tourIfFirst, 600);
-  setView(`<div class="screen h5">
-    <div class="h5-greet">
-      <div class="av">${esc(initial)}</div>
-      <div class="who"><b>${greet}${nm?"، "+esc(nm):""}</b>
-        <span>${examCountdownText()}</span></div>
-    </div>
 
-    <div class="hero" style="padding:22px 18px 18px">
-      <div class="ring-row">
-        <div class="ring">
-          <svg width="104" height="104" viewBox="0 0 104 104">
-            <circle cx="52" cy="52" r="45" stroke="var(--line)" stroke-width="9" fill="none"/>
-            <circle class="p" cx="52" cy="52" r="45" stroke="url(#rg)" stroke-width="9" fill="none"
-              stroke-linecap="round" stroke-dasharray="${dash}" stroke-dashoffset="${dash}"/>
-            <defs><linearGradient id="rg" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0" stop-color="#3B82F6"/><stop offset="1" stop-color="#22C55E"/></linearGradient></defs>
-          </svg>
-          <div class="rval"><div><b>${ready}<span style="font-size:14px">%</span></b><i>${A("جاهزيتك","readiness")}</i></div></div>
-        </div>
-        <div class="h5-txt"><h2>${title}</h2><p>${line}</p></div>
+  // ---------- غير مسجل: الدخول هو الصفحة ----------
+  if(!AUTH.ok()){
+    setView(`<div class="screen h6">
+      <div class="h6-hero">
+        <div class="h6-logo"><svg viewBox="0 0 24 24" fill="none"><path d="M12 2L3 6v6c0 5 3.8 8.5 9 10 5.2-1.5 9-5 9-10V6l-9-4z" fill="#fff"/><path d="M12 7v5l3 2" stroke="#1E40AF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <h2>${A("توريا فلسطين <span>بالذكاء الاصطناعي</span>","Palestinian Theory <span>with AI</span>")}</h2>
+        <p>${A("٦٧٨ سؤال رسمي · كل الإشارات · مساعد بيشرحلك كل غلطة","678 official questions · all signs · AI tutor")}</p>
       </div>
-
-      <button class="smart" onclick="FX.tap();${sm.go}">
-        <span class="sq">${sm.ic}</span>
-        <span class="lb"><b>${sm.t}</b><span>${sm.s}</span></span>
-        <span class="ar">‹</span>
-      </button>
-
-      <div class="mini">
-        <div class="g"><b>${p.correct||0}</b><span>${A("إجابة صح","correct")}</span></div>
-        <div class="r"><b>${(p.mistakes||[]).length}</b><span>${A("غلط محفوظ","saved errors")}</span></div>
-        <div class="y"><b>${exDone}</b><span>${A("امتحان خلص","exams done")}</span></div>
+      <div class="h6-enter">
+        <input class="search-box" id="rPh" type="tel" inputmode="numeric" placeholder="0599999999" autocomplete="tel"
+          style="direction:ltr;text-align:center;font-size:20px;letter-spacing:1.5px" onkeydown="if(event.key==='Enter')doEnter()">
+        <div id="rErr" style="color:var(--danger);font-weight:700;font-size:13px;min-height:20px;margin-top:8px;text-align:center"></div>
+        <button class="btn" style="width:100%" id="rGo" onclick="doEnter()">${A("دخول ←","Enter")}</button>
+        <div class="h6-hint">${A("رقم الواتساب وبس — أول مرة بيوصلك كود لمرة وحدة","Just your WhatsApp number — first time gets a one-time code")}</div>
       </div>
-    </div>
+      <div class="h6-secs dim">
+        ${h6card("🌱",A("المبتدئين","Beginners"),A("تعلّم من الصفر خطوة خطوة","Learn from zero"),"h6need()")}
+        ${h6card("🏛️",A("أسئلة التوريا","Theory exams"),A("٢٣ امتحان رسمي كامل","23 official exams"),"h6need()")}
+        ${h6card("🤖",A("المساعد الذكي","AI Tutor"),A("اسأل عن أي شي بالتوريا","Ask anything"),"h6need()")}
+      </div>
+      <button class="path-skip" onclick="waTeacher()">${A("احكي مع المدرب 💬","Talk to the instructor 💬")}</button>
+    </div>`);
+    return;
+  }
 
-    <div class="sec-title">${A("الأدوات","Tools")}</div>
-    <div class="tools">
-      <button class="tool" onclick="FX.tap();gate('beg')">
-        <span class="ti">🌱</span>
-        <span class="tt"><b>${A("المبتدئين","Beginners")}</b><span>${A("تعلّم الإشارات والمواضيع من الصفر","Learn signs and topics from zero")}</span></span>
-        <span class="tc">›</span>
-      </button>
-      <button class="tool" onclick="FX.tap();gate('exam')">
-        <span class="ti">🏛️</span>
-        <span class="tt"><b>${A("الامتحان الرسمي","Official mock exam")}</b><span>${A("٣٠ سؤال · ٤٠ دقيقة","30 questions · 40 min")}</span></span>
-        ${bestEx?`<span class="tc">${bestEx}% ${A("أفضل","best")}</span>`:`<span class="tg">${A("جديد","new")}</span>`}
-      </button>
-      <button class="tool" onclick="FX.tap();gate('smart')">
-        <span class="ti">🤖</span>
-        <span class="tt"><b>${A("الامتحان الذكي","Smart exam")}</b><span>${A("٣٠ سؤال على مقاسك — من نقاط ضعفك وأخطائك","30 questions built from your weak spots")}</span></span>
-        <span class="tg">AI</span>
-      </button>
-      <button class="tool" onclick="FX.tap();gate('signals')">
-        <span class="ti">🚸</span>
-        <span class="tt"><b>${A("الإشارات","Road signs")}</b><span>${A("١٤١ إشارة بالصور","141 illustrated signs")}</span></span>
-        <span class="tc">${sigSeen?sigSeen+"/141":A("ابدأ","start")}</span>
-      </button>
-      <button class="tool" onclick="FX.tap();gate('mistakes')">
-        <span class="ti">🎯</span>
-        <span class="tt"><b>${A("أخطائي","My mistakes")}</b><span>${A("الأسئلة اللي غلطت فيها","Questions you got wrong")}</span></span>
-        ${(p.mistakes||[]).length?`<span class="tg">${p.mistakes.length}</span>`:`<span class="tc">✓</span>`}
-      </button>
-      <button class="tool" onclick="FX.tap();flashcards()">
-        <span class="ti">⚡</span>
-        <span class="tt"><b>${A("مراجعة سريعة","Quick review")}</b><span>${A("٥ دقايق بطاقات — من أخطائك","5-min flip cards from your mistakes")}</span></span>
-        <span class="tc">›</span>
-      </button>
-      <button class="tool" onclick="FX.tap();examTips()">
-        <span class="ti">🎓</span>
-        <span class="tt"><b>${A("نصايح يوم الامتحان","Exam-day tips")}</b><span>${A("شو تعمل وشو تتجنب بيوم التست","What to do on test day")}</span></span>
-        <span class="tc">›</span>
-      </button>
-      <button class="tool" onclick="FX.tap();window.open('/guide.html','_blank')">
-        <span class="ti">📖</span>
-        <span class="tt"><b>${A("دليل التوريا","Theory guide")}</b><span>${A("كتاب المدرب — افهم مش بس احفظ","The instructor's book — understand, don't memorize")}</span></span>
-        <span class="tc">›</span>
-      </button>
-      <button class="tool" onclick="FX.tap();gate('choose')">
-        <span class="ti">📚</span>
-        <span class="tt"><b>${A("كل الامتحانات","All exams")}</b><span>${A("٢٣ امتحان رسمي","23 official exams")}</span></span>
-        <span class="tc">${exDone}/23</span>
-      </button>
-      <button class="tool" onclick="FX.tap();qSearch()">
-        <span class="ti">🔎</span>
-        <span class="tt"><b>${A("ابحث بالأسئلة","Search questions")}</b><span>${A("لاقي أي سؤال بكلمة","Find any question by a word")}</span></span>
-        <span class="tc">›</span>
-      </button>
+  // ---------- مسجل: الأقسام مباشرة ----------
+  const p=getProg(), a=AUTH.get();
+  const nm=(a&&a.name)?a.name.trim().split(" ")[0]:"";
+  // سطر ذكي واحد مضغوط
+  const acc = p.answered>0 ? p.correct/p.answered : 0;
+  const ready = Math.round((acc*0.55 + Math.min(1,p.answered/300)*0.25 + Math.min(1,Object.keys(p.exams||{}).length/6)*0.20)*100);
+  let sm;
+  if(p.answered<5) sm={t:A("يلا نبلّش — أول تمرين","Start your first drill"),go:"gate('beg')"};
+  else if((p.mistakes||[]).length>=5) sm={t:A("راجع أخطاءك ("+p.mistakes.length+")","Review your "+p.mistakes.length+" mistakes"),go:"gate('mistakes')"};
+  else if(ready>=70) sm={t:A("إنت جاهز — جرّب الامتحان الرسمي","You're ready — take the mock"),go:"gate('exam')"};
+  else sm={t:A("كمّل من وين ما وقفت","Continue where you left off"),go:"gate('smart')"};
+  const hh=new Date().getHours();
+  const greet = hh<12?A("صباح الخير","Good morning"):hh<18?A("مسا الخير","Good afternoon"):A("مسا الخير","Good evening");
+
+  setView(`<div class="screen h6">
+    <div class="h6-greet">${greet}${nm?"، <b>"+esc(nm)+"</b>":""} 👋</div>
+    <button class="h6-smart" onclick="FX.tap();${sm.go}">
+      <span class="pct">${p.answered>=5?ready+"%":"🚀"}</span>
+      <span class="tt">${sm.t}</span><span class="ar">‹</span>
+    </button>
+
+    <div class="h6-secs">
+      ${h6card("🌱",A("المبتدئين","Beginners"),A("الإشارات والمواضيع — خطوة خطوة مع الشرح","Signs & topics — step by step"),"FX.tap();gate('beg')")}
+      ${h6card("🏛️",A("أسئلة التوريا","Theory exams"),A("٢٣ امتحان رسمي · ٣٠ سؤال بالامتحان","23 official exams"),"FX.tap();gate('choose')")}
+      ${h6card("🤖",A("المساعد الذكي","AI Tutor"),A("اسأل عن أي إشارة أو قانون — بيعرف مستواك","Ask anything — it knows your level"),"FX.tap();gate('chat')")}
+      ${h6card("⋯",A("المزيد","More"),A("امتحان ذكي · أخطائي · الكتاب · إعدادات","Smart exam · mistakes · the book"),"FX.tap();moreScreen()")}
     </div>
-    <div style="height:20px"></div>
+    <div style="height:14px"></div>
   </div>`);
-  // تحريك الحلقة
-  setTimeout(function(){ var c=document.querySelector(".ring circle.p"); if(c) c.style.strokeDashoffset=String(off); },60);
 }
+function h6card(ic,t,s,go){
+  return `<button class="h6-card" onclick="${go}">
+    <span class="ic">${ic}</span>
+    <span class="tx"><b>${t}</b><span>${s}</span></span>
+    <span class="ar">‹</span></button>`;
+}
+function h6need(){ FX.tap(); const el=document.getElementById("rPh"); if(el){ el.focus(); el.scrollIntoView({behavior:"smooth",block:"center"}); cheer(A("حط رقمك فوق وبتفوت ✨","Enter your number above ✨")); } }
+function moreScreen(){
+  TP.log('more');
+  const p=getProg();
+  root.innerHTML=chrome(null);
+  setView(`<div class="screen h6">
+    <div class="sec-title">${A("أدوات الدراسة","Study tools")}</div>
+    <div class="h6-secs">
+      ${h6card("🤖",A("الامتحان الذكي","Smart exam"),A("٣٠ سؤال من نقاط ضعفك","Built from your weak spots"),"FX.tap();gate('smart')")}
+      ${h6card("🚸",A("الإشارات","Road signs"),A("كل الإشارات بالصور — ٣ مجموعات","All signs, illustrated"),"FX.tap();gate('signals')")}
+      ${h6card("🎯",A("أخطائي","My mistakes"),(p.mistakes||[]).length+" "+A("سؤال محفوظ للمراجعة","saved for review"),"FX.tap();gate('mistakes')")}
+      ${h6card("⚡",A("مراجعة سريعة","Quick review"),A("بطاقات ٥ دقايق من أخطائك","5-min flip cards"),"FX.tap();flashcards()")}
+      ${h6card("📈",A("تقدّمي","My progress"),A("جاهزيتك ورسم علاماتك وخريطة مواضيعك","Readiness, trend & topic map"),"FX.tap();gate('progress')")}
+      ${h6card("🔎",A("ابحث بالأسئلة","Search"),A("لاقي أي سؤال بكلمة","Find any question"),"FX.tap();qSearch()")}
+    </div>
+    <div class="sec-title">${A("قبل الامتحان","Before the test")}</div>
+    <div class="h6-secs">
+      ${h6card("📖",A("كتاب التوريا","The theory book"),A("قواعد السير كاملة بأسلوب المدرب","All the rules, instructor style"),"FX.tap();window.open('/guide.html','_blank')")}
+      ${h6card("🎓",A("نصايح يوم الامتحان","Exam-day tips"),A("شو تعمل وشو تتجنب","Do's and don'ts"),"FX.tap();examTips()")}
+    </div>
+    <div class="sec-title">${A("إعدادات","Settings")}</div>
+    <div class="h6-secs">
+      ${h6card(FX.isOn()?"🔊":"🔈",A("الأصوات والتشجيع","Sounds"),FX.isOn()?A("شغالة — اكبس للإطفاء","On — tap to mute"):A("مسكّرة — اكبس للتشغيل","Off — tap to enable"),"sfxToggle(event);moreScreen()")}
+    </div>
+    <div style="height:10px"></div>
+    <button class="btn ghost" style="width:100%" onclick="home()">${A("‹ الرئيسية","‹ Home")}</button>
+  </div>`);
+}
+
 function examCountdownText(){
   const d=getProg().examDate||null;
   if(!d) return A("حدّد تاريخ امتحانك من تقدّمي","Set your exam date in Progress");
