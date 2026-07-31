@@ -703,6 +703,10 @@ html[data-theme="light"] select,html[data-theme="light"] textarea,html[data-them
 .rvw-why{background:var(--primary-l);border-inline-start:3px solid var(--primary);border-radius:11px;
   padding:11px 13px;font-size:13px;font-weight:400;line-height:1.85;margin-top:9px}
 .rvw-why b{font-weight:800}
+
+.rvw-q img{vertical-align:middle;margin:4px 5px;border-radius:8px;background:#fff;padding:3px}
+.rvw-row span img{vertical-align:middle;margin:2px 4px;border-radius:7px;background:#fff;padding:2px}
+.rvw-q .sig-chip,.rvw-row .sig-chip{display:inline-block;background:var(--surface-2);border-radius:7px;padding:1px 7px;font-size:12px;font-weight:700}
 </style>
 </head>
 <body>
@@ -731,7 +735,7 @@ html[data-theme="light"] select,html[data-theme="light"] textarea,html[data-them
    ================================================================== */
 
 const CFG = {
-  VERSION: "6.2.1",       // ⬅ غيّر هذا الرقم مع كل تحديث ترفعه (مثلاً 2.0.1)
+  VERSION: "6.2.2",       // ⬅ غيّر هذا الرقم مع كل تحديث ترفعه (مثلاً 2.0.1)
   REPO: "mohdsiwad25-eng/teoria-app",
   INSTRUCTOR: "توريا فلسطين",
   AREA: "بيت لحم",
@@ -2264,20 +2268,24 @@ function reviewWrong(){
   TP.log('review_wrong',{n:items.length});
   root.innerHTML=chrome(null);
   const cards=items.map((it,n)=>{
-    const q=it.q, corTxt=stripCodes(tq(q,it.corL));
+    const q=it.q;
+    const corRaw=tq(q,it.corL);
+    const corHtml=renderSig(corRaw, isImgOnly(corRaw));
     const skipped = it.userL==null;
-    const yourTxt = skipped ? A("ما جاوبت هالسؤال","Not answered") : stripCodes(tq(q,it.userL));
+    const yourRaw = skipped ? "" : tq(q,it.userL);
+    const yourHtml = skipped ? esc(A("ما جاوبت هالسؤال","Not answered")) : renderSig(yourRaw, isImgOnly(yourRaw));
     const why = skipped ? null : wrongExplFor(q, it.userL);
+    const qRaw=tq(q,"question");
     return `<div class="rvw-card">
       <div class="rvw-n">${n+1}</div>
-      <div class="rvw-q">${esc(stripCodes(tq(q,"question")))}</div>
+      <div class="rvw-q">${renderSig(qRaw, true)}</div>
       <div class="rvw-row bad">
         <span class="rvw-lb">${skipped?"⏭️":"❌"}</span>
-        <div><b>${A("اخترت","You chose")}</b><span>${esc(yourTxt)}</span></div>
+        <div><b>${A("اخترت","You chose")}</b><span>${yourHtml}</span></div>
       </div>
       <div class="rvw-row good">
         <span class="rvw-lb">✓</span>
-        <div><b>${A("الصح","Correct")}</b><span>${esc(corTxt)}</span></div>
+        <div><b>${A("الصح","Correct")}</b><span>${corHtml}</span></div>
       </div>
       ${why?`<div class="rvw-why"><b>💡 ${A("ليش؟","Why?")}</b> ${esc(why)}</div>`:""}
     </div>`;
