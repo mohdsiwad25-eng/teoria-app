@@ -4,7 +4,7 @@
 <script>if(/github\.io$/.test(location.hostname)){location.replace("https://teoriaai.com/");}</script>
 <meta charset="UTF-8">
 <link rel="manifest" href="/manifest.json">
-<meta name="theme-color" content="#0B0E14">
+<meta name="theme-color" content="#F8F5F5">
 <link rel="apple-touch-icon" href="/icon-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -17,7 +17,7 @@
 <title>توريا فلسطين — دراسة التوريا بالذكاء الاصطناعي 🚗</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@400;500;700;800;900&family=Tajawal:wght@400;500;700;800;900&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Almarai:wght@400;700;800&display=swap" rel="stylesheet">
 <style>
 /* ============ الهوية والتصميم ============ */
 :root{
@@ -485,26 +485,28 @@ body{background:var(--bg)}
    TEORIA AI — DESIGN v5 · غامق · حديث · متكتك
    ============================================================ */
 :root{
-  --bg:#20242B; --surface:#2A2F39; --surface-2:#333944;
-  --ink:#F4F5F3; --muted:#A0A6B0; --line:rgba(255,255,255,.08);
-  --primary:#F4B41A; --primary-d:#DFA000; --primary-l:#3A3320;
-  --accent:#F4B41A; --danger:#E4573F; --danger-l:#3A211C;
-  --ok:#3DBE72; --ok-l:#1E2E24;
+  --bg:#1A1416; --surface:#241B1E; --surface-2:#2E2226;
+  --ink:#F6F1F2; --muted:#A79A9C; --line:rgba(255,255,255,.09);
+  --primary:#D45A64; --primary-d:#B33F4A; --primary-l:#3A2126;
+  --accent:#D9A441; --danger:#E07A4E; --danger-l:#3A241C;
+  --ok:#4FBF88; --ok-l:#1D2E26;
+  --asphalt:#8A2A34; --asphalt-2:#5E1B22;
   --glow:rgba(244,180,26,.22);
   --shadow:0 16px 44px rgba(0,0,0,.5); --shadow-s:0 4px 16px rgba(0,0,0,.3);
   --r:22px; --r-s:15px;
 }
 html[data-theme="light"]{
-  --bg:#F3F4F1; --surface:#FFFFFF; --surface-2:#FBFBF8;
-  --ink:#191B1F; --muted:#5C616B; --line:#E4E5E0;
-  --primary:#DFA000; --primary-d:#C08D00; --primary-l:#FCF6E6;
-  --accent:#DFA000; --danger:#C23A28; --danger-l:#FBEDEA;
-  --ok:#178A50; --ok-l:#E9F5EC;
-  --glow:rgba(244,180,26,.2);
-  --shadow:0 16px 40px rgba(14,20,32,.1); --shadow-s:0 3px 14px rgba(14,20,32,.06);
+  --bg:#F8F5F5; --surface:#FFFFFF; --surface-2:#F4EEEE;
+  --ink:#171214; --muted:#77696B; --line:#EDE5E5;
+  --primary:#B32E39; --primary-d:#8A1F28; --primary-l:#FAF0F1;
+  --accent:#B07A15; --danger:#C2410C; --danger-l:#FDEFE7;
+  --ok:#0E7C4A; --ok-l:#E6F4EC;
+  --asphalt:#9B2731; --asphalt-2:#701A22;
+  --glow:rgba(179,46,57,.16);
+  --shadow:0 18px 42px rgba(60,20,26,.10); --shadow-s:0 2px 12px rgba(60,20,26,.06);
 }
-body{background:var(--bg); color:var(--ink); font-family:'Alexandria','IBM Plex Sans Arabic',sans-serif; font-size:15.5px; line-height:1.75}
-h1,h2,.h6-hero h2,.brand,.h6-smart .tt,.ch-head h2{font-family:'Tajawal','Alexandria',sans-serif;font-weight:800}
+body{background:var(--bg); color:var(--ink); font-family:'Almarai',system-ui,sans-serif; font-size:16px; line-height:1.85; letter-spacing:-.1px}
+h1,h2,.h6-hero h2,.brand,.h6-card .tx b,.rvw-head h2,.rvw-q{font-family:'Almarai',sans-serif;font-weight:800;letter-spacing:-.2px}
 body::before{content:"";position:fixed;top:-30%;left:50%;transform:translateX(-50%);
   width:140%;height:56vh;pointer-events:none;z-index:0;
   background:radial-gradient(ellipse at center, var(--glow), transparent 65%)}
@@ -662,25 +664,36 @@ html[data-theme="light"] select,html[data-theme="light"] textarea,html[data-them
 .h6-hero p{color:var(--muted);font-size:12.5px;font-weight:300;margin-top:8px}
 .h6-enter{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:18px;margin-bottom:18px}
 .h6-hint{text-align:center;font-size:11.5px;color:var(--muted);font-weight:300;margin-top:10px}
-.h6-greet{font-size:15px;font-weight:300;margin:8px 2px 14px;color:var(--muted)}
+.h6-greet{font-size:15px;font-weight:300;margin:10px 2px 12px;color:var(--muted)}
+.lane{height:3px;margin:0 2px 16px;border-radius:2px;
+  background-image:repeating-linear-gradient(90deg,var(--line) 0 20px,transparent 20px 36px)}
 .h6-greet b{color:var(--ink);font-weight:600}
-.h6-smart{width:100%;display:flex;align-items:center;gap:12px;text-align:start;cursor:pointer;
-  background:linear-gradient(135deg,var(--primary),var(--primary-d));border:none;border-radius:16px;
-  padding:13px 16px;color:#20242B;font-family:inherit;margin-bottom:16px;box-shadow:0 10px 26px var(--glow);transition:transform .13s}
+.h6-smart{position:relative;overflow:hidden;width:100%;display:flex;align-items:center;gap:12px;
+  text-align:start;cursor:pointer;background:var(--asphalt);border:none;border-radius:16px;
+  padding:16px 16px;color:#F7F8F6;font-family:inherit;margin-bottom:18px;
+  box-shadow:0 12px 28px rgba(21,24,27,.22);transition:transform .13s}
+/* خط المسلك المتقطع — توقيع الهوية */
+.h6-smart::after{content:"";position:absolute;inset-inline:0;bottom:0;height:3px;
+  background-image:repeating-linear-gradient(90deg,var(--primary) 0 18px,transparent 18px 34px);opacity:.9}
+.h6-smart::before{content:"";position:absolute;inset-inline-end:-30px;top:-40px;width:120px;height:120px;
+  background:radial-gradient(circle,rgba(233,164,0,.16),transparent 70%);pointer-events:none}
 .h6-smart:active{transform:scale(.985)}
-.h6-smart .pct{flex:none;font-weight:800;font-size:16px;background:rgba(32,36,43,.16);border-radius:10px;padding:6px 10px}
-.h6-smart .tt{flex:1;font-size:14px;font-weight:600;letter-spacing:-.2px}
-.h6-smart .ar{opacity:.6}
+.h6-smart .pct{flex:none;font-family:'Changa',sans-serif;font-weight:700;font-size:17px;color:var(--primary);background:rgba(233,164,0,.14);border:1px solid rgba(233,164,0,.3);border-radius:11px;padding:5px 11px}
+.h6-smart .tt{flex:1;font-size:14px;font-weight:500;letter-spacing:-.2px;line-height:1.6}
+.h6-smart .ar{opacity:.5;font-size:18px}
 .h6-secs{display:grid;gap:10px;margin-bottom:6px}
 .h6-secs.dim{opacity:.85}
-.h6-card{display:flex;align-items:center;gap:14px;width:100%;text-align:start;cursor:pointer;
-  background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:17px 15px;
-  font-family:inherit;color:var(--ink);transition:transform .12s,border-color .15s}
+.h6-card{position:relative;overflow:hidden;display:flex;align-items:center;gap:13px;width:100%;
+  text-align:start;cursor:pointer;background:var(--surface);border:1px solid var(--line);border-radius:20px;
+  padding:15px 14px;font-family:inherit;color:var(--ink);
+  box-shadow:var(--shadow-s);transition:transform .14s,box-shadow .2s}
+.h6-card::before{content:"";position:absolute;inset-block:0;inset-inline-start:0;width:4px;background:var(--line);transition:background .18s}
+.h6-card:active::before{background:var(--primary)}
 .h6-card:active{transform:scale(.985)}
-.h6-card .ic{width:46px;height:46px;flex:none;border-radius:14px;background:var(--surface-2);display:grid;place-items:center;font-size:21px}
+.h6-card .ic{width:47px;height:47px;flex:none;border-radius:15px;background:var(--surface-2);border:1px solid var(--line);display:grid;place-items:center;font-size:21px}
 .h6-card .tx{flex:1;min-width:0}
-.h6-card .tx b{display:block;font-size:15.5px;font-weight:600;letter-spacing:-.2px;margin-bottom:2px}
-.h6-card .tx span{font-size:12px;color:var(--muted);font-weight:300}
+.h6-card .tx b{display:block;font-size:16.5px;font-weight:800;letter-spacing:-.2px;margin-bottom:2px}
+.h6-card .tx span{font-size:12.5px;color:var(--muted);font-weight:400;line-height:1.65}
 .h6-card .ar{color:var(--muted);font-size:17px}
 
 .rvw-head{text-align:center;padding:16px 0 14px}
@@ -707,6 +720,29 @@ html[data-theme="light"] select,html[data-theme="light"] textarea,html[data-them
 .rvw-q img{vertical-align:middle;margin:4px 5px;border-radius:8px;background:#fff;padding:3px}
 .rvw-row span img{vertical-align:middle;margin:2px 4px;border-radius:7px;background:#fff;padding:2px}
 .rvw-q .sig-chip,.rvw-row .sig-chip{display:inline-block;background:var(--surface-2);border-radius:7px;padding:1px 7px;font-size:12px;font-weight:700}
+
+.h6-hero-card{position:relative;overflow:hidden;border-radius:24px;padding:20px;margin:2px 0 20px;
+  background:linear-gradient(150deg,#B83B45 0%,#9B2731 55%,#701A22 130%);
+  color:#fff;box-shadow:0 16px 36px rgba(112,26,34,.26)}
+html[data-theme="dark"] .h6-hero-card{background:linear-gradient(150deg,#8A2A34 0%,#70202A 55%,#4A1219 130%)}
+.h6-hero-card::after{content:"";position:absolute;inset-inline-end:-60px;top:-70px;width:210px;height:210px;
+  border-radius:50%;background:rgba(255,255,255,.09)}
+.h6-hero-card::before{content:"";position:absolute;inset-inline-end:-10px;bottom:-90px;width:150px;height:150px;
+  border-radius:50%;background:rgba(255,255,255,.06)}
+.hh-lbl{position:relative;font-size:11.5px;font-weight:400;opacity:.85;letter-spacing:.3px}
+.hh-big{position:relative;display:flex;align-items:baseline;gap:6px;margin:2px 0 3px}
+.hh-big b{font-size:42px;font-weight:800;letter-spacing:-2px;line-height:1}
+.hh-big i{font-style:normal;font-size:15px;font-weight:700;opacity:.85}
+.hh-sub{position:relative;font-size:13px;font-weight:400;opacity:.93;line-height:1.7}
+.hh-bar{position:relative;height:7px;border-radius:6px;background:rgba(255,255,255,.22);margin:13px 0 15px;overflow:hidden}
+.hh-bar i{display:block;height:100%;border-radius:6px;background:#fff;box-shadow:0 0 12px rgba(255,255,255,.5);
+  transition:width .9s cubic-bezier(.2,.8,.2,1)}
+.hh-cta{position:relative;display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;
+  cursor:pointer;border:none;font-family:inherit;background:#fff;color:var(--primary-d);
+  border-radius:15px;padding:13px 16px;font-size:14.5px;font-weight:800;
+  box-shadow:0 8px 20px rgba(40,10,14,.18);transition:transform .13s}
+.hh-cta:active{transform:scale(.985)}
+.hh-cta span{font-size:17px}
 </style>
 </head>
 <body>
@@ -735,7 +771,7 @@ html[data-theme="light"] select,html[data-theme="light"] textarea,html[data-them
    ================================================================== */
 
 const CFG = {
-  VERSION: "6.2.2",       // ⬅ غيّر هذا الرقم مع كل تحديث ترفعه (مثلاً 2.0.1)
+  VERSION: "7.0.0",       // ⬅ غيّر هذا الرقم مع كل تحديث ترفعه (مثلاً 2.0.1)
   REPO: "mohdsiwad25-eng/teoria-app",
   INSTRUCTOR: "توريا فلسطين",
   AREA: "بيت لحم",
@@ -851,7 +887,7 @@ function setLang(l){
   if(isEN()) loadEnOverlay().then(()=>home()); else home();
 }
 function langToggle(){ setLang(isEN()?"ar":"en"); }
-function isDark(){ return (localStorage.getItem("tp_theme")||"dark")==="dark"; }
+function isDark(){ return (localStorage.getItem("tp_theme")||"light")==="dark"; }
 function applyTheme(){ document.documentElement.dataset.theme = isDark()?"dark":"light"; }
 function logout(){
   if(!confirm(A("بدك تسجّل خروج؟ تقدمك محفوظ وبترجع تفوت برقمك بأي وقت.","Sign out? Your progress is saved — sign back in with your number anytime.")))return;
@@ -1727,19 +1763,22 @@ function home(){
   const acc = p.answered>0 ? p.correct/p.answered : 0;
   const ready = Math.round((acc*0.55 + Math.min(1,p.answered/300)*0.25 + Math.min(1,Object.keys(p.exams||{}).length/6)*0.20)*100);
   let sm;
-  if(p.answered<5) sm={t:A("يلا نبلّش — أول تمرين","Start your first drill"),go:"gate('beg')"};
-  else if((p.mistakes||[]).length>=5) sm={t:A("راجع أخطاءك ("+p.mistakes.length+")","Review your "+p.mistakes.length+" mistakes"),go:"gate('mistakes')"};
-  else if(ready>=70) sm={t:A("إنت جاهز — جرّب الامتحان الرسمي","You're ready — take the mock"),go:"gate('exam')"};
-  else sm={t:A("كمّل من وين ما وقفت","Continue where you left off"),go:"gate('smart')"};
+  if(p.answered<5) sm={t:A("يلا نبلّش — أول تمرين","Start your first drill"),go:"gate('beg')",sub:A("ابدأ من قسم المبتدئين وبتشوف جاهزيتك بترتفع","Start with Beginners and watch it climb")};
+  else if((p.mistakes||[]).length>=5) sm={t:A("راجع أخطاءك ("+p.mistakes.length+")","Review your "+p.mistakes.length+" mistakes"),go:"gate('mistakes')",sub:A("مراجعة أخطائك أسرع طريق ترفع علامتك","Reviewing mistakes is the fastest way up")};
+  else if(ready>=70) sm={t:A("إنت جاهز — جرّب الامتحان الرسمي","You're ready — take the mock"),go:"gate('exam')",sub:A("مستواك ممتاز — جرّب امتحان كامل وشوف نتيجتك","You're in great shape — try a full mock")};
+  else sm={t:A("كمّل من وين ما وقفت","Continue where you left off"),go:"gate('smart')",sub:A("امتحان ذكي مبني على نقاط ضعفك بالظبط","A smart exam built from your weak spots")};
   const hh=new Date().getHours();
   const greet = hh<12?A("صباح الخير","Good morning"):hh<18?A("مسا الخير","Good afternoon"):A("مسا الخير","Good evening");
 
   setView(`<div class="screen h6">
     <div class="h6-greet">${greet}${nm?"، <b>"+esc(nm)+"</b>":""} 👋</div>
-    <button class="h6-smart" onclick="FX.tap();${sm.go}">
-      <span class="pct">${p.answered>=5?ready+"%":"🚀"}</span>
-      <span class="tt">${sm.t}</span><span class="ar">‹</span>
-    </button>
+    <div class="h6-hero-card">
+      <div class="hh-lbl">${A("جاهزيتك للامتحان","Your readiness")}</div>
+      <div class="hh-big"><b>${p.answered>=5?ready:0}</b><i>%</i></div>
+      <div class="hh-sub">${sm.sub||A("كل ما تحل أكثر، كل ما ترتفع جاهزيتك","The more you practice, the higher it climbs")}</div>
+      <div class="hh-bar"><i style="width:${p.answered>=5?ready:3}%"></i></div>
+      <button class="hh-cta" onclick="FX.tap();${sm.go}">${sm.t}<span>←</span></button>
+    </div>
 
     <div class="h6-secs">
       ${h6card("🌱",A("المبتدئين","Beginners"),A("الإشارات والمواضيع — خطوة خطوة مع الشرح","Signs & topics — step by step"),"FX.tap();gate('beg')")}
@@ -1757,6 +1796,103 @@ function h6card(ic,t,s,go){
     <span class="ar">‹</span></button>`;
 }
 function h6need(){ FX.tap(); const el=document.getElementById("rPh"); if(el){ el.focus(); el.scrollIntoView({behavior:"smooth",block:"center"}); cheer(A("حط رقمك فوق وبتفوت ✨","Enter your number above ✨")); } }
+let FC={qs:[],i:0,know:0};
+function flashcards(){
+  const p=getProg();
+  let pool=(p.mistakes||[]).slice();
+  if(pool.length<3 && typeof ALLQ!=="undefined" && ALLQ.length)
+    pool=pool.concat(shuffle(ALLQ.slice()).slice(0, 10-pool.length));
+  FC={qs:shuffle(pool).slice(0,10), i:0, know:0};
+  if(!FC.qs.length){ cheer(A("حل كم سؤال الأول وبترجع تراجعهم هون ⚡","Answer a few questions first ⚡")); return home(); }
+  TP.log('flashcards');
+  fcDraw(false);
+}
+function fcDraw(flipped){
+  const q=FC.qs[FC.i], corTxt=stripCodes(tq(q,LET[+q.answer-1]));
+  root.innerHTML=chrome(null);
+  setView(`<div class="screen" style="text-align:center">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin:6px 2px 12px">
+      <span style="font-size:12.5px;color:var(--muted)">⚡ ${A("مراجعة سريعة","Quick review")}</span>
+      <span style="font-size:12.5px;color:var(--muted)">${FC.i+1} / ${FC.qs.length}</span>
+    </div>
+    <div class="h6-card" id="fcCard" style="display:block;text-align:center;padding:26px 18px;min-height:210px;cursor:pointer">
+      ${!flipped?`
+        <div style="font-size:11px;color:var(--muted);letter-spacing:1.5px;margin-bottom:10px">${A("السؤال","QUESTION")}</div>
+        <div style="font-size:16.5px;font-weight:800;line-height:1.9">${renderSig(tq(q,"question"),true)}</div>
+        <div style="font-size:12px;color:var(--primary);margin-top:16px">${A("اكبس عالبطاقة تشوف الجواب 👆","Tap to reveal 👆")}</div>`
+      :`
+        <div style="font-size:11px;color:var(--ok);letter-spacing:1.5px;margin-bottom:10px">✓ ${A("الجواب","ANSWER")}</div>
+        <div style="font-size:16.5px;font-weight:800;line-height:1.9;color:var(--ok)">${esc(corTxt)}</div>`}
+    </div>
+    ${flipped?`
+    <div style="display:flex;gap:9px;margin-top:14px">
+      <button class="btn" style="flex:1" onclick="FX.ok();fcNext(1)">😎 ${A("عرفتها","Knew it")}</button>
+      <button class="btn ghost" style="flex:1" onclick="FX.tap();fcNext(0)">🤔 ${A("ما عرفتها","Didn't")}</button>
+    </div>`:""}
+    <button class="path-skip" style="margin-top:12px" onclick="home()">${A("خلصت — رجعني","Done")}</button>
+  </div>`);
+  const card=document.getElementById("fcCard");
+  if(!flipped && card) card.onclick=()=>{ FX.tap(); fcDraw(true); };
+}
+function fcNext(knew){
+  if(knew)FC.know++;
+  const q=FC.qs[FC.i];
+  if(!knew){
+    const p=getProg(), k=qKey(q);
+    if(!(p.mistakes||[]).some(m=>qKey(m)===k)){
+      p.mistakes=p.mistakes||[];
+      p.mistakes.push({id:q.id,ex:q.ex,question:q.question,a:q.a,b:q.b,c:q.c,d:q.d,answer:q.answer});
+      saveProg(p);
+    }
+  }
+  FC.i++;
+  if(FC.i>=FC.qs.length){
+    const pc=Math.round(FC.know/FC.qs.length*100);
+    if(pc>=70){ FX.win(); if(typeof confetti==="function") confetti(60); } else FX.ok();
+    root.innerHTML=chrome(null);
+    setView(`<div class="screen" style="text-align:center;padding-top:40px">
+      <div style="font-size:56px">${pc>=70?"🔥":"💪"}</div>
+      <h2 style="font-weight:800;margin:10px 0">${A("عرفت "+FC.know+" من "+FC.qs.length,"You knew "+FC.know+" of "+FC.qs.length)}</h2>
+      <p style="color:var(--muted);font-size:13px">${pc>=70?A("مستواك ممتاز — كمّل هيك","Excellent — keep it up"):A("اللي ما عرفتهم انحفظوا بأخطائك","The ones you missed were saved")}</p>
+      <div style="height:16px"></div>
+      <button class="btn" style="width:100%" onclick="flashcards()">⚡ ${A("جولة ثانية","Another round")}</button>
+      <button class="btn ghost" style="width:100%;margin-top:8px" onclick="home()">${A("الرئيسية","Home")}</button>
+    </div>`);
+    return;
+  }
+  fcDraw(false);
+}
+function examTips(){
+  TP.log('exam_tips');
+  root.innerHTML=chrome(null);
+  const tips=[
+    ["🕐", A("روح بكير","Arrive early"), A("كون بالمكتب قبل موعدك بنص ساعة — التوتر من العجلة بيخسرك أسئلة.","Be there 30 min early — rushing costs you questions.")],
+    ["🪪", A("شو تاخد معك","What to bring"), A("الهوية الأصلية + ورقة المدرسة. بدون هوية ما في امتحان.","Original ID + school paper. No ID, no exam.")],
+    ["❌", A("كم غلطة مسموح؟","How many mistakes?"), A("النجاح من ٢٦/٣٠ — يعني معك ٤ أغلاط بس. كل سؤال بحسابه.","Pass is 26/30 — only 4 mistakes allowed.")],
+    ["🧠", A("اقرأ السؤال مرتين","Read twice"), A("نص الأخطاء من القراءة السريعة: كلمات زي «لا يجوز» و«إلا» و«ما عدا» بتقلب المعنى.","Half of mistakes come from fast reading.")],
+    ["⏱️", A("لا تعلق على سؤال","Don't get stuck"), A("صعب عليك؟ علّمه وكمّل — بترجعله بالآخر وراسك أهدى.","Flag it, move on, come back calmer.")],
+    ["🎯", A("أول إحساس غالباً صح","First instinct"), A("لا تغيّر إجابتك إلا إذا متأكد ١٠٠٪ إنك فهمت غلط.","Only change if you're 100% sure you misread.")],
+    ["😮‍💨", A("ليلة الامتحان","Night before"), A("مراجعة أخطائك بس + نوم منيح. الدماغ المرتاح بيتذكر أحسن.","Review only your mistakes + sleep well.")]
+  ];
+  setView(`<div class="screen h6">
+    <div class="rvw-head">
+      <div style="font-size:38px">🎓</div>
+      <h2>${A("نصايح يوم الامتحان","Exam-day tips")}</h2>
+      <p>${A("من تجربة مئات الطلاب","From hundreds of students")}</p>
+    </div>
+    <div class="h6-secs">
+      ${tips.map(t=>`<div class="h6-card" style="cursor:default">
+        <span class="ic">${t[0]}</span>
+        <span class="tx"><b>${t[1]}</b><span style="white-space:normal">${t[2]}</span></span>
+      </div>`).join("")}
+    </div>
+    <div style="height:10px"></div>
+    <button class="btn" style="width:100%" onclick="FX.tap();gate('smart')">🤖 ${A("جهّز حالي بامتحان ذكي","Prep me with a smart exam")}</button>
+    <button class="btn ghost" style="width:100%;margin-top:8px" onclick="moreScreen()">${A("‹ رجوع","‹ Back")}</button>
+    <div style="height:16px"></div>
+  </div>`);
+  window.scrollTo(0,0);
+}
 function moreScreen(){
   TP.log('more');
   const p=getProg();
