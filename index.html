@@ -731,7 +731,7 @@ html[data-theme="light"] select,html[data-theme="light"] textarea,html[data-them
    ================================================================== */
 
 const CFG = {
-  VERSION: "6.2.0",       // ⬅ غيّر هذا الرقم مع كل تحديث ترفعه (مثلاً 2.0.1)
+  VERSION: "6.2.1",       // ⬅ غيّر هذا الرقم مع كل تحديث ترفعه (مثلاً 2.0.1)
   REPO: "mohdsiwad25-eng/teoria-app",
   INSTRUCTOR: "توريا فلسطين",
   AREA: "بيت لحم",
@@ -2246,9 +2246,10 @@ function reviewWrong(){
   const {qs,ans}=STATE;
   const items=[];
   qs.forEach((q,i)=>{
-    const corIdx=+q.answer-1;
-    if(ans[i]!==null && ans[i]!==corIdx) items.push({q, userIdx:ans[i], corIdx});
-    else if(ans[i]===null) items.push({q, userIdx:null, corIdx});
+    const corL=LET[+q.answer-1];        // الإجابة الصحيحة كحرف
+    const userL=ans[i];                 // اختيار الطالب كحرف (أو null/undefined)
+    if(userL==null) items.push({q, userL:null, corL});          // ما جاوب
+    else if(userL!==corL) items.push({q, userL, corL});         // غلط
   });
   if(!items.length){
     root.innerHTML=chrome(null);
@@ -2263,10 +2264,10 @@ function reviewWrong(){
   TP.log('review_wrong',{n:items.length});
   root.innerHTML=chrome(null);
   const cards=items.map((it,n)=>{
-    const q=it.q, corTxt=stripCodes(tq(q,LET[it.corIdx]));
-    const skipped = it.userIdx===null;
-    const yourTxt = skipped ? A("ما جاوبت","Skipped") : stripCodes(tq(q,LET[it.userIdx]));
-    const why = skipped ? null : wrongExplFor(q, LET[it.userIdx]);
+    const q=it.q, corTxt=stripCodes(tq(q,it.corL));
+    const skipped = it.userL==null;
+    const yourTxt = skipped ? A("ما جاوبت هالسؤال","Not answered") : stripCodes(tq(q,it.userL));
+    const why = skipped ? null : wrongExplFor(q, it.userL);
     return `<div class="rvw-card">
       <div class="rvw-n">${n+1}</div>
       <div class="rvw-q">${esc(stripCodes(tq(q,"question")))}</div>
