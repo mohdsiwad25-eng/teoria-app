@@ -14,10 +14,12 @@ rep('try{ db.exec("ALTER TABLE students ADD COLUMN banned INTEGER DEFAULT 0"); }
 '''try{ db.exec("ALTER TABLE students ADD COLUMN banned INTEGER DEFAULT 0"); }catch(e){}
 db.exec(`CREATE TABLE IF NOT EXISTS applications(
   id INTEGER PRIMARY KEY AUTOINCREMENT,
-  phone TEXT, name TEXT, gear TEXT, delivery TEXT, note TEXT,
+  phone TEXT, name TEXT, full_name TEXT, contact TEXT, gear TEXT, delivery TEXT, note TEXT,
   id_img TEXT, me_img TEXT, res_img TEXT,
   status TEXT DEFAULT 'new',
-  created INTEGER, updated INTEGER);`);''',
+  created INTEGER, updated INTEGER);`);
+try{ db.exec("ALTER TABLE applications ADD COLUMN full_name TEXT"); }catch(e){}
+try{ db.exec("ALTER TABLE applications ADD COLUMN contact TEXT"); }catch(e){}''',
 "جدول applications")
 
 # ---------- 2) رفع حد حجم الطلب (للصور) ----------
@@ -44,12 +46,16 @@ app.post("/api/apply", (req,res)=>{
       return res.json({ok:0, err:"لازم ترفع صورة الهوية وصورة شخصية"});
     if(idImg.length>3.2e6 || meImg.length>3.2e6)
       return res.json({ok:0, err:"الصور كبيرة — جرّب كمان مرة"});
+    const fullName=String(b.full_name||"").trim().slice(0,80);
+    const contact=String(b.contact||"").replace(/[^\d+]/g,"").slice(0,20);
+    if(fullName.length<5) return res.json({ok:0, err:"اكتب اسمك الرباعي كامل"});
+    if(contact.length<9) return res.json({ok:0, err:"اكتب رقم تلفون صحيح"});
     const open = db.prepare("SELECT id FROM applications WHERE phone=? AND status!='delivered' ORDER BY id DESC").get(s.phone);
     if(open) return res.json({ok:0, err:"عندك معاملة شغالة حالياً — تابعها من «معاملتي»"});
     const now=Date.now();
-    db.prepare(`INSERT INTO applications(phone,name,gear,delivery,note,id_img,me_img,status,created,updated)
-      VALUES(?,?,?,?,?,?,?, 'new', ?,?)`)
-      .run(s.phone, s.name, gear, delivery, String(b.note||"").slice(0,300), idImg, meImg, now, now);
+    db.prepare(`INSERT INTO applications(phone,name,full_name,contact,gear,delivery,note,id_img,me_img,status,created,updated)
+      VALUES(?,?,?,?,?,?,?,?,?, 'new', ?,?)`)
+      .run(s.phone, s.name, fullName, contact, gear, delivery, String(b.note||"").slice(0,300), idImg, meImg, now, now);
     ev("apply","📄 معاملة جديدة: "+s.name+" ("+(gear==="auto"?"أوتوماتيك":"جير")+" · "+(delivery==="health"?"توصيل للصحة":"توصيل لمكانه")+")");
     res.json({ok:1});
   }catch(e){ console.log(e); res.json({ok:0, err:"صار خطأ — جرّب كمان مرة"}); }
@@ -68,7 +74,7 @@ app.post("/api/apply/mine", (req,res)=>{
 # ---------- 4) نقاط اللوحة ----------
 rep('''app.post("/siwad/api/delete", guard, (req,res)=>{''',
 '''app.get("/siwad/api/apps", guard, (req,res)=>{
-  const rows=db.prepare("SELECT id,phone,name,gear,delivery,note,status,created,updated,(res_img IS NOT NULL) hasres FROM applications ORDER BY id DESC LIMIT 300").all();
+  const rows=db.prepare("SELECT id,phone,name,full_name,contact,gear,delivery,note,status,created,updated,(res_img IS NOT NULL) hasres FROM applications ORDER BY id DESC LIMIT 300").all();
   res.json({ok:1, rows});
 });
 app.get("/siwad/api/app", guard, (req,res)=>{
@@ -138,7 +144,7 @@ function renderApps(){
   $("#apList").innerHTML=L.map(function(a){
     return '<div class="stu"><div>'+
     '<span class="st '+(a.status==="new"?"p":"a")+'">'+stLbl(a.status)+'</span>'+
-    '<div class="nm">'+esc(a.name)+'</div><span class="ph">0'+a.phone+'</span>'+
+    '<div class="nm">'+esc(a.full_name||a.name)+'</div><span class="ph">'+esc(a.contact||("0"+a.phone))+'</span>'+
     '<div class="meta">'+(a.gear==="auto"?"🅰️ أوتوماتيك":"⚙️ جير عادي")+' · '+
       (a.delivery==="health"?"🏥 توصيل للصحة":"🚗 توصيل لمكانه")+'</div>'+
     '<div class="meta">قدّم '+ago(a.created)+(a.note?(' · 📝 '+esc(a.note)):'')+'</div></div>'+

@@ -768,6 +768,23 @@ html[data-theme="dark"] .h6-hero-card{background:linear-gradient(150deg,#8A2A34 
 .ap-step.now .dot{background:var(--primary);border-color:var(--primary);color:#fff}
 .ap-step .tx{font-size:14px;font-weight:700}
 .ap-res{width:100%;border-radius:14px;border:1px solid var(--line);display:block}
+
+.ap-in{width:100%;border:1.5px solid var(--line);border-radius:13px;padding:13px;
+  font-family:inherit;font-size:15px;font-weight:700;background:var(--surface);color:var(--ink)}
+.ap-in:focus{outline:none;border-color:var(--primary)}
+.svc-card{position:relative;overflow:hidden;display:flex;align-items:center;gap:13px;width:100%;
+  text-align:start;cursor:pointer;font-family:inherit;color:var(--ink);
+  background:var(--primary-l);border:1.5px solid var(--primary);border-radius:20px;
+  padding:15px 14px;margin-top:14px;transition:transform .14s}
+.svc-card:active{transform:scale(.985)}
+.svc-ic{width:47px;height:47px;flex:none;border-radius:15px;background:var(--surface);
+  border:1px solid var(--line);display:grid;place-items:center;font-size:22px}
+.svc-tx{flex:1;min-width:0}
+.svc-tx b{display:block;font-size:15.5px;font-weight:800;letter-spacing:-.2px;margin-bottom:2px;color:var(--primary-d)}
+.svc-tx span{font-size:12px;color:var(--muted);font-weight:400;line-height:1.6}
+.svc-ar{color:var(--primary);font-size:17px;font-weight:800}
+.svc-mini{width:100%;margin-top:9px;background:none;border:1.5px dashed var(--line);border-radius:15px;
+  padding:11px;font-family:inherit;font-size:13px;font-weight:700;color:var(--muted);cursor:pointer}
 </style>
 </head>
 <body>
@@ -796,7 +813,7 @@ html[data-theme="dark"] .h6-hero-card{background:linear-gradient(150deg,#8A2A34 
    ================================================================== */
 
 const CFG = {
-  VERSION: "7.1.0",       // ⬅ غيّر هذا الرقم مع كل تحديث ترفعه (مثلاً 2.0.1)
+  VERSION: "7.2.0",       // ⬅ غيّر هذا الرقم مع كل تحديث ترفعه (مثلاً 2.0.1)
   REPO: "mohdsiwad25-eng/teoria-app",
   INSTRUCTOR: "توريا فلسطين",
   AREA: "بيت لحم",
@@ -1813,6 +1830,16 @@ function home(){
       ${h6card("🤖",A("المساعد الذكي","AI Tutor"),A("اسأل عن أي إشارة أو قانون — بيعرف مستواك","Ask anything — it knows your level"),"FX.tap();gate('chat')")}
       ${h6card("⋯",A("المزيد","More"),A("امتحان ذكي · أخطائي · الكتاب · إعدادات","Smart exam · mistakes · the book"),"FX.tap();moreScreen()")}
     </div>
+
+    <button class="svc-card" onclick="FX.tap();applyForm()">
+      <span class="svc-ic">📄</span>
+      <span class="svc-tx">
+        <b>${A("اطلب معاملة الفحص الطبي","Request medical application")}</b>
+        <span>${A("عبّيها من تلفونك وإحنا منجهّزها ومنوصّلها — مجاناً لطلابنا","Fill it from your phone — free for our students")}</span>
+      </span>
+      <span class="svc-ar">←</span>
+    </button>
+    <button class="svc-mini" onclick="FX.tap();myApplication()">🔎 ${A("تابع معاملتي","Track my application")}</button>
     <div style="height:14px"></div>
   </div>`);
 }
@@ -1937,6 +1964,21 @@ function applyForm(){
     </div>
 
     <div class="ap-box">
+      <div class="ap-lbl">${A("الاسم الرباعي","Full name")}</div>
+      <div class="ap-hint">${A("زي ما هو بالهوية بالظبط","Exactly as on your ID")}</div>
+      <input class="ap-in" id="apName" type="text" autocomplete="name"
+        value="${esc((AUTH.get()||{}).name||"")}" placeholder="${A("محمد أحمد خالد سواد","Full name")}">
+    </div>
+
+    <div class="ap-box">
+      <div class="ap-lbl">${A("رقم التلفون","Phone number")}</div>
+      <div class="ap-hint">${A("منتواصل معك عليه","We'll contact you on it")}</div>
+      <input class="ap-in" id="apPhone" type="tel" inputmode="numeric" autocomplete="tel"
+        style="direction:ltr;text-align:center;letter-spacing:1px"
+        value="${(AUTH.get()||{}).phone?("0"+String((AUTH.get()||{}).phone).replace(/^0+/,"")):""}" placeholder="0599999999">
+    </div>
+
+    <div class="ap-box">
       <div class="ap-lbl">${A("نوع الرخصة","License type")}</div>
       <div class="ap-two">
         <button class="ap-opt on" id="g-manual" onclick="setGear('manual')">⚙️ ${A("جير عادي","Manual")}</button>
@@ -1987,12 +2029,17 @@ function setDeliv(d){ APPF.delivery=d; FX.tap();
 async function applySend(){
   const err=document.getElementById("apErr"), btn=document.getElementById("apGo");
   const say=m=>{ if(err) err.textContent=m; };
+  const fullName=((document.getElementById("apName")||{}).value||"").trim();
+  const contact=((document.getElementById("apPhone")||{}).value||"").trim();
+  if(fullName.length<5) return say(A("اكتب اسمك الرباعي كامل","Enter your full name"));
+  if(contact.replace(/\D/g,"").length<9) return say(A("اكتب رقم تلفون صحيح","Enter a valid phone"));
   if(!APPF.id_img) return say(A("ناقص صورة الهوية","ID photo is missing"));
   if(!APPF.me_img) return say(A("ناقصة الصورة الشخصية","Personal photo is missing"));
   say(""); if(btn){ btn.disabled=true; btn.textContent=A("جاري الإرسال…","Sending…"); }
   const note=(document.getElementById("apNote")||{}).value||"";
   try{
     const d=await apiPost("/api/apply",{gear:APPF.gear, delivery:APPF.delivery, note,
+      full_name:fullName, contact:contact,
       id_img:APPF.id_img, me_img:APPF.me_img});
     if(!d.ok){ say(d.err||A("ما زبطت — جرّب كمان مرة","Failed — try again"));
       if(btn){ btn.disabled=false; btn.textContent=A("ابعت الطلب","Send request"); } return; }
