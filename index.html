@@ -743,6 +743,31 @@ html[data-theme="dark"] .h6-hero-card{background:linear-gradient(150deg,#8A2A34 
   box-shadow:0 8px 20px rgba(40,10,14,.18);transition:transform .13s}
 .hh-cta:active{transform:scale(.985)}
 .hh-cta span{font-size:17px}
+
+.ap-box{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:16px;margin-bottom:12px;box-shadow:var(--shadow-s)}
+.ap-lbl{font-size:14.5px;font-weight:800;margin-bottom:6px}
+.ap-hint{font-size:12px;color:var(--muted);font-weight:400;line-height:1.7;margin-bottom:10px}
+.ap-two{display:flex;gap:9px}
+.ap-opt{flex:1;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);border-radius:14px;
+  padding:13px 8px;font-family:inherit;font-size:13.5px;font-weight:700;cursor:pointer;transition:all .15s}
+.ap-opt.on{border-color:var(--primary);background:var(--primary-l);color:var(--primary-d)}
+.ap-pick{width:100%;border:1.5px dashed var(--line);background:var(--surface-2);color:var(--ink);
+  border-radius:14px;padding:14px;font-family:inherit;font-size:13.5px;font-weight:700;cursor:pointer}
+.ap-pv{margin-top:10px;display:flex;align-items:center;gap:10px}
+.ap-pv img{width:78px;height:78px;object-fit:cover;border-radius:12px;border:1px solid var(--line)}
+.ap-ok{color:var(--ok);font-weight:800;font-size:13px}
+.ap-err{color:var(--danger);font-weight:700;font-size:13px}
+.ap-load{color:var(--muted);font-size:13px;font-weight:600}
+.ap-note{width:100%;margin-top:10px;border:1.5px solid var(--line);border-radius:13px;padding:11px;
+  font-family:inherit;font-size:13.5px;background:var(--surface);color:var(--ink);resize:vertical}
+.ap-step{display:flex;align-items:center;gap:11px;padding:9px 0;opacity:.45}
+.ap-step.done{opacity:1}
+.ap-step .dot{width:26px;height:26px;flex:none;border-radius:50%;border:2px solid var(--line);
+  display:grid;place-items:center;font-size:12px;font-weight:800;color:var(--muted)}
+.ap-step.done .dot{background:var(--ok);border-color:var(--ok);color:#fff}
+.ap-step.now .dot{background:var(--primary);border-color:var(--primary);color:#fff}
+.ap-step .tx{font-size:14px;font-weight:700}
+.ap-res{width:100%;border-radius:14px;border:1px solid var(--line);display:block}
 </style>
 </head>
 <body>
@@ -771,7 +796,7 @@ html[data-theme="dark"] .h6-hero-card{background:linear-gradient(150deg,#8A2A34 
    ================================================================== */
 
 const CFG = {
-  VERSION: "7.0.0",       // ⬅ غيّر هذا الرقم مع كل تحديث ترفعه (مثلاً 2.0.1)
+  VERSION: "7.1.0",       // ⬅ غيّر هذا الرقم مع كل تحديث ترفعه (مثلاً 2.0.1)
   REPO: "mohdsiwad25-eng/teoria-app",
   INSTRUCTOR: "توريا فلسطين",
   AREA: "بيت لحم",
@@ -1677,7 +1702,9 @@ const ACTIONS={
   mistakes:()=>startExam('mistakes'),
   flagged:()=>startExam('flagged'),
   beg:()=>begIntro(),
-  topics:()=>topics()
+  topics:()=>topics(),
+  apply:()=>applyForm(),
+  myapp:()=>myApplication()
 };
 function gate(action){
   if(AUTH.ok()){ UNLOCKED=true; ACTIONS[action](); return; }
@@ -1862,6 +1889,188 @@ function fcNext(knew){
   }
   fcDraw(false);
 }
+/* ============ معاملة الفحص الطبي ============ */
+let APPF={id_img:null, me_img:null, gear:"manual", delivery:"health"};
+async function apiPost(path, body){
+  const a=AUTH.get()||{};
+  const r=await fetch(CFG.AUTH_API+path,{method:"POST",headers:{"Content-Type":"application/json"},
+    body:JSON.stringify(Object.assign({phone:a.phone, token:a.token}, body||{}))});
+  return r.json();
+}
+function compressImg(file, cb){
+  const rd=new FileReader();
+  rd.onload=()=>{ const im=new Image();
+    im.onload=()=>{
+      const mx=1400, sc=Math.min(1, mx/Math.max(im.width,im.height));
+      const cv=document.createElement("canvas");
+      cv.width=Math.round(im.width*sc); cv.height=Math.round(im.height*sc);
+      cv.getContext("2d").drawImage(im,0,0,cv.width,cv.height);
+      cb(cv.toDataURL("image/jpeg",0.72));
+    };
+    im.onerror=()=>cb(null); im.src=rd.result; };
+  rd.onerror=()=>cb(null);
+  rd.readAsDataURL(file);
+}
+function pickImg(which){
+  const inp=document.createElement("input"); inp.type="file"; inp.accept="image/*";
+  inp.onchange=()=>{ const f=inp.files[0]; if(!f) return;
+    const box=document.getElementById("pv-"+which);
+    if(box) box.innerHTML=`<div class="ap-load">⏳ ${A("جاري التجهيز…","Processing…")}</div>`;
+    compressImg(f,(data)=>{
+      if(!data){ if(box) box.innerHTML=`<span class="ap-err">${A("ما زبطت الصورة — جرّب وحدة ثانية","Image failed — try another")}</span>`; return; }
+      APPF[which]=data; FX.ok();
+      if(box) box.innerHTML=`<img src="${data}" alt=""><span class="ap-ok">✓ ${A("تمام","Done")}</span>`;
+    });
+  };
+  inp.click();
+}
+function applyForm(){
+  if(!AUTH.ok()) return gate('apply');
+  TP.log('apply_open');
+  APPF={id_img:null, me_img:null, gear:"manual", delivery:"health"};
+  root.innerHTML=chrome(null);
+  setView(`<div class="screen h6">
+    <div class="rvw-head">
+      <div style="font-size:38px">📄</div>
+      <h2>${A("معاملة الفحص الطبي","Medical exam application")}</h2>
+      <p>${A("عبّيها من هون وإحنا منجهّزها — مجاناً لطلاب توريا فلسطين","Fill it here and we prepare it — free for our students")}</p>
+    </div>
+
+    <div class="ap-box">
+      <div class="ap-lbl">${A("نوع الرخصة","License type")}</div>
+      <div class="ap-two">
+        <button class="ap-opt on" id="g-manual" onclick="setGear('manual')">⚙️ ${A("جير عادي","Manual")}</button>
+        <button class="ap-opt" id="g-auto" onclick="setGear('auto')">🅰️ ${A("أوتوماتيك","Automatic")}</button>
+      </div>
+    </div>
+
+    <div class="ap-box">
+      <div class="ap-lbl">${A("صورة الهوية","ID photo")}</div>
+      <div class="ap-hint">${A("صوّر الهوية واضحة — منها بناخد اسمك وتاريخ ميلادك وعنوانك","A clear photo — we read your details from it")}</div>
+      <button class="ap-pick" onclick="pickImg('id_img')">📷 ${A("اختر صورة الهوية","Choose ID photo")}</button>
+      <div class="ap-pv" id="pv-id_img"></div>
+    </div>
+
+    <div class="ap-box">
+      <div class="ap-lbl">${A("صورة شخصية","Personal photo")}</div>
+      <div class="ap-hint">${A("صورة وجه واضحة وخلفية فاتحة","Clear face photo, light background")}</div>
+      <button class="ap-pick" onclick="pickImg('me_img')">📷 ${A("اختر الصورة الشخصية","Choose personal photo")}</button>
+      <div class="ap-pv" id="pv-me_img"></div>
+    </div>
+
+    <div class="ap-box">
+      <div class="ap-lbl">${A("وين بدك نوصّلها؟","Where should we deliver it?")}</div>
+      <div class="ap-two">
+        <button class="ap-opt on" id="d-health" onclick="setDeliv('health')">🏥 ${A("للصحة","To the clinic")}</button>
+        <button class="ap-opt" id="d-location" onclick="setDeliv('location')">🚗 ${A("لمكاني","To my place")}</button>
+      </div>
+      <div class="ap-hint" id="dHint">${A("إحنا منوديها ومنتابعها — إنت بس بتروح تعمل الفحص","We deliver and follow up — you just do the exam")}</div>
+      <textarea class="ap-note" id="apNote" rows="2" placeholder="${A("ملاحظة (اختياري)","Note (optional)")}"></textarea>
+    </div>
+
+    <div id="apErr" class="ap-err" style="min-height:20px;text-align:center"></div>
+    <button class="btn" style="width:100%" id="apGo" onclick="applySend()">${A("ابعت الطلب","Send request")}</button>
+    <button class="btn ghost" style="width:100%;margin-top:8px" onclick="moreScreen()">${A("‹ رجوع","‹ Back")}</button>
+    <div style="height:16px"></div>
+  </div>`);
+  window.scrollTo(0,0);
+}
+function setGear(g){ APPF.gear=g; FX.tap();
+  ["manual","auto"].forEach(x=>{const e=document.getElementById("g-"+x); if(e) e.classList.toggle("on",x===g);}); }
+function setDeliv(d){ APPF.delivery=d; FX.tap();
+  ["health","location"].forEach(x=>{const e=document.getElementById("d-"+x); if(e) e.classList.toggle("on",x===d);});
+  const hn=document.getElementById("dHint");
+  if(hn) hn.textContent = d==="health"
+    ? A("إحنا منوديها ومنتابعها — إنت بس بتروح تعمل الفحص","We deliver and follow up")
+    : A("منتواصل معك واتساب نتفق على المكان والوقت","We'll message you on WhatsApp to arrange");
+}
+async function applySend(){
+  const err=document.getElementById("apErr"), btn=document.getElementById("apGo");
+  const say=m=>{ if(err) err.textContent=m; };
+  if(!APPF.id_img) return say(A("ناقص صورة الهوية","ID photo is missing"));
+  if(!APPF.me_img) return say(A("ناقصة الصورة الشخصية","Personal photo is missing"));
+  say(""); if(btn){ btn.disabled=true; btn.textContent=A("جاري الإرسال…","Sending…"); }
+  const note=(document.getElementById("apNote")||{}).value||"";
+  try{
+    const d=await apiPost("/api/apply",{gear:APPF.gear, delivery:APPF.delivery, note,
+      id_img:APPF.id_img, me_img:APPF.me_img});
+    if(!d.ok){ say(d.err||A("ما زبطت — جرّب كمان مرة","Failed — try again"));
+      if(btn){ btn.disabled=false; btn.textContent=A("ابعت الطلب","Send request"); } return; }
+    FX.win(); if(typeof confetti==="function") confetti(60);
+    TP.log('apply_sent');
+    root.innerHTML=chrome(null);
+    setView(`<div class="screen" style="text-align:center;padding-top:44px">
+      <div style="font-size:58px">✅</div>
+      <h2 style="font-weight:800;margin:12px 0">${A("وصلنا طلبك!","Request received!")}</h2>
+      <p style="color:var(--muted);font-size:13.5px;line-height:1.9">
+        ${A("رح نجهّز معاملتك ونتواصل معك واتساب.<br>تابع حالتها من «معاملتي».","We'll prepare it and message you on WhatsApp.")}</p>
+      <div style="height:20px"></div>
+      <button class="btn" style="width:100%" onclick="myApplication()">📄 ${A("تابع معاملتي","Track my application")}</button>
+      <button class="btn ghost" style="width:100%;margin-top:8px" onclick="home()">${A("الرئيسية","Home")}</button>
+    </div>`);
+  }catch(e){
+    say(A("ما في اتصال — تأكد من النت","No connection"));
+    if(btn){ btn.disabled=false; btn.textContent=A("ابعت الطلب","Send request"); }
+  }
+}
+async function myApplication(){
+  if(!AUTH.ok()) return gate('apply');
+  TP.log('apply_track');
+  root.innerHTML=chrome(null);
+  setView(`<div class="screen"><div class="rvw-head"><h2>📄 ${A("معاملتي","My application")}</h2></div>
+    <div class="ap-load" style="text-align:center">⏳ ${A("جاري التحميل…","Loading…")}</div></div>`);
+  let d=null;
+  try{ d=await apiPost("/api/apply/mine",{}); }catch(e){}
+  if(!d || !d.ok){
+    setView(`<div class="screen" style="text-align:center;padding-top:40px">
+      <div style="font-size:46px">📴</div>
+      <p style="color:var(--muted);margin-top:10px">${A("ما قدرنا نجيب البيانات — تأكد من النت","Couldn't load — check your connection")}</p>
+      <button class="btn ghost" style="margin-top:16px" onclick="myApplication()">${A("جرّب كمان مرة","Retry")}</button>
+      <button class="btn ghost" style="margin-top:8px" onclick="moreScreen()">${A("‹ رجوع","‹ Back")}</button></div>`);
+    return;
+  }
+  const a=d.app;
+  if(!a){
+    setView(`<div class="screen" style="text-align:center;padding-top:40px">
+      <div style="font-size:52px">📄</div>
+      <h2 style="font-weight:800;margin:12px 0">${A("ما عندك معاملة بعد","No application yet")}</h2>
+      <p style="color:var(--muted);font-size:13.5px">${A("قدّم طلبك أونلاين وإحنا منجهّزها","Apply online and we'll prepare it")}</p>
+      <button class="btn" style="width:100%;margin-top:18px" onclick="applyForm()">${A("قدّم معاملتك","Apply now")}</button>
+      <button class="btn ghost" style="width:100%;margin-top:8px" onclick="moreScreen()">${A("‹ رجوع","‹ Back")}</button></div>`);
+    return;
+  }
+  const steps=[
+    ["new", A("وصل طلبك","Received")],
+    ["progress", A("قيد التنفيذ","In progress")],
+    ["ready", A("جاهزة","Ready")],
+    ["delivered", A("تسلّمتها","Delivered")]
+  ];
+  const cur=steps.findIndex(s=>s[0]===a.status);
+  setView(`<div class="screen">
+    <div class="rvw-head"><h2>📄 ${A("معاملتي","My application")}</h2>
+      <p>${a.gear==="auto"?A("🅰️ أوتوماتيك","Automatic"):A("⚙️ جير عادي","Manual")} ·
+         ${a.delivery==="health"?A("🏥 توصيل للصحة","To clinic"):A("🚗 توصيل لمكاني","To my place")}</p></div>
+    <div class="ap-box">
+      ${steps.map((s,i)=>`<div class="ap-step ${i<=cur?'done':''} ${i===cur?'now':''}">
+        <span class="dot">${i<cur?"✓":(i===cur?"●":"")}</span>
+        <span class="tx">${s[1]}</span>
+      </div>`).join("")}
+    </div>
+    ${a.res_img?`
+    <div class="ap-box">
+      <div class="ap-lbl">${A("صورة معاملتك","Your document")}</div>
+      <img class="ap-res" src="${a.res_img}" alt="" onclick="window.open('${""}','_self')">
+      <a class="btn ghost" style="width:100%;margin-top:10px;text-decoration:none;display:block;text-align:center"
+         href="${a.res_img}" download="teoria-application.jpg">⬇️ ${A("حمّل الصورة","Download")}</a>
+    </div>`:`
+    <div class="ap-box"><div class="ap-hint" style="text-align:center">
+      ${A("أول ما تجهز معاملتك رح تلاقي صورتها هون 📎","Once ready, the document appears here 📎")}</div></div>`}
+    <button class="btn ghost" style="width:100%" onclick="waTeacher()">💬 ${A("احكي معنا واتساب","Message us")}</button>
+    <button class="btn ghost" style="width:100%;margin-top:8px" onclick="moreScreen()">${A("‹ رجوع","‹ Back")}</button>
+    <div style="height:16px"></div>
+  </div>`);
+  window.scrollTo(0,0);
+}
 function examTips(){
   TP.log('exam_tips');
   root.innerHTML=chrome(null);
@@ -1898,6 +2107,11 @@ function moreScreen(){
   const p=getProg();
   root.innerHTML=chrome(null);
   setView(`<div class="screen h6">
+    <div class="sec-title">${A("خدمات","Services")}</div>
+    <div class="h6-secs">
+      ${h6card("📄",A("معاملة الفحص الطبي","Medical application"),A("قدّمها أونلاين — مجاناً لطلابنا","Apply online — free for our students"),"FX.tap();applyForm()")}
+      ${h6card("🔎",A("معاملتي","My application"),A("تابع حالتها وحمّل صورتها","Track it & download"),"FX.tap();myApplication()")}
+    </div>
     <div class="sec-title">${A("أدوات الدراسة","Study tools")}</div>
     <div class="h6-secs">
       ${h6card("🤖",A("الامتحان الذكي","Smart exam"),A("٣٠ سؤال من نقاط ضعفك","Built from your weak spots"),"FX.tap();gate('smart')")}
