@@ -682,6 +682,27 @@ html[data-theme="light"] select,html[data-theme="light"] textarea,html[data-them
 .h6-card .tx b{display:block;font-size:15.5px;font-weight:600;letter-spacing:-.2px;margin-bottom:2px}
 .h6-card .tx span{font-size:12px;color:var(--muted);font-weight:300}
 .h6-card .ar{color:var(--muted);font-size:17px}
+
+.rvw-head{text-align:center;padding:16px 0 14px}
+.rvw-head h2{font-size:21px;font-weight:800;letter-spacing:-.4px}
+.rvw-head p{font-size:12.5px;color:var(--muted);font-weight:300;margin-top:5px}
+.rvw-card{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:18px;
+  padding:16px 15px 14px;margin-bottom:12px}
+.rvw-n{position:absolute;top:-9px;inset-inline-start:14px;background:var(--primary);color:#20242B;
+  font-weight:900;font-size:11.5px;border-radius:20px;padding:3px 11px}
+.rvw-q{font-size:14.5px;font-weight:700;line-height:1.85;margin:6px 0 12px}
+.rvw-row{display:flex;gap:10px;align-items:flex-start;border-radius:12px;padding:10px 12px;margin-bottom:7px}
+.rvw-row.bad{background:var(--danger-l)}
+.rvw-row.good{background:var(--ok-l)}
+.rvw-lb{flex:none;font-size:14px;line-height:1.7}
+.rvw-row div{flex:1;min-width:0}
+.rvw-row b{display:block;font-size:10.5px;letter-spacing:1px;font-weight:800;opacity:.75;margin-bottom:2px}
+.rvw-row.bad b{color:var(--danger)}
+.rvw-row.good b{color:var(--ok)}
+.rvw-row span{font-size:13.5px;font-weight:500;line-height:1.8}
+.rvw-why{background:var(--primary-l);border-inline-start:3px solid var(--primary);border-radius:11px;
+  padding:11px 13px;font-size:13px;font-weight:400;line-height:1.85;margin-top:9px}
+.rvw-why b{font-weight:800}
 </style>
 </head>
 <body>
@@ -710,7 +731,7 @@ html[data-theme="light"] select,html[data-theme="light"] textarea,html[data-them
    ================================================================== */
 
 const CFG = {
-  VERSION: "6.1.0",       // ⬅ غيّر هذا الرقم مع كل تحديث ترفعه (مثلاً 2.0.1)
+  VERSION: "6.2.0",       // ⬅ غيّر هذا الرقم مع كل تحديث ترفعه (مثلاً 2.0.1)
   REPO: "mohdsiwad25-eng/teoria-app",
   INSTRUCTOR: "توريا فلسطين",
   AREA: "بيت لحم",
@@ -1228,12 +1249,17 @@ function sectionOf(q){
 }
 function stripCodes(s){ return (s||"").replace(/\[\[(\w+)\]\]/g,(m,c)=>DATA.signals[c]?(isEN()?tcode(c):DATA.signals[c].code_ar):c).trim(); }
 
+function wrongExplFor(q, letter){
+  const W=DATA.wrongExpl; if(!W||!letter) return null;
+  const entry = W[qKey(q)] || W[String(q.id)];   // يدعم "1-300" و "300"
+  return (entry && entry[letter]) ? entry[letter] : null;
+}
 function explainQ2(q, userIdx){
   const corIdx=+q.answer-1;
   if(userIdx==null || userIdx===corIdx) return explainQ(q);
   const userL=LET[userIdx];
   // شرح مخصص جاهز لهالغلطة بالذات؟
-  const w=DATA.wrongExpl && DATA.wrongExpl[qKey(q)] && DATA.wrongExpl[qKey(q)][userL];
+  const w=wrongExplFor(q,userL);
   const yourTxt=stripCodes(tq(q,userL)), corTxt=stripCodes(tq(q,LET[corIdx]));
   const head=`<div class="explain" style="border-inline-start-color:var(--danger);background:var(--danger-l)">
     <b>${A("❌ اخترت:","❌ You chose:")}</b> ${esc(yourTxt)}<br>
@@ -2218,10 +2244,53 @@ function renderResult(){
 }
 function reviewWrong(){
   const {qs,ans}=STATE;
-  const wrong=qs.filter((q,i)=>ans[i]!==null && ans[i]!==LET[+q.answer-1]);
-  if(!wrong.length) return home();
-  TP.log('review_wrong',{n:wrong.length});
-  startCustom(wrong, A("مراجعة أخطائي","My mistakes review"));
+  const items=[];
+  qs.forEach((q,i)=>{
+    const corIdx=+q.answer-1;
+    if(ans[i]!==null && ans[i]!==corIdx) items.push({q, userIdx:ans[i], corIdx});
+    else if(ans[i]===null) items.push({q, userIdx:null, corIdx});
+  });
+  if(!items.length){
+    root.innerHTML=chrome(null);
+    setView(`<div class="screen" style="text-align:center;padding-top:50px">
+      <div style="font-size:56px">🏆</div>
+      <h2 style="font-weight:800;margin:12px 0">${A("ما غلطت بولا سؤال!","Perfect score!")}</h2>
+      <p style="color:var(--muted);font-size:13.5px">${A("علامة كاملة — ما في شي تراجعه","Nothing to review")}</p>
+      <button class="btn" style="margin-top:20px" onclick="home()">${A("الرئيسية","Home")}</button>
+    </div>`);
+    return;
+  }
+  TP.log('review_wrong',{n:items.length});
+  root.innerHTML=chrome(null);
+  const cards=items.map((it,n)=>{
+    const q=it.q, corTxt=stripCodes(tq(q,LET[it.corIdx]));
+    const skipped = it.userIdx===null;
+    const yourTxt = skipped ? A("ما جاوبت","Skipped") : stripCodes(tq(q,LET[it.userIdx]));
+    const why = skipped ? null : wrongExplFor(q, LET[it.userIdx]);
+    return `<div class="rvw-card">
+      <div class="rvw-n">${n+1}</div>
+      <div class="rvw-q">${esc(stripCodes(tq(q,"question")))}</div>
+      <div class="rvw-row bad">
+        <span class="rvw-lb">${skipped?"⏭️":"❌"}</span>
+        <div><b>${A("اخترت","You chose")}</b><span>${esc(yourTxt)}</span></div>
+      </div>
+      <div class="rvw-row good">
+        <span class="rvw-lb">✓</span>
+        <div><b>${A("الصح","Correct")}</b><span>${esc(corTxt)}</span></div>
+      </div>
+      ${why?`<div class="rvw-why"><b>💡 ${A("ليش؟","Why?")}</b> ${esc(why)}</div>`:""}
+    </div>`;
+  }).join("");
+  setView(`<div class="screen">
+    <div class="rvw-head">
+      <h2>${A("مراجعة أخطائك","Review your mistakes")}</h2>
+      <p>${items.length} ${A("سؤال — شوف شو اخترت وشو الصح","questions — what you chose vs correct")}</p>
+    </div>
+    ${cards}
+    <button class="btn" style="width:100%;margin-top:6px" onclick="FX.tap();home()">${A("خلصت المراجعة ←","Done reviewing")}</button>
+    <div style="height:18px"></div>
+  </div>`);
+  window.scrollTo(0,0);
 }
 
 function examChipHtml(){
