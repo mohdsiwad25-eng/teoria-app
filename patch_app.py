@@ -33,11 +33,11 @@ function authStu(req){
   if(!phone||!token) return null;
   return db.prepare("SELECT * FROM students WHERE phone=? AND token=?").get(norm(phone), String(token));
 }
+const applyRate={};
 app.post("/api/apply", (req,res)=>{
   try{
-    const s = authStu(req);
-    if(!s) return res.json({ok:0, err:"سجّل دخولك أول"});
-    if(s.banned) return res.json({ok:0, err:"حسابك موقوف — تواصل مع المدرب"});
+    const s = authStu(req);            // مسجّل؟ منربطها بحسابه. زائر؟ منقبلها كمان
+    if(s && s.banned) return res.json({ok:0, err:"حسابك موقوف — تواصل مع المدرب"});
     const b=req.body||{};
     const gear = b.gear==="auto" ? "auto" : "manual";
     const delivery = b.delivery==="location" ? "location" : "health";
@@ -50,13 +50,18 @@ app.post("/api/apply", (req,res)=>{
     const contact=String(b.contact||"").replace(/[^\d+]/g,"").slice(0,20);
     if(fullName.length<5) return res.json({ok:0, err:"اكتب اسمك الرباعي كامل"});
     if(contact.length<9) return res.json({ok:0, err:"اكتب رقم تلفون صحيح"});
-    const open = db.prepare("SELECT id FROM applications WHERE phone=? AND status!='delivered' ORDER BY id DESC").get(s.phone);
-    if(open) return res.json({ok:0, err:"عندك معاملة شغالة حالياً — تابعها من «معاملتي»"});
+    const key = s ? s.phone : norm(contact);        // مفتاح المعاملة: حساب الطالب أو رقمه
+    // حد للزوار: معاملتين باليوم لنفس الرقم
+    applyRate[key]=(applyRate[key]||[]).filter(t=>Date.now()-t<864e5);
+    if(applyRate[key].length>=2) return res.json({ok:0, err:"وصلنا طلبك — استنى نتواصل معك"});
+    const open = db.prepare("SELECT id FROM applications WHERE phone=? AND status!='delivered' ORDER BY id DESC").get(key);
+    if(open) return res.json({ok:0, err:"عندك معاملة شغالة حالياً — منتواصل معك قريباً"});
     const now=Date.now();
     db.prepare(`INSERT INTO applications(phone,name,full_name,contact,gear,delivery,note,id_img,me_img,status,created,updated)
       VALUES(?,?,?,?,?,?,?,?,?, 'new', ?,?)`)
-      .run(s.phone, s.name, fullName, contact, gear, delivery, String(b.note||"").slice(0,300), idImg, meImg, now, now);
-    ev("apply","📄 معاملة جديدة: "+s.name+" ("+(gear==="auto"?"أوتوماتيك":"جير")+" · "+(delivery==="health"?"توصيل للصحة":"توصيل لمكانه")+")");
+      .run(key, s?s.name:fullName, fullName, contact, gear, delivery, String(b.note||"").slice(0,300), idImg, meImg, now, now);
+    applyRate[key].push(Date.now());
+    ev("apply","📄 معاملة جديدة: "+fullName+(s?"":" (زائر)")+" ("+(gear==="auto"?"أوتوماتيك":"جير")+" · "+(delivery==="health"?"توصيل للصحة":"توصيل لمكانه")+")");
     res.json({ok:1});
   }catch(e){ console.log(e); res.json({ok:0, err:"صار خطأ — جرّب كمان مرة"}); }
 });
@@ -147,7 +152,7 @@ function renderApps(){
     '<div class="nm">'+esc(a.full_name||a.name)+'</div><span class="ph">'+esc(a.contact||("0"+a.phone))+'</span>'+
     '<div class="meta">'+(a.gear==="auto"?"🅰️ أوتوماتيك":"⚙️ جير عادي")+' · '+
       (a.delivery==="health"?"🏥 توصيل للصحة":"🚗 توصيل لمكانه")+'</div>'+
-    '<div class="meta">قدّم '+ago(a.created)+(a.note?(' · 📝 '+esc(a.note)):'')+'</div></div>'+
+    '<div class="meta">'+(a.name===a.full_name?"👤 زائر · ":"🎓 طالب مسجّل · ")+'قدّم '+ago(a.created)+(a.note?(' · 📝 '+esc(a.note)):'')+'</div></div>'+
     '<div class="acts">'+
     '<button class="btn sm ghost" data-aa="view" data-id="'+a.id+'">🖼️ الصور</button>'+
     '<button class="btn sm g" data-aa="up" data-id="'+a.id+'">📎 ارفع المعاملة</button>'+

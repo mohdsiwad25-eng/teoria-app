@@ -785,6 +785,26 @@ html[data-theme="dark"] .h6-hero-card{background:linear-gradient(150deg,#8A2A34 
 .svc-ar{color:var(--primary);font-size:17px;font-weight:800}
 .svc-mini{width:100%;margin-top:9px;background:none;border:1.5px dashed var(--line);border-radius:15px;
   padding:11px;font-family:inherit;font-size:13px;font-weight:700;color:var(--muted);cursor:pointer}
+
+.grp-card{display:flex;align-items:center;gap:13px;width:100%;text-align:start;cursor:pointer;
+  background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:14px;
+  font-family:inherit;color:var(--ink);box-shadow:var(--shadow-s);transition:transform .14s}
+.grp-card:active{transform:scale(.985)}
+.grp-ic{width:46px;height:46px;flex:none;border-radius:14px;background:var(--surface-2);
+  border:1px solid var(--line);display:grid;place-items:center;font-size:21px}
+.grp-tx{flex:1;min-width:0}
+.grp-tx b{display:block;font-size:15.5px;font-weight:800;letter-spacing:-.2px;margin-bottom:2px}
+.grp-tx>span{font-size:11.5px;color:var(--muted);font-weight:400}
+.grp-bar{display:block;height:5px;border-radius:4px;background:var(--surface-2);margin-top:7px;overflow:hidden}
+.grp-bar i{display:block;height:100%;border-radius:4px;background:var(--primary);transition:width .8s}
+.grp-ar{color:var(--muted);font-size:17px}
+.grp-rule{background:var(--surface);border:1px solid var(--line);border-radius:22px;
+  padding:20px 18px;margin-bottom:14px;box-shadow:var(--shadow-s)}
+.grp-rule .gr-ic{font-size:40px;text-align:center}
+.grp-rule h2{font-size:20px;font-weight:800;text-align:center;margin:6px 0 14px}
+.gr-lbl{font-size:11.5px;font-weight:800;color:var(--primary);letter-spacing:.8px;margin-bottom:8px}
+.grp-rule p{font-size:14px;font-weight:400;line-height:2;margin:0}
+.grp-rule p b{font-weight:800;color:var(--primary-d)}
 </style>
 </head>
 <body>
@@ -813,7 +833,7 @@ html[data-theme="dark"] .h6-hero-card{background:linear-gradient(150deg,#8A2A34 
    ================================================================== */
 
 const CFG = {
-  VERSION: "7.2.0",       // ⬅ غيّر هذا الرقم مع كل تحديث ترفعه (مثلاً 2.0.1)
+  VERSION: "7.4.0",       // ⬅ غيّر هذا الرقم مع كل تحديث ترفعه (مثلاً 2.0.1)
   REPO: "mohdsiwad25-eng/teoria-app",
   INSTRUCTOR: "توريا فلسطين",
   AREA: "بيت لحم",
@@ -1795,6 +1815,15 @@ function home(){
         ${h6card("🏛️",A("أسئلة التوريا","Theory exams"),A("٢٣ امتحان رسمي كامل","23 official exams"),"h6need()")}
         ${h6card("🤖",A("المساعد الذكي","AI Tutor"),A("اسأل عن أي شي بالتوريا","Ask anything"),"h6need()")}
       </div>
+
+      <button class="svc-card" onclick="FX.tap();applyForm()">
+        <span class="svc-ic">📄</span>
+        <span class="svc-tx">
+          <b>${A("اطلب معاملة الفحص الطبي","Request medical application")}</b>
+          <span>${A("بدون حساب — عبّيها من تلفونك وإحنا منجهّزها ومنوصّلها مجاناً","No account needed — we prepare and deliver it, free")}</span>
+        </span>
+        <span class="svc-ar">←</span>
+      </button>
       <button class="path-skip" onclick="waTeacher()">${A("احكي مع المدرب 💬","Talk to the instructor 💬")}</button>
     </div>`);
     return;
@@ -1952,7 +1981,6 @@ function pickImg(which){
   inp.click();
 }
 function applyForm(){
-  if(!AUTH.ok()) return gate('apply');
   TP.log('apply_open');
   APPF={id_img:null, me_img:null, gear:"manual", delivery:"health"};
   root.innerHTML=chrome(null);
@@ -1960,7 +1988,7 @@ function applyForm(){
     <div class="rvw-head">
       <div style="font-size:38px">📄</div>
       <h2>${A("معاملة الفحص الطبي","Medical exam application")}</h2>
-      <p>${A("عبّيها من هون وإحنا منجهّزها — مجاناً لطلاب توريا فلسطين","Fill it here and we prepare it — free for our students")}</p>
+      <p>${A("عبّيها من هون وإحنا منجهّزها ومنوصّلها — مجاناً","Fill it here — we prepare and deliver it, free")}${AUTH.ok()?"":A("<br><span style='font-size:12px'>مش لازم حساب — بس عبّي وابعت</span>","")}</p>
     </div>
 
     <div class="ap-box">
@@ -2012,7 +2040,7 @@ function applyForm(){
 
     <div id="apErr" class="ap-err" style="min-height:20px;text-align:center"></div>
     <button class="btn" style="width:100%" id="apGo" onclick="applySend()">${A("ابعت الطلب","Send request")}</button>
-    <button class="btn ghost" style="width:100%;margin-top:8px" onclick="moreScreen()">${A("‹ رجوع","‹ Back")}</button>
+    <button class="btn ghost" style="width:100%;margin-top:8px" onclick="${AUTH.ok()?"moreScreen()":"home()"}">${A("‹ رجوع","‹ Back")}</button>
     <div style="height:16px"></div>
   </div>`);
   window.scrollTo(0,0);
@@ -2052,8 +2080,8 @@ async function applySend(){
       <p style="color:var(--muted);font-size:13.5px;line-height:1.9">
         ${A("رح نجهّز معاملتك ونتواصل معك واتساب.<br>تابع حالتها من «معاملتي».","We'll prepare it and message you on WhatsApp.")}</p>
       <div style="height:20px"></div>
-      <button class="btn" style="width:100%" onclick="myApplication()">📄 ${A("تابع معاملتي","Track my application")}</button>
-      <button class="btn ghost" style="width:100%;margin-top:8px" onclick="home()">${A("الرئيسية","Home")}</button>
+      ${AUTH.ok()?`<button class="btn" style="width:100%" onclick="myApplication()">📄 ${A("تابع معاملتي","Track my application")}</button>`:""}
+      <button class="btn ${AUTH.ok()?'ghost':''}" style="width:100%;margin-top:8px" onclick="home()">${A("الرئيسية","Home")}</button>
     </div>`);
   }catch(e){
     say(A("ما في اتصال — تأكد من النت","No connection"));
@@ -2061,7 +2089,19 @@ async function applySend(){
   }
 }
 async function myApplication(){
-  if(!AUTH.ok()) return gate('apply');
+  if(!AUTH.ok()){
+    root.innerHTML=chrome(null);
+    setView(`<div class="screen" style="text-align:center;padding-top:40px">
+      <div style="font-size:52px">🔎</div>
+      <h2 style="font-weight:800;margin:12px 0">${A("تابع معاملتك","Track your application")}</h2>
+      <p style="color:var(--muted);font-size:13.5px;line-height:1.9">
+        ${A("سجّل دخولك برقمك عشان تتابع حالتها وتشوف صورتها،<br>أو احكي معنا واتساب.","Sign in to track it, or message us.")}</p>
+      <button class="btn" style="width:100%;margin-top:18px" onclick="home()">${A("سجّل دخولك","Sign in")}</button>
+      <button class="btn ghost" style="width:100%;margin-top:8px" onclick="waTeacher()">💬 ${A("احكي معنا واتساب","Message us")}</button>
+      <button class="btn ghost" style="width:100%;margin-top:8px" onclick="home()">${A("‹ الرئيسية","‹ Home")}</button>
+    </div>`);
+    return;
+  }
   TP.log('apply_track');
   root.innerHTML=chrome(null);
   setView(`<div class="screen"><div class="rvw-head"><h2>📄 ${A("معاملتي","My application")}</h2></div>
@@ -3035,6 +3075,79 @@ function buildBegType(letter){
 }
 
 // شاشة اختيار النوع
+/* ============ مجموعات المبتدئين ============ */
+const GRP_IDS = {"mech":[544,638,795,800,813,817,855,856,857,858,859,860,861,862,863,864,865,866,867,868,869,870,871,872,873,874,875,876,877,878,879,880,881,882,883,884,885,886,887,888,889,890,891,893,894,896,897,898,899,900,901,902,903,904,905,906,907,908,909,910,911,912,913,914,915,916,917,918,920,922,2095,2096,2097,2098,2100,2101,2102,2103,2104,2105,2106,2107,2108,2109,2110,2111,2112,2113,2114,2115,2116,2117,2118,2119,2121,2124,2125,2127,2128,2129,2130,2131,2132,2133,2134,2135,2136,2137,2138,2139,2140,2141,2142,2143,2144,2145,2146,2147,2148,2149],"priority":[461,468,472,522,523,528,534,540,543,560,564,571,580,584,586,587,595,611,612,619,637,641,642,648,659,665,667,668,671,672,675,676,678,679,680,691,692,693,697,704,706,730,740,743,744,746,773,774,775,792,804,806,808,821,822,826,828,830,831,834,837,838,840],"turns":[478,525,532,535,542,550,569,577,581,594,599,603,613,614,630,646,651,666,669,694,695,696,700,702,735,755,760,782,784,790,820],"overtake":[502,552,558,563,578,583,588,621,633,634,639,645,650,663,673,674,681,686,688,705,708,749,752,805,807,809,811,823,825,827,832,833,836,843],"speed":[541,574,582,608,610,620,622,623,624,625,627,631,635,636,652,653,654,655,660,661,662,682,685,711,713,719,729,745,748,776,777,796,799,801,802,803,810,812,814,815,816,818,819,824,829,839,842,844,845,846,847,848,849,851,892],"parking":[521,524,526,527,529,536,545,546,547,548,549,551,557,559,561,566,567,573,579,591,598,601,605,607,615,616,626,628,649,656,658,677,687,707,712,717,718,727,738,739,750,751,753,766,772,781,785,786,787,788,798,841,854,895,919,921,2099,2120,2122,2123],"laws":[375,457,482,501,530,531,533,537,538,539,553,554,555,556,562,565,568,570,572,575,576,585,590,592,593,596,597,600,602,604,606,609,617,618,629,632,640,643,644,647,657,664,670,683,684,689,690,698,699,709,710,714,715,716,720,721,722,723,724,725,726,728,731,732,733,734,736,737,741,742,747,754,756,757,758,759,761,762,763,764,765,767,768,769,770,771,778,779,780,783,789,791,793,794,797,835,850,852,853,2126]};
+const GRP_META = {
+  mech:{ic:"🔧",name:"المركبة والميكانيكا",en:"Vehicle & Mechanics",
+    rule:"المحرك بده زيت وماء، والإطارات بدها هوا مضبوط، والفرامل بدها انتباه. ولمبات لوحة العدادات هي لغة المركبة معك: <b>حمرا = وقّف فوراً</b> (ضغط الزيت، الفرامل)، <b>صفرا = افحصها قريب</b> (check engine). والأنظمة الحديثة — ABS بيمنع قفل العجلات وقت الفرملة القوية، وESP بيحفظ ثبات المركبة وقت الانزلاق."},
+  priority:{ic:"🚦",name:"الأولوية والمفترقات",en:"Right of Way",
+    rule:"ترتيب القوة بالمفترق: <b>الشرطي ← الآلة الضوئية ← الشاخصة ← قاعدة اليمين</b>. مفترق بلا شاخصات؟ الأولوية للجاي من يمينك. شاخصة قف = وقوف كامل حتى لو الشارع فاضي. الخارج من ساحة أو محطة أو طريق ترابية ما إله أولوية. وبالمنحدرات الأولوية للصاعد، وبالسكة القطار دايماً أولاً."},
+  turns:{ic:"↩️",name:"الاستدارة والانعطاف",en:"Turning",
+    rule:"القاعدة الذهبية: <b>من أقصى الجهة إلى أقصى الجهة</b>. يمين: من أقصى يمين لأقصى يمين. يسار: تقترب من وسط الطريق وتدخل يمين وسط الشارع الجديد. وقبل أي حركة: <b>مرآة ← غمّاز ← نظرة كتف ← نفّذ</b>. والغمّاز إعلان نية مش صك تنفيذ."},
+  overtake:{ic:"↔️",name:"التجاوز",
+    en:"Overtaking",
+    rule:"التجاوز <b>من اليسار</b> — إلا حالة وحدة: اللي قدامك أعطى إشارة إنه بده يستدير يسار، ساعتها بتعبر من يمينه. وقبل ما تتجاوز: القانون بيسمح؟ (خط جهتك متقطع) · الرؤية كافية للمسافة كاملة؟ · وما بتجبر حدا يفرمل؟ <b>وممنوع نهائياً:</b> قبل السكة وعليها، بالمنعطفات، وقبل ممرات المشاة."},
+  speed:{ic:"🚗",name:"السرعة ومسافة الأمان",en:"Speed & Distance",
+    rule:"السرعة القصوى سقف مش هدف: <b>٥٠ بلدية · ٨٠ خارجية · ١٠٠ سريعة</b>. ومسافة التوقف = مسافة رد الفعل (~ثانية وإنت بتستوعب) + مسافة الكبح (بتتضاعف ٤ مرات لما السرعة تتضاعف مرتين). <b>قاعدة الثانيتين</b> للمسافة، و٣-٤ ثواني بالمطر والليل."},
+  parking:{ic:"🅿️",name:"الوقوف والأضواء",en:"Parking & Lights",
+    rule:"ممنوع الوقوف: <b>١٢م</b> من المفترق وخط التوقف وممر المشاة · <b>٢٠م</b> من السكة ومحطة الباص · <b>٢م</b> من حنفية الحريق · وبعدك عن الرصيف أقصاه <b>٤٠سم</b>. وبالمنحدر: فرامل يد + غيار + لف العجلات ناحية الرصيف. والأضواء: العالي بينير <b>١٠٠م</b> والواطي <b>٣٠م</b>، والليل قانوناً من ربع ساعة بعد الغروب لربع ساعة قبل الشروق."},
+  laws:{ic:"⚖️",name:"القوانين والسلامة",en:"Laws & Safety",
+    rule:"الطرق: بلدية (٥٠) · غير بلدية (٨٠) · سريعة (ممنوع فيها المشاة والدراجات والوقوف). والخطوط: <b>متقطع بتعبره · متواصل جدار</b>. وقرب المدارس والباص الواقف والمشاة: خفف وزوّد حذرك. والكحول والمخدرات خط أحمر مطلق، والحزام واجب على الجميع، والمثلث بينشاف من <b>١٠٠م</b>."}
+};
+function begGroups(){
+  TP.log('beg_groups');
+  root.innerHTML=chrome(null);
+  const p=getProg();
+  const cards=Object.keys(GRP_META).map(k=>{
+    const m=GRP_META[k], ids=GRP_IDS[k]||[];
+    const done=ids.filter(i=>(p.seen||{})[i]).length;
+    const pc=ids.length?Math.round(done/ids.length*100):0;
+    return `<button class="grp-card" onclick="FX.tap();grpOpen('${k}')">
+      <span class="grp-ic">${m.ic}</span>
+      <span class="grp-tx">
+        <b>${isEN()?m.en:m.name}</b>
+        <span>${ids.length} ${A("سؤال","questions")}${pc?` · ${pc}% ${A("مخلّص","done")}`:""}</span>
+        <span class="grp-bar"><i style="width:${pc}%"></i></span>
+      </span>
+      <span class="grp-ar">‹</span></button>`;
+  }).join("");
+  setView(`<div class="screen h6">
+    <div class="rvw-head">
+      <div style="font-size:36px">🧩</div>
+      <h2>${A("باقي الأسئلة — بالمجموعات","The rest — by group")}</h2>
+      <p>${A("كل مجموعة: القاعدة الأول، وبعدها أسئلتها","Each group: the rule first, then its questions")}</p>
+    </div>
+    <div class="h6-secs">${cards}</div>
+    <div style="height:12px"></div>
+    <button class="btn ghost" style="width:100%" onclick="begIntro()">${A("‹ رجوع","‹ Back")}</button>
+    <div style="height:16px"></div>
+  </div>`);
+  window.scrollTo(0,0);
+}
+function grpOpen(k){
+  const m=GRP_META[k], ids=GRP_IDS[k]||[];
+  root.innerHTML=chrome(null);
+  setView(`<div class="screen h6">
+    <div class="grp-rule">
+      <div class="gr-ic">${m.ic}</div>
+      <h2>${isEN()?m.en:m.name}</h2>
+      <div class="gr-lbl">📌 ${A("القاعدة","The rule")}</div>
+      <p>${m.rule}</p>
+    </div>
+    <button class="btn" style="width:100%" onclick="FX.tap();grpStart('${k}')">
+      ${A("فهمتها — يلا عالأسئلة","Got it — start questions")} (${ids.length}) ←</button>
+    <button class="btn ghost" style="width:100%;margin-top:8px" onclick="begGroups()">${A("‹ رجوع للمجموعات","‹ Back")}</button>
+    <div style="height:16px"></div>
+  </div>`);
+  window.scrollTo(0,0);
+}
+function grpStart(k){
+  const ids=new Set((GRP_IDS[k]||[]).map(String));
+  const qs=ALLQ.filter(q=>ids.has(String(q.id)));
+  if(!qs.length){ cheer(A("ما لقينا أسئلة هالمجموعة","No questions found")); return begGroups(); }
+  const m=GRP_META[k];
+  startCustom(shuffle(qs.slice()), (isEN()?m.en:m.name));
+}
 function begIntro(){
   TP.log('open_beg');
   root.innerHTML=chrome(null);
@@ -3063,11 +3176,11 @@ function begIntro(){
       </button>
     </div>
 
-    <div class="sec-title">${A("باقي الأسئلة — حسب الموضوع","The rest — by topic")}</div>
+    <div class="sec-title">${A("باقي الأسئلة","The rest")}</div>
     <div class="tools">
-      <button class="tool" onclick="FX.tap();topics()">
+      <button class="tool" onclick="FX.tap();begGroups()">
         <span class="ti">🧩</span>
-        <span class="tt"><b>${A("تدرّب حسب الموضوع","Practice by topic")}</b><span>${A("أولوية · تجاوز · سرعة · وقوف · قوانين…","Priority · overtaking · speed · parking…")}</span></span>
+        <span class="tt"><b>${A("المجموعات السبعة","The 7 groups")}</b><span>${A("القاعدة الأول ← وبعدها أسئلتها","The rule first, then its questions")}</span></span>
         <span class="tc">›</span>
       </button>
     </div>
