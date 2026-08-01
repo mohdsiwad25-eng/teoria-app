@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /siwad
+Disallow: /api/
+Sitemap: https://teoriaai.com/sitemap.xml
