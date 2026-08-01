@@ -805,6 +805,26 @@ html[data-theme="dark"] .h6-hero-card{background:linear-gradient(150deg,#8A2A34 
 .gr-lbl{font-size:11.5px;font-weight:800;color:var(--primary);letter-spacing:.8px;margin-bottom:8px}
 .grp-rule p{font-size:14px;font-weight:400;line-height:2;margin:0}
 .grp-rule p b{font-weight:800;color:var(--primary-d)}
+
+.qgrid-wrap{background:var(--surface);border:1px solid var(--line);border-radius:18px;
+  padding:14px;margin-top:14px;box-shadow:var(--shadow-s)}
+.qgrid-h{display:flex;justify-content:space-between;align-items:center;gap:8px;
+  font-size:11.5px;font-weight:700;color:var(--muted);margin-bottom:11px}
+.qgrid-h span{font-weight:800;color:var(--primary-d)}
+.qgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(38px,1fr));gap:7px}
+.qg{aspect-ratio:1;border:1.5px solid var(--line);background:var(--surface-2);color:var(--muted);
+  border-radius:11px;font-family:inherit;font-size:13px;font-weight:800;cursor:pointer;
+  display:grid;place-items:center;transition:all .13s;padding:0}
+.qg:active{transform:scale(.92)}
+.qg.done{background:var(--ok-l);border-color:var(--ok);color:var(--ok)}
+.qg.flag{border-color:var(--accent);box-shadow:inset 0 0 0 1.5px var(--accent)}
+.qg.cur{background:var(--primary);border-color:var(--primary);color:#fff;transform:scale(1.06)}
+.qgrid-lg{display:flex;gap:14px;justify-content:center;margin-top:12px;font-size:10.5px;color:var(--muted);font-weight:600}
+.qgrid-lg span{display:flex;align-items:center;gap:5px}
+.qgrid-lg i{width:11px;height:11px;border-radius:4px;display:block;border:1.5px solid var(--line)}
+.qgrid-lg .d1{background:var(--ok-l);border-color:var(--ok)}
+.qgrid-lg .d2{background:var(--surface-2)}
+.qgrid-lg .d3{border-color:var(--accent);background:transparent}
 </style>
 </head>
 <body>
@@ -833,7 +853,7 @@ html[data-theme="dark"] .h6-hero-card{background:linear-gradient(150deg,#8A2A34 
    ================================================================== */
 
 const CFG = {
-  VERSION: "7.4.0",       // ⬅ غيّر هذا الرقم مع كل تحديث ترفعه (مثلاً 2.0.1)
+  VERSION: "7.5.0",       // ⬅ غيّر هذا الرقم مع كل تحديث ترفعه (مثلاً 2.0.1)
   REPO: "mohdsiwad25-eng/teoria-app",
   INSTRUCTOR: "توريا فلسطين",
   AREA: "بيت لحم",
@@ -1107,7 +1127,7 @@ async function boot(){
     applyLangDir();
     if(isEN()) await loadEnOverlay();
     if(!CFG.FIREBASE) TP.log('visit');
-    home();
+    if(location.hash && location.hash.length>2) applyRoute(); else home();
   }catch(e){
     root.innerHTML=`<div class="center-screen"><div style="font-size:42px">⚠️</div>
     <div style="font-weight:800;font-size:18px">${A("تعذّر تحميل الأسئلة","Could not load the questions")}</div>
@@ -1792,7 +1812,7 @@ function enterApp(){ TP.log('enter_app'); $("#fab").style.display="flex"; home()
 
 /* ================= الرئيسية ================= */
 function home(){
-  TP.log('home');
+  TP.log('home'); setRoute("","دراسة التوريا بالذكاء الاصطناعي");
   root.innerHTML = chrome("home");
 
   // ---------- غير مسجل: الدخول هو الصفحة ----------
@@ -1981,7 +2001,7 @@ function pickImg(which){
   inp.click();
 }
 function applyForm(){
-  TP.log('apply_open');
+  TP.log('apply_open'); setRoute("apply","معاملة الفحص الطبي");
   APPF={id_img:null, me_img:null, gear:"manual", delivery:"health"};
   root.innerHTML=chrome(null);
   setView(`<div class="screen h6">
@@ -2159,7 +2179,7 @@ async function myApplication(){
   window.scrollTo(0,0);
 }
 function examTips(){
-  TP.log('exam_tips');
+  TP.log('exam_tips'); setRoute("tips","نصايح يوم الامتحان");
   root.innerHTML=chrome(null);
   const tips=[
     ["🕐", A("روح بكير","Arrive early"), A("كون بالمكتب قبل موعدك بنص ساعة — التوتر من العجلة بيخسرك أسئلة.","Be there 30 min early — rushing costs you questions.")],
@@ -2190,7 +2210,7 @@ function examTips(){
   window.scrollTo(0,0);
 }
 function moreScreen(){
-  TP.log('more');
+  TP.log('more'); setRoute("more","المزيد");
   const p=getProg();
   root.innerHTML=chrome(null);
   setView(`<div class="screen h6">
@@ -2475,6 +2495,7 @@ function chooseExam(){
 /* ================= الامتحان ================= */
 let timerInt=null;
 function startExam(mode,examNum){
+  if(mode==='exam' && examNum!=null) setRoute("exam/"+examNum, "امتحان التوريا رقم "+examNum);
   let qs;
   if(mode==='exam'){ qs = DATA.exams[examNum].map(q=>({...q,ex:String(examNum)})); }
   else if(mode==='smart'){ qs = buildSmartExam(); }
@@ -2535,6 +2556,7 @@ function renderQ(){
         <div class="q-count">${A(`سؤال ${idx+1} من ${total} · تمّت الإجابة على ${answered}`,`Question ${idx+1} of ${total} · ${answered} answered`)}</div>
       </div>
       <button class="an-tgl ${autoNextOn()?'on':''}" id="anBtn" onclick="toggleAutoNext()">${autoNextOn()?"⏭️ تلقائي":"⏸️ يدوي"}</button>
+      ${STATE.mode==='exam'?`<button class="an-tgl" onclick="shareExam()" title="${A('شارك الامتحان','Share')}">🔗</button>`:''}
       ${STATE.endAt?`<div class="timer" id="timer">⏱ --:--</div>`:''}
     </div>
     <div class="q-card">
@@ -2553,6 +2575,21 @@ function renderQ(){
       ${idx<total-1
         ?`<button class="btn" onclick="navQ(1)">${A("‹ التالي","Next ›")}</button>`
         :`<button class="btn" style="background:var(--accent);color:#3a2c00" onclick="confirmFinish()">${A("✓ إنهاء وتصحيح","✓ Finish & Grade")}</button>`}
+    </div>
+    <div class="qgrid-wrap">
+      <div class="qgrid-h">${A("كل الأسئلة — اكبس رقم للانتقال","All questions — tap a number")}
+        <span>${answered}/${total} ${A("مجاوب","answered")}</span></div>
+      <div class="qgrid">${qs.map((qq,n)=>{
+        const st = ans[n]!==null ? "done" : "";
+        const fl = isFlagged(qKey(qq)) ? "flag" : "";
+        const cur = n===idx ? "cur" : "";
+        return `<button class="qg ${st} ${fl} ${cur}" onclick="jumpQ(${n})">${n+1}</button>`;
+      }).join("")}</div>
+      <div class="qgrid-lg">
+        <span><i class="d1"></i>${A("مجاوب","answered")}</span>
+        <span><i class="d2"></i>${A("فاضي","empty")}</span>
+        <span><i class="d3"></i>${A("معلّم","flagged")}</span>
+      </div>
     </div>
     <div style="text-align:center;margin-top:12px">
       <button class="btn sm ghost" style="width:auto;display:inline-flex;padding:8px 16px" onclick="confirmFinish()">${A("إنهاء الامتحان الآن","End the exam now")}</button>
@@ -2573,7 +2610,8 @@ function pick(L){ FX.tap(); STATE.ans[STATE.idx]=L;
   LET.forEach(x=>$("#opt-"+x).classList.toggle('sel',x===L));
   $(".q-count").textContent=A(`سؤال ${STATE.idx+1} من ${STATE.qs.length} · تمّت الإجابة على ${STATE.ans.filter(a=>a!==null).length}`,`Question ${STATE.idx+1} of ${STATE.qs.length} · ${STATE.ans.filter(a=>a!==null).length} answered`);
 }
-function navQ(d){ STATE.idx+=d; renderQ(); }
+function navQ(d){ STATE.idx+=d; renderQ(); window.scrollTo(0,0); }
+function jumpQ(n){ FX.tap(); STATE.idx=n; renderQ(); window.scrollTo(0,0); }
 function confirmFinish(){
   const un=STATE.ans.filter(a=>a===null).length;
   if(un>0 && !confirm(A(`باقي ${un} سؤال بدون إجابة. متأكد بدك تنهي؟`,`${un} questions are unanswered. Finish anyway?`))) return;
@@ -3095,7 +3133,7 @@ const GRP_META = {
     rule:"الطرق: بلدية (٥٠) · غير بلدية (٨٠) · سريعة (ممنوع فيها المشاة والدراجات والوقوف). والخطوط: <b>متقطع بتعبره · متواصل جدار</b>. وقرب المدارس والباص الواقف والمشاة: خفف وزوّد حذرك. والكحول والمخدرات خط أحمر مطلق، والحزام واجب على الجميع، والمثلث بينشاف من <b>١٠٠م</b>."}
 };
 function begGroups(){
-  TP.log('beg_groups');
+  TP.log('beg_groups'); setRoute("groups","مجموعات الأسئلة");
   root.innerHTML=chrome(null);
   const p=getProg();
   const cards=Object.keys(GRP_META).map(k=>{
@@ -3126,6 +3164,7 @@ function begGroups(){
 }
 function grpOpen(k){
   const m=GRP_META[k], ids=GRP_IDS[k]||[];
+  setRoute("group/"+k, isEN()?m.en:m.name);
   root.innerHTML=chrome(null);
   setView(`<div class="screen h6">
     <div class="grp-rule">
@@ -3147,6 +3186,53 @@ function grpStart(k){
   if(!qs.length){ cheer(A("ما لقينا أسئلة هالمجموعة","No questions found")); return begGroups(); }
   const m=GRP_META[k];
   startCustom(shuffle(qs.slice()), (isEN()?m.en:m.name));
+}
+/* ============ الراوتر — رابط لكل شاشة ============ */
+let ROUTING=false;
+const ROUTES={
+  "":()=>home(), "home":()=>home(),
+  "signals":()=>gate('signals'), "progress":()=>gate('progress'),
+  "chat":()=>gate('chat'), "beginners":()=>gate('beg'),
+  "groups":()=>begGroups(), "exams":()=>gate('choose'),
+  "more":()=>moreScreen(), "guide":()=>window.location.replace("/guide.html"),
+  "tips":()=>examTips(), "mistakes":()=>gate('mistakes'),
+  "apply":()=>applyForm(), "my-application":()=>myApplication()
+};
+function setRoute(path,title){
+  if(ROUTING) return;
+  const url="#/"+path;
+  if(location.hash!==url){ history.pushState({p:path},"",url); }
+  if(title) document.title = title+" · توريا فلسطين";
+}
+function readRoute(){
+  const raw=(location.hash||"").replace(/^#\/?/,"").trim();
+  if(!raw) return {name:"",arg:null};
+  const parts=raw.split("/");
+  return {name:parts[0], arg:parts[1]||null};
+}
+function applyRoute(){
+  const r=readRoute();
+  ROUTING=true;
+  try{
+    if(r.name==="exam" && r.arg){
+      const n=String(parseInt(r.arg,10));
+      if(DATA.exams && DATA.exams[n]){ document.title=`امتحان التوريا رقم ${n} · توريا فلسطين`; startExam('exam',n); }
+      else home();
+    }
+    else if(r.name==="group" && r.arg && GRP_META[r.arg]){ grpOpen(r.arg); }
+    else if(ROUTES[r.name]) ROUTES[r.name]();
+    else home();
+  }catch(e){ try{ home(); }catch(_){} }
+  ROUTING=false;
+}
+window.addEventListener("popstate", ()=>{ applyRoute(); });
+window.addEventListener("hashchange", ()=>{ applyRoute(); });
+function shareExam(){
+  const n=STATE.examNum;
+  const url=location.origin+"/#/exam/"+n;
+  const txt=A(`امتحان التوريا رقم ${n} — جرّبه على توريا فلسطين 🚗\n${url}`,`Theory exam ${n} — try it\n${url}`);
+  if(navigator.share) navigator.share({title:"توريا فلسطين", text:txt, url}).catch(()=>{});
+  else { navigator.clipboard&&navigator.clipboard.writeText(url); cheer(A("انتسخ رابط الامتحان ✅","Exam link copied ✅")); }
 }
 function begIntro(){
   TP.log('open_beg');
