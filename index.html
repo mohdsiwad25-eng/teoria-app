@@ -863,7 +863,7 @@ html[data-theme="dark"] .h6-hero-card{background:linear-gradient(150deg,#8A2A34 
    ================================================================== */
 
 const CFG = {
-  VERSION: "7.7.0",       // ⬅ غيّر هذا الرقم مع كل تحديث ترفعه (مثلاً 2.0.1)
+  VERSION: "7.7.1",       // ⬅ غيّر هذا الرقم مع كل تحديث ترفعه (مثلاً 2.0.1)
   REPO: "mohdsiwad25-eng/teoria-app",
   INSTRUCTOR: "توريا فلسطين",
   AREA: "بيت لحم",
@@ -880,7 +880,9 @@ const CFG = {
   FIREBASE: null,         // ضع إعداد Firebase هنا لاحقاً
   AI_ENDPOINT: "https://mohammadsiwad--3d34664476b111f1b73f1607ee4eb77e.web.val.run"         // ضع رابط الـWorker هنا لتفعيل المساعد الذكي (AI)
 };
-const DATA_URL   = `https://cdn.jsdelivr.net/gh/${CFG.REPO}/teoria_dataset.json`;
+const DATA_URL   = (location.hostname==="teoriaai.com")
+  ? "/teoria_dataset.json"                                   // من سيرفرك مباشرة — تحديث فوري
+  : `https://cdn.jsdelivr.net/gh/${CFG.REPO}/teoria_dataset.json`;   // احتياطي للتجربة المحلية
 const IMG_BASE   = `https://cdn.jsdelivr.net/gh/${CFG.REPO}/signals_img/`;
 const CONFIG_URL = `https://raw.githubusercontent.com/${CFG.REPO}/main/config.json`;
 
@@ -1110,7 +1112,7 @@ async function boot(){
 
   // 2) تحميل الداتا
   try{
-    const r = await fetch(DATA_URL);
+    const r = await fetch(DATA_URL + (DATA_URL.includes('?')?'&':'?') + 'v=' + CFG.VERSION, {cache:'no-store'});
     DATA = await r.json();
     // تحميل ملف الشروحات (اختياري) — لو موجود على الريبو
     try{
