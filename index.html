@@ -863,7 +863,7 @@ html[data-theme="dark"] .h6-hero-card{background:linear-gradient(150deg,#8A2A34 
    ================================================================== */
 
 const CFG = {
-  VERSION: "7.9.0",       // ⬅ غيّر هذا الرقم مع كل تحديث ترفعه (مثلاً 2.0.1)
+  VERSION: "8.0.0",       // ⬅ غيّر هذا الرقم مع كل تحديث ترفعه (مثلاً 2.0.1)
   REPO: "mohdsiwad25-eng/teoria-app",
   INSTRUCTOR: "توريا فلسطين",
   AREA: "بيت لحم",
@@ -1573,6 +1573,38 @@ function cleanPhone(v){
           .replace(/[\u06F0-\u06F9]/g,d=>String(d.charCodeAt(0)-0x06F0))
           .replace(/\D/g,"");
 }
+async function pendingScreen(nm, ph, msg){
+  root.innerHTML=chrome(null);
+  setView(`<div class="screen" style="text-align:center;padding-top:40px">
+    <div style="font-size:56px">📨</div>
+    <h2 style="font-weight:800;margin:14px 0 8px">${A("وصلنا طلبك!","Request received!")}</h2>
+    <p style="color:var(--muted);font-size:14px;line-height:2;max-width:340px;margin:0 auto">
+      ${esc(msg||A("المدرب رح يفعّل حسابك قريباً — وبعدها بتفوت برقمك مباشرة بدون أي كود.","The instructor will activate your account shortly."))}
+    </p>
+    <div class="ap-box" style="margin-top:20px;text-align:start">
+      <div class="ap-lbl">${A("اسمك","Name")}</div>
+      <div style="font-size:15px;font-weight:700">${esc(nm||"—")}</div>
+      <div class="ap-lbl" style="margin-top:10px">${A("رقمك","Phone")}</div>
+      <div style="font-size:15px;font-weight:700;direction:ltr;text-align:start">${esc(ph||"")}</div>
+    </div>
+    <button class="btn" style="width:100%;margin-top:16px" onclick="FX.tap();waTeacher()">
+      💬 ${A("احكي مع المدرب واتساب","Message the instructor")}</button>
+    <button class="btn ghost" style="width:100%;margin-top:8px" onclick="retryEnter('${(ph||'').replace(/[^0-9]/g,'')}')">
+      🔄 ${A("جرّب الدخول مرة ثانية","Try entering again")}</button>
+    <div style="height:16px"></div>
+  </div>`);
+  window.scrollTo(0,0);
+}
+async function retryEnter(ph){
+  FX.tap();
+  try{
+    const r=await fetch(CFG.AUTH_API+"/api/enter",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({phone:ph})});
+    const d=await r.json();
+    if(d.ok && d.token){ AUTH.set({name:d.name||"",phone:ph,token:d.token}); UNLOCKED=true; FX.win(); home(); return; }
+    if(d.ok && d.need_code){ codeScreen(d.name||"", ph); return; }
+    cheer(A("لسا ما تفعّل حسابك — استنى شوي 🙏","Not activated yet — hang tight 🙏"));
+  }catch(e){ cheer(A("مشكلة اتصال","Connection problem")); }
+}
 async function doEnter(){
   const err=$("#rErr"), b=$("#rGo");
   const ph=cleanPhone($("#rPh").value);
@@ -1584,6 +1616,7 @@ async function doEnter(){
     const d=await r.json();
     if(d.ok && d.token){ AUTH.set({name:d.name||"",phone:ph,token:d.token}); UNLOCKED=true; TP.log('enter_direct'); FX.ok(); home(); return; }
     if(d.ok && d.need_code){ TP.log('enter_code'); codeScreen(d.name||"", ph); return; }
+    if(d.ok && d.pending){ TP.log('enter_pending'); FX.ok(); pendingScreen(d.name||"", ph, d.msg); return; }
     if(d.err && d.err.indexOf("اسمك")>=0){ nameStep(ph); return; }   // جديد → خطوة الاسم
     err.textContent=d.err||A("صار خطأ","Error"); b.disabled=false; b.textContent=A("دخول ←","Enter");
   }catch(e){ err.textContent=A("مشكلة اتصال — جرب كمان مرة","Connection problem"); b.disabled=false; b.textContent=A("دخول ←","Enter"); }
@@ -1597,6 +1630,7 @@ async function doEnter2(ph){
     const d=await r.json();
     if(d.ok && d.need_code){ TP.log('reg_code'); codeScreen(nm, ph); return; }
     if(d.ok && d.token){ AUTH.set({name:nm,phone:ph,token:d.token}); UNLOCKED=true; home(); return; }
+    if(d.ok && d.pending){ TP.log('reg_pending'); FX.ok(); pendingScreen(nm, ph, d.msg); return; }
     err.textContent=d.err||A("صار خطأ","Error"); b.disabled=false; b.textContent=A("ابعتلي كود التحقق ←","Send my verification code");
   }catch(e){ err.textContent=A("مشكلة اتصال","Connection problem"); b.disabled=false; b.textContent=A("ابعتلي كود التحقق ←","Send my verification code"); }
 }
